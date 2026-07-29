@@ -1,0 +1,227 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------ *
+ * Design tokens
+ * Mirrors tailwind.config.ts so plain CSS (marquee, prose, gradients)
+ * can reference the same palette.
+ * ------------------------------------------------------------------ */
+:root {
+  --brand-red: #e10600;
+  --brand-deep: #a90804;
+  --brand-soft: #fff1f0;
+  --ink: #111111;
+  --ink-soft: #6c6c6c;
+  --surface: #ffffff;
+  --surface-soft: #fafaf8;
+  --page: #f5f5f2;
+  --line: #e6e6e1;
+}
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Offset anchor targets so the sticky header never covers a heading. */
+    scroll-padding-top: 7.5rem;
+  }
+
+  body {
+    /* Warm-gray page behind the elevated white site canvas (see layout.tsx). */
+    @apply bg-surface-page text-ink font-sans antialiased;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* A single, consistent focus treatment across the whole publication. */
+  :focus-visible {
+    outline: 2px solid var(--brand-red);
+    outline-offset: 2px;
+    border-radius: 1px;
+  }
+
+  ::selection {
+    background: var(--brand-red);
+    color: #ffffff;
+  }
+
+  /* Tabular figures keep timestamps, ranks and market data from jittering. */
+  time,
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------------------------------------------------------------- *
+   * Right-to-left (Persian)
+   * ---------------------------------------------------------------- */
+
+  /* Vazirmatn carries both the Persian and Latin glyphs, so mixed strings
+     stay on one face. Applied to the serif slot too: Newsreader has no
+     Arabic coverage and would fall back inconsistently. */
+  [dir='rtl'] body,
+  [dir='rtl'] .font-serif,
+  [dir='rtl'] .font-sans {
+    font-family: var(--font-fa), 'Vazirmatn', system-ui, sans-serif;
+  }
+
+  /* Persian headlines need a little more room and no negative tracking. */
+  [dir='rtl'] h1,
+  [dir='rtl'] h2,
+  [dir='rtl'] h3 {
+    letter-spacing: 0;
+    line-height: 1.35;
+  }
+
+  [dir='rtl'] .article-body {
+    line-height: 2;
+  }
+
+  /* A Latin drop cap makes no sense in Persian. */
+  [dir='rtl'] .article-body > p:first-of-type::first-letter {
+    float: none;
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+  }
+
+  /* Mirror the animated marquee direction. */
+  [dir='rtl'] .animate-marquee {
+    animation-direction: reverse;
+  }
+}
+
+@layer components {
+  /* Page frame — 1440px editorial grid with responsive gutters. */
+  .frame {
+    @apply mx-auto w-full max-w-frame px-4 xs:px-5 sm:px-6 lg:px-10;
+  }
+
+  /* Small uppercase label used for categories, kickers and section eyebrows. */
+  .label {
+    @apply text-2xs font-semibold uppercase tracking-[0.16em];
+  }
+
+  /* Red marker that precedes section headings — a thin sharp bar. */
+  .marker::before {
+    content: '';
+    @apply mr-2.5 inline-block h-3 w-[3px] translate-y-[1px] bg-brand-red;
+  }
+
+  /* Angular red corner detail (Mirror's-Edge-inspired geometry). */
+  .corner-cut {
+    position: relative;
+  }
+  .corner-cut::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 22px;
+    height: 22px;
+    background: var(--brand-red);
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+    pointer-events: none;
+  }
+
+  /* Hairline rules used to separate editorial blocks. */
+  .rule {
+    @apply border-t border-line;
+  }
+
+  .link-underline {
+    background-image: linear-gradient(var(--brand-red), var(--brand-red));
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    transition: background-size 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .link-underline:hover,
+  .link-underline:focus-visible {
+    background-size: 100% 1px;
+  }
+}
+
+@layer utilities {
+  /* Clamp helpers for card headlines and summaries. */
+  .clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .clamp-4 {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Article body typography
+ * Scoped class rather than a plugin, so the reading experience is
+ * tuned by hand for a 680–760px measure.
+ * ------------------------------------------------------------------ */
+.article-body {
+  font-size: clamp(1.05rem, 0.95rem + 0.35vw, 1.2rem);
+  line-height: 1.8;
+  @apply text-ink;
+}
+
+.article-body > p + p {
+  @apply mt-6;
+}
+
+.article-body a {
+  @apply font-medium text-brand-deep underline decoration-brand-red/40 underline-offset-[3px] transition-colors hover:decoration-brand-red;
+}
+
+/* Drop cap on the opening paragraph — a restrained print flourish. */
+.article-body > p:first-of-type::first-letter {
+  @apply float-left mr-3 mt-1 font-serif text-[3.9rem] font-semibold leading-[0.8] text-ink;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  /* Neutralise every animation and transition for motion-sensitive users. */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Printing an article should yield a clean, ink-efficient page. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}
