@@ -18,7 +18,7 @@ export const locales: ReadonlyArray<{
   { code: 'fa', label: 'فارسی', dir: 'rtl' },
 ];
 
-export const DEFAULT_LOCALE: Locale = 'en';
+export const DEFAULT_LOCALE: Locale = 'fa';
 
 export function getDirection(locale: Locale): 'ltr' | 'rtl' {
   return locales.find((entry) => entry.code === locale)?.dir ?? 'ltr';

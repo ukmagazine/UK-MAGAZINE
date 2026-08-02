@@ -18,9 +18,9 @@ import type { Newsletter } from '@/lib/types';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = buildMetadata({
-  title: 'Newsletters',
+  title: 'خبرنامه‌ها',
   description:
-    'Five UK MAGAZINE newsletters: the Daily Brief, AI Weekly, Education Update, Global Politics and the Weekend Review. Concise, edited, and free.',
+    'پنج خبرنامهٔ یو‌کی مگزین: خلاصهٔ روزانه، هفته‌نامهٔ هوش مصنوعی، به‌روزرسانی آموزش، سیاست جهانی و مرور آخر هفته. کوتاه، ویراسته و رایگان.',
   path: '/newsletter',
 });
 
@@ -33,9 +33,9 @@ const ICONS: Record<Newsletter['icon'], typeof Newspaper> = {
 };
 
 const TRUST = [
-  { Icon: Users, label: '524,000 readers', detail: 'across all five editions' },
-  { Icon: ShieldCheck, label: 'No data sold', detail: 'ever, to anyone' },
-  { Icon: Check, label: 'One-click unsubscribe', detail: 'in every edition' },
+  { Icon: Users, label: '۵۲۴٬۰۰۰ خواننده', detail: 'در مجموع پنج خبرنامه' },
+  { Icon: ShieldCheck, label: 'بدون فروش داده', detail: 'هرگز، به هیچ‌کس' },
+  { Icon: Check, label: 'لغو عضویت با یک کلیک', detail: 'در هر شماره' },
 ];
 
 export default function NewsletterPage() {
@@ -54,17 +54,17 @@ export default function NewsletterPage() {
             <div className="lg:col-span-7">
               <p className="label mb-4 flex items-center text-brand-red">
                 <span aria-hidden="true" className="me-2 h-[3px] w-6 bg-brand-red" />
-                Newsletters
+                خبرنامه‌ها
               </p>
 
               <h1 className="max-w-2xl font-serif text-display tracking-[-0.025em] text-ink">
-                The news, edited down to what changed.
+                خبر، تا آنجا که چیزی تغییر کرده است.
               </h1>
 
               <p className="mt-6 max-w-xl text-base leading-relaxed text-ink-soft sm:text-lg">
-                Every UK MAGAZINE newsletter is written by the desk that covers the beat, edited to
-                remove everything that is not new, and sent on a schedule you can plan around. No
-                filler, no engagement tricks, and no charge.
+                هر خبرنامه را همان سرویسی می‌نویسد که آن حوزه را پوشش می‌دهد، از هر چیزی که تازه
+                نیست پیراسته می‌شود، و در زمانی می‌رسد که بتوانید رویش حساب کنید. بدون پرکننده،
+                بدون ترفند تعامل، و بدون هزینه.
               </p>
 
               <ul className="mt-9 grid grid-cols-1 gap-5 sm:grid-cols-3">
@@ -86,16 +86,16 @@ export default function NewsletterPage() {
                   className="absolute left-0 top-0 h-full w-[3px] bg-brand-red"
                 />
 
-                <p className="label mb-2 text-brand-red">Start here</p>
+                <p className="label mb-2 text-brand-red">از اینجا شروع کنید</p>
                 <h2 className="font-serif text-2xl leading-snug text-ink">
-                  Get the Daily Brief
+                  عضویت در خلاصهٔ روزانه
                 </h2>
                 <p className="mt-2.5 text-sm leading-relaxed text-ink-soft">
-                  Ten stories that moved overnight, each in under sixty words. Weekdays at 06:30
-                  local time.
+                  ده خبری که شب گذشته تغییر کرده‌اند، هرکدام در کمتر از شصت کلمه. روزهای کاری،
+                  ساعت ۶:۳۰ بامداد.
                 </p>
 
-                <NewsletterForm className="mt-6" newsletterName="the Daily Brief" />
+                <NewsletterForm className="mt-6" newsletterName="خلاصهٔ روزانه" />
               </div>
             </div>
           </div>
@@ -106,9 +106,9 @@ export default function NewsletterPage() {
         {/* Newsletter types --------------------------------- */}
         <section aria-labelledby="editions-heading">
           <SectionHeader
-            title="Five editions"
-            kicker="Choose your desks"
-            description="Each one is written by the reporters who cover the beat. Subscribe to as many as you like."
+            title="پنج خبرنامه"
+            kicker="سرویس خود را انتخاب کنید"
+            description="هرکدام را خبرنگاران همان حوزه می‌نویسند. به هر تعداد که خواستید بپیوندید."
             size="display"
             className="border-t-0 pt-0"
             as="h2"
@@ -135,7 +135,7 @@ export default function NewsletterPage() {
                       <p className="tabular shrink-0 text-end text-xs text-ink-faint">
                         {newsletter.subscribers}
                         <br />
-                        readers
+                        خواننده
                       </p>
                     </div>
 
@@ -145,7 +145,7 @@ export default function NewsletterPage() {
 
                     {/* Example content ------------------------ */}
                     <div className="mt-5 border-s-2 border-brand-red bg-surface-soft py-3 ps-4 pe-4">
-                      <p className="label mb-1.5 text-brand-red">A recent line</p>
+                      <p className="label mb-1.5 text-brand-red">از شماره‌های اخیر</p>
                       <p className="font-serif text-base leading-snug text-ink">
                         {newsletter.sample}
                       </p>
@@ -154,7 +154,7 @@ export default function NewsletterPage() {
                     <div className="mt-auto pt-6">
                       <NewsletterForm
                         newsletterName={newsletter.name}
-                        buttonLabel="Subscribe"
+                        buttonLabel="عضویت"
                         showPrivacyNote={false}
                       />
                     </div>
@@ -172,27 +172,27 @@ export default function NewsletterPage() {
         >
           <h2 id="privacy-heading" className="label mb-4 flex items-center text-brand-red">
             <span aria-hidden="true" className="me-2 h-[3px] w-5 bg-brand-red" />
-            How we handle your address
+            نشانی شما چگونه نگهداری می‌شود
           </h2>
 
           <div className="grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-3">
             <p className="text-sm leading-relaxed text-ink-soft">
-              We store your email address to send the editions you asked for, and for nothing else.
-              It is never sold, rented or shared with advertisers.
+              نشانی ایمیل شما را تنها برای فرستادن خبرنامه‌هایی که خواسته‌اید نگه می‌داریم و برای
+              هیچ کار دیگری. هرگز فروخته، اجاره یا با آگهی‌دهندگان به اشتراک گذاشته نمی‌شود.
             </p>
             <p className="text-sm leading-relaxed text-ink-soft">
-              Every edition carries a one-click unsubscribe link that takes effect immediately. You
-              do not need to tell us why, and we will not email to ask.
+              هر شماره یک پیوند لغو عضویت با یک کلیک دارد که بی‌درنگ اعمال می‌شود. لازم نیست دلیلش
+              را بگویید و ما هم ایمیلی برای پرسیدن نمی‌فرستیم.
             </p>
             <p className="text-sm leading-relaxed text-ink-soft">
-              Full details are in our{' '}
+              جزئیات کامل در{' '}
               <a
                 href="/about#privacy"
                 className="font-medium text-brand-deep underline decoration-brand-red/40 underline-offset-2 transition-colors hover:decoration-brand-red"
               >
-                privacy policy
+                سیاست حریم خصوصی
               </a>
-              . Questions go to {site.email}.
+              {' '}ما آمده است. پرسش‌ها را به {site.email} بفرستید.
             </p>
           </div>
         </section>

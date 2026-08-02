@@ -30,7 +30,9 @@ export function BookmarkButton({
   const reduced = useReducedMotion();
   const saved = isBookmarked(articleId);
 
-  const label = saved ? `Remove “${title}” from saved stories` : `Save “${title}” to read later`;
+  const label = saved
+    ? `حذف «${title}» از ذخیره‌شده‌ها`
+    : `ذخیرهٔ «${title}» برای خواندن بعدی`;
 
   if (variant === 'labelled') {
     return (
@@ -52,7 +54,7 @@ export function BookmarkButton({
         ) : (
           <Bookmark aria-hidden="true" className="h-4 w-4" />
         )}
-        <span>{saved ? 'Saved' : 'Save story'}</span>
+        <span>{saved ? 'ذخیره شد' : 'ذخیرهٔ گزارش'}</span>
       </button>
     );
   }

@@ -9,7 +9,6 @@ import { MobileMenu } from '@/components/layout/MobileMenu';
 import { useBookmarks } from '@/components/providers/BookmarksProvider';
 import { useSearch } from '@/components/providers/SearchProvider';
 import { useLocale } from '@/components/providers/LocaleProvider';
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { categoryShortName } from '@/i18n/category';
 import { fill } from '@/i18n/dictionaries';
 import { Wordmark } from '@/components/ui/Wordmark';
@@ -29,7 +28,7 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { openSearch } = useSearch();
   const { ids, hydrated } = useBookmarks();
-  const { t, locale } = useLocale();
+  const { t } = useLocale();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -61,8 +60,8 @@ export function Header() {
               scrolled ? 'h-header-sm' : 'h-header',
             )}
           >
-            {/* Wordmark + navigation, grouped on the left ---------- */}
-            <div className="flex items-center gap-3 xl:gap-8">
+            {/* Start of the row — the RIGHT edge in RTL: the section menu. */}
+            <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => setMenuOpen(true)}
@@ -73,11 +72,6 @@ export function Header() {
               >
                 <Menu aria-hidden="true" className="h-5 w-5" />
               </button>
-
-              {/* Centred over the row on mobile, flush left from xl. */}
-              <div className="absolute left-1/2 -translate-x-1/2 xl:static xl:translate-x-0">
-                <Wordmark />
-              </div>
 
             {/* Primary navigation --------------------------------- */}
             <nav aria-label={t.nav.sections} className="hidden xl:block">
@@ -96,7 +90,7 @@ export function Header() {
                           active ? 'text-ink' : 'text-ink-soft hover:text-ink',
                         )}
                       >
-                        {categoryShortName(category, locale)}
+                        {categoryShortName(category)}
                         {/* Small red dot marks the active desk; space is always
                             reserved so the row never shifts. */}
                         <span
@@ -147,7 +141,7 @@ export function Header() {
             </nav>
             </div>
 
-            {/* Utilities ------------------------------------------ */}
+            {/* Utilities + masthead — the LEFT edge in RTL. ------- */}
             <div className="flex items-center gap-0.5 sm:gap-1">
               <button
                 type="button"
@@ -178,8 +172,6 @@ export function Header() {
                 ) : null}
               </Link>
 
-              <LanguageSwitcher variant="toggle" className="ms-1 hidden sm:inline-flex" />
-
               {/* On mobile the logo is centred, so the utility cluster stays
                   lean; Subscribe lives in the slide-in menu below sm. */}
               <Link
@@ -188,6 +180,12 @@ export function Header() {
               >
                 {t.nav.subscribe}
               </Link>
+
+              {/* Last in the row, so the masthead lands on the LEFT edge in
+                  RTL — at every width, which is what the brand asks for. */}
+              <div className="ms-2 shrink-0 xl:ms-6">
+                <Wordmark />
+              </div>
             </div>
           </div>
         </div>

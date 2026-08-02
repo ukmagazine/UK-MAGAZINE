@@ -7,6 +7,7 @@ import { useMemo } from 'react';
 import { ArticleCard } from '@/components/article/ArticleCard';
 import { useBookmarks } from '@/components/providers/BookmarksProvider';
 import { useLocale } from '@/components/providers/LocaleProvider';
+import { formatCount } from '@/lib/format';
 import type { CardArticle } from '@/lib/types';
 
 interface BookmarksListProps {
@@ -82,7 +83,7 @@ export function BookmarksList({ articles }: BookmarksListProps) {
     <>
       <div className="mb-7 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-5">
         <p aria-live="polite" className="tabular text-xs uppercase tracking-[0.14em] text-ink-faint">
-          {saved.length}{' '}
+          {formatCount(saved.length)}{' '}
           {saved.length === 1 ? t.bookmarks.savedCount : t.bookmarks.savedCountPlural}
         </p>
 

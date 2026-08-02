@@ -12,7 +12,7 @@ interface RelatedStoriesProps {
 /** Three related stories, shown beneath the article body. */
 export function RelatedStories({
   articles,
-  title = 'More on this story',
+  title = 'بیشتر دربارهٔ این موضوع',
   className,
 }: RelatedStoriesProps) {
   if (articles.length === 0) return null;

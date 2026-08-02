@@ -27,7 +27,13 @@ export function Wordmark({
   markOnly = false,
 }: WordmarkProps) {
   const content = (
-    <span className={cn('group/mark inline-flex items-baseline gap-3', className)}>
+    // The mark is laid out left-to-right even on this right-to-left page: it is
+    // a Latin brand lockup, and the red slash belongs at its leading edge.
+    // Without this the RTL flow puts the slash after the name.
+    <span
+      dir="ltr"
+      className={cn('group/mark inline-flex items-baseline gap-2 xs:gap-3', className)}
+    >
       {/*
         Angular red slash — the brand's geometric signature.
         A gradient gives it depth and a specular highlight sweeps across on a
@@ -48,7 +54,7 @@ export function Wordmark({
       {markOnly ? null : (
         <span
           className={cn(
-            'font-serif text-lg leading-none tracking-[-0.02em] xs:text-[1.375rem] sm:text-2xl',
+            'whitespace-nowrap font-serif text-base leading-none tracking-[-0.02em] xs:text-[1.375rem] sm:text-2xl',
             inverted ? 'text-white' : 'text-ink',
           )}
         >

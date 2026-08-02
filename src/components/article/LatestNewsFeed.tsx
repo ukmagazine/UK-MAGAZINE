@@ -75,7 +75,7 @@ export function LatestNewsFeed({
               </h3>
 
               <p className="mt-1.5 text-xs text-ink-soft">
-                {article.author.name} · <RelativeTime iso={article.publishedAt} />
+                <RelativeTime iso={article.publishedAt} />
               </p>
             </div>
 

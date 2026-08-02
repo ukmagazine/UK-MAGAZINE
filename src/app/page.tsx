@@ -54,7 +54,7 @@ export default function HomePage() {
         {/* Latest · feature · most read · newsletter ------------- */}
         <section
           id="latest"
-          /* Explicit fractions rather than 12-col spans: a 2-of-12 "Most read"
+          /* Explicit fractions rather than 12-col spans: a 2-of-12 "پربازدیدترین"
              column was only 189px, which wrapped its headlines into a 1335px
              tower and stretched every sibling to match. */
           className="mt-16 grid scroll-mt-32 grid-cols-1 gap-x-8 gap-y-12 sm:mt-20 md:grid-cols-2 lg:grid-cols-[2.5fr_4fr_2.5fr_3fr]"
@@ -80,16 +80,16 @@ export default function HomePage() {
           ) : null}
 
           {/* Most read — red ranking */}
-          <aside aria-label="Most read">
+          <aside aria-label="پربازدیدترین">
             <TrendingList articles={mostRead} />
           </aside>
 
           {/* Newsletter — rich red accent block */}
-          <aside aria-label="Newsletter">
+          <aside aria-label="خبرنامه">
             <NewsletterCard
               variant="panel"
-              title="The stories that shape our world"
-              description="Curated insights, delivered daily."
+              title="گزارش‌هایی که جهان ما را شکل می‌دهند"
+              description="گزیده‌ای از مهم‌ترین‌ها، هر روز."
             />
           </aside>
         </section>
@@ -135,13 +135,13 @@ export default function HomePage() {
 
         {/* Education -------------------------------------------- */}
         <section className="mt-12 sm:mt-16" aria-labelledby="education-heading">
-          <SectionHeader title="Education" titleKey="education" href="/category/education" />
+          <SectionHeader title="آموزش" titleKey="education" href="/category/education" />
           <ArticleGrid articles={education} columns={3} divided />
         </section>
 
         {/* Politics and World ----------------------------------- */}
         <section className="mt-12 sm:mt-16" aria-labelledby="politics-heading">
-          <SectionHeader title="Politics and World" titleKey="politicsWorld" href="/category/politics" />
+          <SectionHeader title="سیاست و جهان" titleKey="politicsWorld" href="/category/politics" />
           <ArticleGrid
             articles={politicsWorld}
             columns={4}
@@ -151,24 +151,29 @@ export default function HomePage() {
         </section>
       </div>
 
-      {/* Editor's picks — row of elevated editorial cards -------- */}
-      <section className="frame mt-12 sm:mt-16" aria-labelledby="picks-heading">
-        {/* The row renders its own section rule so the scroll controls can
-            sit on it. Card projection only — bodies stay server-side. */}
-        <EditorsPicksRow articles={toCardArticles(editorsPicks)} />
-      </section>
+      {/* Editor's picks — row of elevated editorial cards --------
+          Skipped entirely when empty: a section rule and heading standing over
+          nothing reads as a broken page, which is exactly what an automated
+          feed with no editorial flags would produce. */}
+      {editorsPicks.length > 0 ? (
+        <section className="frame mt-12 sm:mt-16" aria-labelledby="picks-heading">
+          {/* The row renders its own section rule so the scroll controls can
+              sit on it. Card projection only — bodies stay server-side. */}
+          <EditorsPicksRow articles={toCardArticles(editorsPicks)} />
+        </section>
+      ) : null}
 
       <div className="frame">
         {/* Science and Environment — image cards ---------------- */}
         <section className="mt-12 sm:mt-16" aria-labelledby="science-heading">
-          <SectionHeader title="Science and Environment" titleKey="scienceEnvironment" href="/category/science" />
+          <SectionHeader title="علم و محیط زیست" titleKey="scienceEnvironment" href="/category/science" />
           <ArticleGrid articles={scienceEnvironment} variant="image" columns={3} />
         </section>
 
         {/* Business --------------------------------------------- */}
         {businessLead ? (
           <section className="mt-12 sm:mt-16" aria-labelledby="business-heading">
-            <SectionHeader title="Business" titleKey="business" href="/category/business" />
+            <SectionHeader title="اقتصاد" titleKey="business" href="/category/business" />
 
             <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-12">
               <Reveal className="lg:col-span-5">
@@ -194,7 +199,7 @@ export default function HomePage() {
         {/* Culture — magazine layout ---------------------------- */}
         {cultureLead ? (
           <section className="mt-12 sm:mt-16" aria-labelledby="culture-heading">
-            <SectionHeader title="Culture" titleKey="culture" href="/category/culture" />
+            <SectionHeader title="فرهنگ" titleKey="culture" href="/category/culture" />
 
             <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-12">
               <Reveal className="lg:col-span-7">
@@ -223,8 +228,9 @@ export default function HomePage() {
         ) : null}
 
         {/* In depth --------------------------------------------- */}
+        {inDepth.length > 0 ? (
         <section className="mt-12 sm:mt-16" aria-labelledby="indepth-heading">
-          <SectionHeader title="In depth" href="/search?q=analysis" linkLabel="Browse long reads" />
+          <SectionHeader title="پرونده" href="/search?q=analysis" linkLabel="مرور گزارش‌های بلند" />
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
             {inDepth.map((article, index) => (
@@ -244,13 +250,14 @@ export default function HomePage() {
             href="/search?q=analysis"
             className="group mt-8 inline-flex min-h-[44px] items-center gap-2 text-sm font-semibold text-ink transition-colors hover:text-brand-red"
           >
-            <span className="link-underline">Browse every long read</span>
+            <span className="link-underline">مرور همهٔ گزارش‌های بلند</span>
             <ArrowRight
               aria-hidden="true"
               className="h-4 w-4 transition-transform duration-300 ease-editorial group-hover:translate-x-1 rtl:-scale-x-100"
             />
           </Link>
         </section>
+        ) : null}
       </div>
 
       {/* Newsletter ------------------------------------------- */}

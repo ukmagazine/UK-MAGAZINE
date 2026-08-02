@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import type { CardCategory } from '@/lib/types';
-import { useLocale } from '@/components/providers/LocaleProvider';
 import { categoryShortName } from '@/i18n/category';
 import { cn } from '@/lib/utils';
 
@@ -22,7 +21,6 @@ export function CategoryLabel({
   inverted = false,
   asText = false,
 }: CategoryLabelProps) {
-  const { locale } = useLocale();
   const classes = cn(
     // `py-2 -my-2` grows the tap target without altering the visual rhythm.
     'label inline-flex items-center gap-1.5 transition-colors',
@@ -37,7 +35,7 @@ export function CategoryLabel({
         aria-hidden="true"
         className={cn('h-[3px] w-3 shrink-0', inverted ? 'bg-white' : 'bg-brand-red')}
       />
-      {categoryShortName(category, locale)}
+      {categoryShortName(category)}
     </>
   );
 

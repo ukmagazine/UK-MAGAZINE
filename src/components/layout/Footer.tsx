@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { Linkedin, Rss, Youtube } from 'lucide-react';
 import { NewsletterForm } from '@/components/newsletter/NewsletterForm';
 import { Wordmark } from '@/components/ui/Wordmark';
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { useLocale } from '@/components/providers/LocaleProvider';
 import { categoryShortName } from '@/i18n/category';
 import { categories } from '@/data/categories';
@@ -28,7 +27,7 @@ function XIcon({ className }: { className?: string }) {
 
 /** Dark charcoal footer with restrained red accents. */
 export function Footer() {
-  const { t, locale } = useLocale();
+  const { t } = useLocale();
   const year = new Date(Date.parse('2026-01-01T00:00:00.000Z')).getUTCFullYear();
 
   return (
@@ -71,7 +70,7 @@ export function Footer() {
                       href={`/category/${category.slug}`}
                       className="inline-flex min-h-[44px] items-center text-sm text-white/75 transition-colors hover:text-brand-red"
                     >
-                      {categoryShortName(category, locale)}
+                      {categoryShortName(category)}
                     </Link>
                   </li>
                 ))}
@@ -137,8 +136,6 @@ export function Footer() {
           </div>
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-            <LanguageSwitcher inverted variant="select" />
-
             <p className="text-xs text-white/45">
               © {year} {site.name}. {t.footer.copyright}
             </p>

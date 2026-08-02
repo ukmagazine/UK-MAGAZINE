@@ -13,6 +13,7 @@ import { categories } from '@/data/categories';
 import { formatShortDate } from '@/lib/format';
 import type { SearchPreviewItem } from '@/lib/search-index';
 import { cn } from '@/lib/utils';
+import { normalizePersian, normalizeTerms } from '@/lib/persian';
 
 interface SearchOverlayProps {
   /**
@@ -41,7 +42,7 @@ export function SearchOverlay({ articles, suggestions }: SearchOverlayProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const [query, setQuery] = useState('');
-  const { t, locale } = useLocale();
+  const { t } = useLocale();
 
   // Stay mounted for the exit animation, then unmount for certain.
   const { present, entered } = usePresence(open, EXIT_MS, Boolean(reduced));
@@ -95,18 +96,19 @@ export function SearchOverlay({ articles, suggestions }: SearchOverlayProps) {
 
   // Lightweight client-side preview over titles, summaries and tags.
   const results = useMemo(() => {
-    const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+    const terms = normalizeTerms(query);
     if (terms.length === 0) return [];
 
     return articles
       .map((article) => {
-        const haystack = `${article.title} ${article.summary} ${article.tags.join(' ')} ${
-          article.categoryName
-        }`.toLowerCase();
+        const haystack = normalizePersian(
+          `${article.title} ${article.summary} ${article.tags.join(' ')} ${article.categoryName}`,
+        );
+        const title = normalizePersian(article.title);
         const score = terms.reduce(
           (total, term) =>
             total +
-            (article.title.toLowerCase().includes(term) ? 10 : 0) +
+            (title.includes(term) ? 10 : 0) +
             (haystack.includes(term) ? 3 : 0),
           0,
         );
@@ -217,7 +219,7 @@ export function SearchOverlay({ articles, suggestions }: SearchOverlayProps) {
                               onClick={closeSearch}
                               className="inline-flex min-h-[44px] items-center border border-line px-3 text-sm text-ink-soft transition-colors hover:border-ink hover:text-brand-red"
                             >
-                              {categoryShortName(category, locale)}
+                              {categoryShortName(category)}
                             </Link>
                           </li>
                         ))}

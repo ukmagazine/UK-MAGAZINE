@@ -15,7 +15,7 @@ export function NextArticleNav({ previous, next, className }: NextArticleNavProp
 
   return (
     <nav
-      aria-label="Previous and next articles"
+      aria-label="گزارش پیشین و پسین"
       className={cn('grid grid-cols-1 border-y border-line sm:grid-cols-2', className)}
     >
       {previous ? (
@@ -28,7 +28,7 @@ export function NextArticleNav({ previous, next, className }: NextArticleNavProp
               aria-hidden="true"
               className="h-3.5 w-3.5 transition-transform duration-300 ease-editorial group-hover:-translate-x-1 rtl:-scale-x-100"
             />
-            Newer story
+            گزارش تازه‌تر
           </span>
           <span className="font-serif text-lg leading-snug text-ink transition-colors group-hover:text-brand-red">
             {previous.title}
@@ -44,7 +44,7 @@ export function NextArticleNav({ previous, next, className }: NextArticleNavProp
           className="group flex flex-col items-start gap-2 p-5 transition-colors hover:bg-surface-soft sm:items-end sm:p-7 sm:text-end"
         >
           <span className="label inline-flex items-center gap-1.5 text-ink-soft">
-            Older story
+            گزارش پیشین
             <ArrowRight
               aria-hidden="true"
               className="h-3.5 w-3.5 transition-transform duration-300 ease-editorial group-hover:translate-x-1 rtl:-scale-x-100"

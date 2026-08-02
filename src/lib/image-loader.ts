@@ -14,8 +14,42 @@ import type { ImageLoaderProps } from 'next/image';
  * Local files (anything starting with `/`) are passed through untouched, so
  * dropping images into `public/` still works.
  */
+/**
+ * WordPress-hosted media.
+ *
+ * WordPress is not an image CDN — it ignores `?w=` entirely and would serve the
+ * full-size original for every variant, which is exactly the 1.3 MB-per-thumbnail
+ * problem the custom loader exists to avoid. What it *does* do is pre-generate
+ * fixed sizes on upload, named `file-WIDTHxHEIGHT.ext`.
+ *
+ * The adapter records which of those exist in a `#wp=` fragment (a fragment
+ * because it never reaches the server, so the URL still resolves if this is
+ * ignored). Here we pick the smallest generated size that covers the request.
+ */
+function wordPressVariant(src: string, width: number): string | null {
+  const hash = src.indexOf('#wp=');
+  if (hash === -1) return null;
+
+  const base = src.slice(0, hash);
+  const sizes = src
+    .slice(hash + 4)
+    .split(',')
+    .map((label) => ({ label, width: Number.parseInt(label, 10) }))
+    .filter((size) => Number.isFinite(size.width))
+    .sort((a, b) => a.width - b.width);
+
+  const match = sizes.find((size) => size.width >= width);
+  // Wider than anything WordPress generated → the original is the only option.
+  if (!match) return base;
+
+  return base.replace(/(\.[a-z0-9]+)(?=$|\?)/i, `-${match.label}$1`);
+}
+
 export default function imageLoader({ src, width, quality }: ImageLoaderProps): string {
   if (src.startsWith('/')) return src;
+
+  const fromWordPress = wordPressVariant(src, width);
+  if (fromWordPress) return fromWordPress;
 
   try {
     const url = new URL(src);

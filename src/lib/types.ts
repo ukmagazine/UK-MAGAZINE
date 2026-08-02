@@ -22,9 +22,6 @@ export interface Category {
   name: string;
   /** Short label used where horizontal space is tight (nav, chips). */
   shortName: string;
-  /** Persian desk name, used when the interface language is Farsi. */
-  nameFa: string;
-  shortNameFa: string;
   /** One-sentence description shown on the category landing page. */
   description: string;
   /** Longer positioning statement for the category hero. */
@@ -114,10 +111,7 @@ export interface ResolvedArticle extends Article {
 }
 
 /** The category fields a card needs — not the standfirst or topic list. */
-export type CardCategory = Pick<
-  Category,
-  'slug' | 'name' | 'shortName' | 'nameFa' | 'shortNameFa'
->;
+export type CardCategory = Pick<Category, 'slug' | 'name' | 'shortName'>;
 
 /** The author fields a card needs — not the full biography. */
 export type CardAuthor = Pick<Author, 'id' | 'name' | 'initials' | 'role'>;

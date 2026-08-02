@@ -8,6 +8,7 @@ import { ArticleCard } from '@/components/article/ArticleCard';
 import { categories } from '@/data/categories';
 import { useLocale } from '@/components/providers/LocaleProvider';
 import { categoryShortName } from '@/i18n/category';
+import { formatCount } from '@/lib/format';
 import { searchCards } from '@/lib/search-cards';
 import type { CardArticle, CategorySlug, DateRange, SortOrder } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -43,7 +44,7 @@ export function SearchResults({ articles }: SearchResultsProps) {
   const router = useRouter();
   const params = useSearchParams();
   const reduced = useReducedMotion();
-  const { t, locale } = useLocale();
+  const { t } = useLocale();
 
   const queryParam = params.get('q') ?? '';
 
@@ -190,7 +191,7 @@ export function SearchResults({ articles }: SearchResultsProps) {
                     : 'border-line text-ink-soft hover:border-ink hover:text-ink',
                 )}
               >
-                {categoryShortName(category, locale)}
+                {categoryShortName(category)}
               </button>
             );
           })}
@@ -224,7 +225,8 @@ export function SearchResults({ articles }: SearchResultsProps) {
         ) : (
           <>
             <p aria-live="polite" className="tabular mb-7 text-xs uppercase tracking-[0.14em] text-ink-faint">
-              {results.length} {results.length === 1 ? t.search.result : t.search.results} — “{queryParam}”
+              {formatCount(results.length)}{' '}
+              {results.length === 1 ? t.search.result : t.search.results} — “{queryParam}”
             </p>
 
             <div className="grid grid-cols-1 gap-x-6 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">

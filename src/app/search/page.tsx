@@ -5,9 +5,9 @@ import { getAllArticles, toCardArticles } from '@/lib/articles';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = buildMetadata({
-  title: 'Search',
+  title: 'جست‌وجو',
   description:
-    'Search every UK MAGAZINE story by headline, topic or desk — across AI, education, technology, politics, world, business, science, culture, health and the environment.',
+    'جست‌وجو در همهٔ گزارش‌های یو‌کی مگزین بر پایهٔ تیتر، موضوع یا سرویس — در هوش مصنوعی، آموزش، فناوری، سیاست، جهان، اقتصاد، علم، فرهنگ، سلامت و محیط زیست.',
   path: '/search',
   // Search result pages should not be indexed.
   noIndex: true,
@@ -31,11 +31,11 @@ function SearchFallback() {
       <div className="mx-auto max-w-3xl text-center">
         <p className="label mb-3 flex items-center justify-center text-brand-red">
           <span aria-hidden="true" className="me-2 h-[3px] w-6 bg-brand-red" />
-          Search
+          جست‌وجو
         </p>
-        <h1 className="font-serif text-display tracking-[-0.025em] text-ink">Find a story</h1>
+        <h1 className="font-serif text-display tracking-[-0.025em] text-ink">یافتن یک گزارش</h1>
         <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-ink-soft">
-          Loading search…
+          در حال بارگذاری جست‌وجو…
         </p>
       </div>
     </div>

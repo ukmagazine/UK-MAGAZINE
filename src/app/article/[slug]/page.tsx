@@ -5,7 +5,6 @@ import { ChevronRight, ListChecks } from 'lucide-react';
 import type { Metadata } from 'next';
 import { ArticleBadge } from '@/components/article/ArticleBadge';
 import { ArticleBody, extractHeadings } from '@/components/article/ArticleBody';
-import { AuthorCard } from '@/components/article/AuthorCard';
 import { BookmarkButton } from '@/components/article/BookmarkButton';
 import { NextArticleNav } from '@/components/article/NextArticleNav';
 import { ReadingProgress } from '@/components/article/ReadingProgress';
@@ -14,9 +13,9 @@ import { ShareButtons } from '@/components/article/ShareButtons';
 import { SmartBriefing } from '@/components/article/SmartBriefing';
 import { TableOfContents } from '@/components/article/TableOfContents';
 import { NewsletterCard } from '@/components/newsletter/NewsletterCard';
-import { AuthorAvatar } from '@/components/ui/AuthorAvatar';
 import { RelativeTime } from '@/components/ui/RelativeTime';
 import { articles } from '@/data/articles';
+import { site } from '@/data/site';
 import {
   getAdjacent,
   getArticleBySlug,
@@ -46,8 +45,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!article) {
     return buildMetadata({
-      title: 'Story not found',
-      description: 'The story you are looking for is not available.',
+      title: 'گزارش پیدا نشد',
+      description: 'گزارشی که دنبالش هستید در دسترس نیست.',
       path: `/article/${slug}`,
       noIndex: true,
     });
@@ -61,7 +60,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     type: 'article',
     publishedTime: article.publishedAt,
     modifiedTime: article.updatedAt ?? article.publishedAt,
-    authors: [article.author.name],
+    authors: [site.name],
     section: article.categoryRef.name,
     tags: article.tags,
   });
@@ -83,7 +82,7 @@ export default async function ArticlePage({ params }: PageProps) {
   const path = `/article/${article.slug}`;
 
   const trail = [
-    { name: 'Home', path: '/' },
+    { name: 'خانه', path: '/' },
     { name: article.categoryRef.name, path: `/category/${article.category}` },
     { name: article.title, path },
   ];
@@ -100,7 +99,7 @@ export default async function ArticlePage({ params }: PageProps) {
       >
         <h2 id="key-facts-heading" className="label mb-4 flex items-center gap-2 text-brand-red">
           <ListChecks aria-hidden="true" className="h-3.5 w-3.5" />
-          Key takeaways
+          نکته‌های کلیدی
         </h2>
         <ul className="space-y-3.5">
           {article.keyFacts.map((fact) => (
@@ -126,14 +125,14 @@ export default async function ArticlePage({ params }: PageProps) {
       <article className="frame pb-4 pt-8 sm:pt-10">
         {/* Header ---------------------------------------------- */}
         <header className="mx-auto max-w-3xl">
-          <nav aria-label="Breadcrumb" className="mb-6">
+          <nav aria-label="مسیر راهبری" className="mb-6">
             <ol className="flex flex-wrap items-center gap-1 text-xs text-ink-soft">
               <li>
                 <Link
                   href="/"
                   className="inline-flex min-h-[44px] items-center transition-colors hover:text-brand-red"
                 >
-                  Home
+                  خانه
                 </Link>
               </li>
               <li aria-hidden="true">
@@ -177,12 +176,16 @@ export default async function ArticlePage({ params }: PageProps) {
 
           {/* Byline ------------------------------------------- */}
           <div className="mt-7 flex flex-wrap items-center justify-between gap-x-6 gap-y-4 border-y border-line py-4">
-            <div className="flex items-center gap-3">
-              <AuthorAvatar author={article.author} size="md" />
-              <div className="text-sm">
-                <p className="font-medium text-ink">{article.author.name}</p>
-                <p className="text-xs text-ink-soft">{article.author.role}</p>
-              </div>
+            <div className="flex items-center gap-2.5">
+              <span
+                aria-hidden="true"
+                className="h-[1.15em] w-[0.62em] shrink-0 bg-brand-red"
+                style={{ clipPath: 'polygon(46% 0, 100% 0, 54% 100%, 0 100%)' }}
+              />
+              <p className="text-sm">
+                <span className="text-ink-soft">نوشتهٔ </span>
+                <span className="font-medium text-ink">{article.author.name}</span>
+              </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-soft">
@@ -193,7 +196,7 @@ export default async function ArticlePage({ params }: PageProps) {
                     ·
                   </span>
                   <span>
-                    Updated <RelativeTime iso={article.updatedAt} />
+                    به‌روزرسانی <RelativeTime iso={article.updatedAt} />
                   </span>
                 </>
               ) : null}
@@ -228,9 +231,10 @@ export default async function ArticlePage({ params }: PageProps) {
               style={{ clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }}
             />
           </div>
-          <figcaption className="mt-2.5 flex flex-wrap items-baseline gap-x-2 border-s-2 border-brand-red ps-3 text-sm text-ink-soft">
-            <span>{article.imageAlt}</span>
-            <span className="text-xs text-ink-faint">{article.imageCredit}</span>
+          {/* Caption only. Imagery is the publication's own, so there is no
+              third party to credit. */}
+          <figcaption className="mt-2.5 border-s-2 border-brand-red ps-3 text-sm text-ink-soft">
+            {article.imageAlt}
           </figcaption>
         </figure>
 
@@ -239,7 +243,7 @@ export default async function ArticlePage({ params }: PageProps) {
           {/* Left rail — key takeaways (desktop only) --------- */}
           <aside
             className="hidden xl:block"
-            aria-label="Key takeaways"
+            aria-label="نکته‌های کلیدی"
           >
             {keyFactsPanel ? (
               <div className="sticky top-28">{keyFactsPanel}</div>
@@ -266,7 +270,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
               {/* Tags ---------------------------------------- */}
               <div className="mt-10 border-t border-line pt-6">
-                <h2 className="label mb-3 text-ink-soft">Filed under</h2>
+                <h2 className="label mb-3 text-ink-soft">ثبت‌شده در</h2>
                 <ul className="flex flex-wrap gap-2">
                   {article.tags.map((tag) => (
                     <li key={tag}>
@@ -286,7 +290,6 @@ export default async function ArticlePage({ params }: PageProps) {
                 <BookmarkButton articleId={article.id} title={article.title} variant="labelled" />
               </div>
 
-              <AuthorCard author={article.author} className="mt-10" />
 
               {/* Newsletter appears inline on mobile, in the rail on desktop. */}
               <NewsletterCard variant="rail" className="mt-10 lg:hidden" headingLevel="h2" />
@@ -296,7 +299,7 @@ export default async function ArticlePage({ params }: PageProps) {
           {/* Right rail ------------------------------------- */}
           <aside
             className="hidden lg:col-span-4 lg:block xl:col-span-1"
-            aria-label="Article tools and further reading"
+            aria-label="ابزارها و خواندنی‌های بیشتر"
           >
             <div className="sticky top-28 space-y-8 border-s border-line ps-8 xl:ps-6">
               {headings.length > 1 ? <TableOfContents headings={headings} /> : null}
@@ -304,7 +307,7 @@ export default async function ArticlePage({ params }: PageProps) {
               <div>
                 <h2 className="label mb-3 flex items-center text-ink">
                   <span aria-hidden="true" className="me-2 h-[3px] w-5 bg-brand-red" />
-                  Share
+                  هم‌رسانی
                 </h2>
                 <ShareButtons title={article.title} path={path} />
               </div>
@@ -312,7 +315,7 @@ export default async function ArticlePage({ params }: PageProps) {
               <div>
                 <h2 className="label mb-4 flex items-center border-t border-line pt-5 text-ink">
                   <span aria-hidden="true" className="me-2 h-[3px] w-5 bg-brand-red" />
-                  Most read
+                  پربازدیدترین
                 </h2>
                 <ol className="space-y-4">
                   {mostRead.map((item, rank) => (

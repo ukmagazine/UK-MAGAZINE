@@ -51,12 +51,12 @@ export function ShareButtons({
   const encodedTitle = encodeURIComponent(title);
   const shareTargets = [
     {
-      label: 'Share on LinkedIn',
+      label: 'هم‌رسانی در لینکدین',
       href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(path)}`,
       Icon: Linkedin,
     },
     {
-      label: 'Share by email',
+      label: 'ارسال با ایمیل',
       href: `mailto:?subject=${encodedTitle}&body=${encodedTitle}%20${encodeURIComponent(path)}`,
       Icon: Mail,
     },
@@ -73,7 +73,7 @@ export function ShareButtons({
         className,
       )}
     >
-      <span className="label sr-only">Share this article</span>
+      <span className="label sr-only">هم‌رسانی این گزارش</span>
 
       {shareTargets.map(({ label, href, Icon }) => (
         <a
@@ -91,7 +91,7 @@ export function ShareButtons({
       <button
         type="button"
         onClick={nativeShare}
-        aria-label="Share this article"
+        aria-label="هم‌رسانی این گزارش"
         className={cn(buttonClass, 'sm:hidden')}
       >
         <Share2 aria-hidden="true" className="h-4 w-4" />
@@ -100,7 +100,7 @@ export function ShareButtons({
       <button
         type="button"
         onClick={copyLink}
-        aria-label={copied ? 'Link copied to clipboard' : 'Copy link to this article'}
+        aria-label={copied ? 'پیوند در حافظه کپی شد' : 'کپی پیوند این گزارش'}
         className={cn(buttonClass, copied && 'border-brand-red text-brand-red')}
       >
         <AnimatePresence mode="wait" initial={false}>
@@ -123,7 +123,7 @@ export function ShareButtons({
 
       {/* Announced to screen readers without moving focus. */}
       <span aria-live="polite" className="sr-only">
-        {copied ? 'Link copied to clipboard' : ''}
+        {copied ? 'پیوند در حافظه کپی شد' : ''}
       </span>
     </div>
   );

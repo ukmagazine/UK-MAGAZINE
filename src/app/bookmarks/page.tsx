@@ -5,7 +5,7 @@ import { getAllArticles, toCardArticles } from '@/lib/articles';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = buildMetadata({
-  title: 'Saved stories',
+  title: 'گزارش‌های ذخیره‌شده',
   description:
     'Stories you have saved to read later. Bookmarks are stored in your browser — no account needed.',
   path: '/bookmarks',
@@ -29,14 +29,14 @@ export default function BookmarksPage() {
         <div className="frame relative py-9 sm:py-12">
           <p className="label mb-3 flex items-center text-brand-red">
             <span aria-hidden="true" className="me-2 h-[3px] w-6 bg-brand-red" />
-            Your library
+            کتابخانهٔ شما
           </p>
 
-          <h1 className="font-serif text-display tracking-[-0.025em] text-ink">Saved stories</h1>
+          <h1 className="font-serif text-display tracking-[-0.025em] text-ink">گزارش‌های ذخیره‌شده</h1>
 
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-ink-soft sm:text-lg">
-            Everything you have bookmarked, kept in this browser. Nothing is sent to a server, and
-            your list survives a refresh.
+            هر آنچه نشان کرده‌اید، در همین مرورگر نگه داشته می‌شود. چیزی به سرور فرستاده نمی‌شود
+            و فهرست شما پس از بازخوانی صفحه باقی می‌ماند.
           </p>
         </div>
       </header>
@@ -47,8 +47,8 @@ export default function BookmarksPage() {
 
       <div className="frame">
         <NewsletterCard
-          title="Never lose a story again"
-          description="The Daily Brief lands every weekday morning with the ten stories that moved overnight — and a line on why each matters."
+          title="دیگر هیچ گزارشی را از دست ندهید"
+          description="خلاصهٔ روزانه هر بامداد کاری با ده گزارشی که شب گذشته تغییر کرده‌اند می‌رسد — و یک جمله دربارهٔ اهمیت هرکدام."
         />
       </div>
     </>

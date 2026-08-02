@@ -1,6 +1,7 @@
 import { articles } from '@/data/articles';
 import { getAuthor } from '@/data/authors';
 import { categories, getCategory } from '@/data/categories';
+import { normalizePersian, normalizeTerms } from '@/lib/persian';
 import type {
   Article,
   CardArticle,
@@ -17,12 +18,17 @@ import type {
  * later means reimplementing this module and nothing else.
  */
 
-/** Attach the author and category records an article refers to by id. */
+/**
+ * Attach the byline and category records an article refers to.
+ *
+ * The byline is always the publication's own — see `data/authors.ts` — so only
+ * the category can fail to resolve, and that is a content error worth stopping
+ * the build for.
+ */
 export function resolve(article: Article): ResolvedArticle {
-  const author = getAuthor(article.authorId);
+  const author = getAuthor();
   const categoryRef = getCategory(article.category);
 
-  if (!author) throw new Error(`Unknown author "${article.authorId}" on article "${article.id}"`);
   if (!categoryRef) throw new Error(`Unknown category "${article.category}" on article "${article.id}"`);
 
   return { ...article, author, categoryRef };
@@ -62,8 +68,6 @@ export function toCardArticle(article: ResolvedArticle): CardArticle {
       slug: article.categoryRef.slug,
       name: article.categoryRef.name,
       shortName: article.categoryRef.shortName,
-      nameFa: article.categoryRef.nameFa,
-      shortNameFa: article.categoryRef.shortNameFa,
     },
   };
 }
@@ -112,24 +116,70 @@ export function getLatest(limit = 8, excludeIds: string[] = []): ResolvedArticle
   );
 }
 
+/**
+ * Editorial flags are a human's job, and the WordPress pipeline does not set
+ * them: a feed of automated posts has `featured`, `trending`, `editorsPick` and
+ * `inDepth` all false. Left unhandled that empties three homepage sections and
+ * leaves their headings stranded over nothing.
+ *
+ * So each of these falls back to a signal we genuinely have, rather than to an
+ * empty list. A human promoting stories in WordPress always wins; the fallback
+ * only fills the gap until someone does.
+ */
+
+/** Flagged as trending, else simply the newest — what is moving right now. */
 export function getTrending(limit = 5): ResolvedArticle[] {
-  return resolveAll(articles.filter((article) => article.trending).slice(0, limit));
+  const flagged = articles.filter((article) => article.trending);
+  const pool = flagged.length > 0 ? flagged : articles;
+  return resolveAll(pool.slice(0, limit));
 }
 
-/** Ranked by readership — powers the numbered "Most read" list. */
+/**
+ * Ranked by readership. With no analytics every `reads` is 0, so the secondary
+ * sort by date is what actually orders the list — recency is a defensible
+ * stand-in, and the numbers are never shown to the reader.
+ */
 export function getMostRead(limit = 5, categorySlug?: CategorySlug): ResolvedArticle[] {
   const pool = categorySlug
     ? articles.filter((article) => article.category === categorySlug)
     : articles;
-  return resolveAll([...pool].sort((a, b) => b.reads - a.reads).slice(0, limit));
+  return resolveAll(
+    [...pool]
+      .sort((a, b) => b.reads - a.reads || Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
+      .slice(0, limit),
+  );
 }
 
+/**
+ * Flagged picks, else the newest story from each desk — which gives the row the
+ * spread across subjects that makes a picks rail worth reading.
+ */
 export function getEditorsPicks(limit = 4): ResolvedArticle[] {
-  return resolveAll(articles.filter((article) => article.editorsPick).slice(0, limit));
+  const flagged = articles.filter((article) => article.editorsPick);
+  if (flagged.length > 0) return resolveAll(flagged.slice(0, limit));
+
+  const seenDesks = new Set<CategorySlug>();
+  const spread = articles.filter((article) => {
+    if (seenDesks.has(article.category)) return false;
+    seenDesks.add(article.category);
+    return true;
+  });
+  return resolveAll(spread.slice(0, limit));
 }
 
+/**
+ * Flagged long reads, else the longest — reading time is derived from the body,
+ * so "in depth" is one of the few editorial judgements we can actually measure.
+ */
 export function getInDepth(limit = 3): ResolvedArticle[] {
-  return resolveAll(articles.filter((article) => article.inDepth).slice(0, limit));
+  const flagged = articles.filter((article) => article.inDepth);
+  if (flagged.length > 0) return resolveAll(flagged.slice(0, limit));
+
+  return resolveAll(
+    [...articles]
+      .sort((a, b) => b.readingTime - a.readingTime)
+      .slice(0, limit),
+  );
 }
 
 export function getByKind(kind: Article['kind'], limit = 4): ResolvedArticle[] {
@@ -176,9 +226,9 @@ export function getAdjacent(article: Article): {
 }
 
 export function getArticlesByTag(tag: string, limit?: number): ResolvedArticle[] {
-  const lower = tag.toLowerCase();
+  const wanted = normalizePersian(tag);
   const list = articles.filter((article) =>
-    article.tags.some((candidate) => candidate.toLowerCase() === lower),
+    article.tags.some((candidate) => normalizePersian(candidate) === wanted),
   );
   return resolveAll(typeof limit === 'number' ? list.slice(0, limit) : list);
 }
@@ -227,10 +277,10 @@ const RANGE_MS: Record<Exclude<DateRange, 'any'>, number> = {
 function scoreArticle(article: Article, terms: string[]): number {
   if (terms.length === 0) return 1;
 
-  const title = article.title.toLowerCase();
-  const summary = article.summary.toLowerCase();
-  const subtitle = article.subtitle.toLowerCase();
-  const tags = article.tags.join(' ').toLowerCase();
+  const title = normalizePersian(article.title);
+  const summary = normalizePersian(article.summary);
+  const subtitle = normalizePersian(article.subtitle);
+  const tags = normalizePersian(article.tags.join(' '));
 
   let score = 0;
   for (const term of terms) {
@@ -253,11 +303,7 @@ export function searchArticles({
   range = 'any',
   sort = 'relevance',
 }: SearchOptions): ResolvedArticle[] {
-  const terms = query
-    .toLowerCase()
-    .split(/\s+/)
-    .map((term) => term.trim())
-    .filter(Boolean);
+  const terms = normalizeTerms(query);
 
   const cutoff = range === 'any' ? 0 : Date.now() - RANGE_MS[range];
 

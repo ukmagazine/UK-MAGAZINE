@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import type { Category } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { formatCount } from '@/lib/format';
 
 interface CategoryHeaderProps {
   category: Category;
@@ -31,14 +32,14 @@ export function CategoryHeader({ category, articleCount, className }: CategoryHe
       />
 
       <div className="frame relative py-8 sm:py-10">
-        <nav aria-label="Breadcrumb" className="mb-4">
+        <nav aria-label="مسیر راهبری" className="mb-4">
           <ol className="flex flex-wrap items-center gap-1 text-xs text-ink-soft">
             <li>
               <Link
                 href="/"
                 className="inline-flex min-h-[44px] items-center transition-colors hover:text-brand-red"
               >
-                Home
+                خانه
               </Link>
             </li>
             <li aria-hidden="true">
@@ -52,7 +53,7 @@ export function CategoryHeader({ category, articleCount, className }: CategoryHe
 
         <p className="label mb-2.5 flex items-center text-brand-red">
           <span aria-hidden="true" className="me-2 h-[3px] w-6 bg-brand-red" />
-          Desk
+          سرویس
         </p>
 
         <h1 className="max-w-3xl font-serif text-display tracking-[-0.025em] text-ink">
@@ -64,7 +65,7 @@ export function CategoryHeader({ category, articleCount, className }: CategoryHe
         </p>
 
         <p className="tabular mt-5 text-xs uppercase tracking-[0.14em] text-ink-faint">
-          {articleCount} {articleCount === 1 ? 'story' : 'stories'}
+          {formatCount(articleCount)} گزارش
         </p>
       </div>
     </header>

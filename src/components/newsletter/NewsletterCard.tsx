@@ -17,8 +17,8 @@ interface NewsletterCardProps {
 
 /** Subscription call-to-action, in a full-width band or a compact rail card. */
 export function NewsletterCard({
-  title = 'Start the day with the Daily Brief',
-  description = 'Ten stories that moved overnight, each in under sixty words, with a line on why they matter. Weekdays at 06:30.',
+  title = 'روزتان را با خلاصهٔ روزانه آغاز کنید',
+  description = 'ده گزارشی که شب گذشته تغییر کرده‌اند، هرکدام در کمتر از شصت کلمه، با یک جمله دربارهٔ اهمیتشان. روزهای کاری، ساعت ۶:۳۰.',
   newsletterName = 'the Daily Brief',
   variant = 'band',
   className,
@@ -34,14 +34,14 @@ export function NewsletterCard({
         />
         <Heading className="label mb-3 flex items-center gap-2 text-brand-red">
           <Mail aria-hidden="true" className="h-3.5 w-3.5" />
-          Newsletter
+          خبرنامه
         </Heading>
         <p className="font-serif text-lg leading-snug text-ink">{title}</p>
         <p className="mt-2 text-sm leading-relaxed text-ink-soft">{description}</p>
         <NewsletterForm
           className="mt-4"
           newsletterName={newsletterName}
-          buttonLabel="Subscribe"
+          buttonLabel="عضویت"
           showPrivacyNote={false}
         />
       </aside>
@@ -69,7 +69,7 @@ export function NewsletterCard({
         />
 
         <div className="relative">
-          <p className="label mb-4 text-white/95">Stay informed</p>
+          <p className="label mb-4 text-white/95">باخبر بمانید</p>
           <Heading
             id="newsletter-panel-heading"
             className="font-serif text-2xl leading-tight tracking-[-0.03em] text-white sm:text-[1.75rem]"
@@ -83,7 +83,7 @@ export function NewsletterCard({
           <NewsletterForm
             onRed
             newsletterName={newsletterName}
-            buttonLabel="Subscribe"
+            buttonLabel="عضویت"
             showPrivacyNote={false}
             stacked
           />
@@ -119,7 +119,7 @@ export function NewsletterCard({
         <div>
           <p className="label mb-3 flex items-center text-white/95">
             <span aria-hidden="true" className="me-2 h-[3px] w-5 bg-white" />
-            Stay informed
+            باخبر بمانید
           </p>
           <Heading
             id="newsletter-band-heading"

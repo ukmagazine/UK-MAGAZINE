@@ -6,6 +6,8 @@ import { ArticleMeta } from '@/components/article/ArticleMeta';
 import { BookmarkButton } from '@/components/article/BookmarkButton';
 import { CategoryLabel } from '@/components/ui/CategoryLabel';
 import { formatRank } from '@/lib/format';
+import { RelativeTime } from '@/components/ui/RelativeTime';
+import { formatReadingTime } from '@/lib/format';
 import type { CardArticle } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -93,7 +95,7 @@ export function ArticleCard({
         <div className="min-w-0 flex-1">
           <CategoryLabel category={article.categoryRef} className="relative z-10 mb-1.5" />
           {headline}
-          <ArticleMeta article={article} showAuthor={false} className="mt-2" />
+          <ArticleMeta article={article} className="mt-2" />
         </div>
         {bookmark}
       </article>
@@ -122,7 +124,7 @@ export function ArticleCard({
 
         <div className="min-w-0 flex-1">
           {headline}
-          <ArticleMeta article={article} showAuthor={false} className="mt-1.5" />
+          <ArticleMeta article={article} className="mt-1.5" />
         </div>
       </article>
     );
@@ -149,7 +151,7 @@ export function ArticleCard({
         <div className="min-w-0 flex-1">
           <CategoryLabel category={article.categoryRef} className="relative z-10 mb-1" />
           {headline}
-          <ArticleMeta article={article} showAuthor={false} className="mt-1.5" />
+          <ArticleMeta article={article} className="mt-1.5" />
         </div>
 
         <ArrowRight
@@ -309,8 +311,12 @@ export function ArticleCard({
 
         <div className="mt-auto flex items-end justify-between gap-3 pt-5">
           <div>
-            <p className="font-serif text-base text-ink">{article.author.name}</p>
-            <p className="mt-0.5 text-xs text-ink-soft">{article.author.role}</p>
+            <p className="font-serif text-base text-ink">
+              <RelativeTime iso={article.publishedAt} />
+            </p>
+            <p className="mt-0.5 text-xs text-ink-soft">
+              {formatReadingTime(article.readingTime)}
+            </p>
           </div>
           {bookmark}
         </div>
@@ -338,7 +344,7 @@ export function ArticleCard({
         ) : null}
 
         <div className="mt-4 flex items-center justify-between gap-3">
-          <ArticleMeta article={article} showAuthor={false} />
+          <ArticleMeta article={article} />
           {bookmark}
         </div>
       </article>

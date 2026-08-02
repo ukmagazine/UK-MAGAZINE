@@ -56,17 +56,17 @@ export const metadata: Metadata = {
   creator: site.name,
   publisher: site.name,
   keywords: [
-    'news',
-    'artificial intelligence',
-    'education',
-    'technology',
-    'politics',
-    'world',
-    'business',
-    'science',
-    'culture',
-    'health',
-    'environment',
+    'اخبار',
+    'هوش مصنوعی',
+    'آموزش',
+    'فناوری',
+    'سیاست',
+    'جهان',
+    'اقتصاد',
+    'علم',
+    'فرهنگ',
+    'سلامت',
+    'محیط زیست',
   ],
   alternates: { canonical: '/' },
   robots: {
@@ -101,16 +101,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const suggestions = getPopularTags(10);
 
   return (
-    <html lang="en" dir="ltr" className={`${newsreader.variable} ${inter.variable} ${vazirmatn.variable}`}>
+    <html lang="fa" dir="rtl" className={`${newsreader.variable} ${inter.variable} ${vazirmatn.variable}`}>
       <body className="min-h-dvh bg-surface-page">
         <script {...jsonLdProps(organizationJsonLd())} />
         <script {...jsonLdProps(websiteJsonLd())} />
 
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-toast focus:inline-flex focus:min-h-[44px] focus:items-center focus:rounded-sm focus:bg-brand-red focus:px-4 focus:text-sm focus:font-semibold focus:text-white"
+          className="sr-only focus:not-sr-only focus:fixed focus:right-4 focus:top-4 focus:z-toast focus:inline-flex focus:min-h-[44px] focus:items-center focus:rounded-sm focus:bg-brand-red focus:px-4 focus:text-sm focus:font-semibold focus:text-white"
         >
-          Skip to main content
+          پرش به محتوای اصلی
         </a>
 
         <LocaleProvider>

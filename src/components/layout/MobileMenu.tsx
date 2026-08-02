@@ -10,7 +10,6 @@ import { useLocale } from '@/components/providers/LocaleProvider';
 import { categoryName } from '@/i18n/category';
 import { usePresence } from '@/hooks/usePresence';
 import { Wordmark } from '@/components/ui/Wordmark';
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { categories } from '@/data/categories';
 import { site } from '@/data/site';
 import { cn } from '@/lib/utils';
@@ -35,7 +34,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const reduced = useReducedMotion();
   const { openSearch } = useSearch();
-  const { t, locale, isRtl } = useLocale();
+  const { t, isRtl } = useLocale();
 
   // Stay mounted for the slide-out, then unmount deterministically —
   // see usePresence for why AnimatePresence is not used here.
@@ -166,7 +165,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                             active ? 'text-brand-red' : 'text-ink hover:text-brand-red',
                           )}
                         >
-                          <span className="font-serif text-lg">{categoryName(category, locale)}</span>
+                          <span className="font-serif text-lg">{categoryName(category)}</span>
                           <ArrowRight
                             aria-hidden="true"
                             className="h-4 w-4 shrink-0 text-ink-faint transition-transform duration-300 ease-editorial group-hover:translate-x-1 group-hover:text-brand-red rtl:-scale-x-100"
@@ -195,9 +194,6 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
               </div>
 
               <div className="mt-7 border-t border-line pt-5">
-                <p className="label mb-3 text-ink-soft">{t.nav.language}</p>
-                <LanguageSwitcher className="mb-6" />
-
                 <ul className="space-y-2.5">
                   <li>
                     <Link

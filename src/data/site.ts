@@ -3,41 +3,44 @@
  *
  * Change the brand name, tagline, canonical URL and footer link groups here —
  * the header wordmark, metadata, structured data and sitemap all read from it.
+ *
+ * The publication is Persian-only; the wordmark stays in Latin because it is
+ * the registered brand mark, which is normal practice for Persian mastheads.
  */
 export const site = {
   name: 'UK MAGAZINE',
   /** Rendered as two weighted halves: bold lead, lighter trail. */
   wordmark: { lead: 'UK', trail: 'MAGAZINE' },
-  tagline: 'The world, in focus.',
+  tagline: 'جهان، در کانون توجه.',
   description:
-    'UK MAGAZINE is an independent international publication covering artificial intelligence, education, technology, politics, world affairs, business, science, culture, health and the environment — reported clearly and without noise.',
-  shortDescription: 'Clear, unhurried reporting on the forces reshaping the world.',
+    'یو‌کی مگزین یک نشریهٔ مستقل بین‌المللی است که هوش مصنوعی، آموزش، فناوری، سیاست، رویدادهای جهان، اقتصاد، علم، فرهنگ، سلامت و محیط زیست را پوشش می‌دهد — با گزارشی روشن و بی‌حاشیه.',
+  shortDescription: 'گزارش‌های روشن و بی‌شتاب از نیروهایی که جهان را دگرگون می‌کنند.',
   /** Replace with the production origin before deploying. */
   url: 'https://ukmagazine.example.com',
-  locale: 'en_GB',
+  locale: 'fa_IR',
   founded: 2019,
-  established: 'Established 2019 · Reporting from 34 countries',
+  established: 'تأسیس ۱۳۹۸ · گزارش از ۳۴ کشور',
   email: 'newsroom@ukmagazine.example.com',
   social: [
-    { label: 'UK MAGAZINE on X', handle: '@ukmagazine', href: 'https://example.com/ukmagazine', icon: 'x' },
-    { label: 'UK MAGAZINE on LinkedIn', handle: 'UK MAGAZINE', href: 'https://example.com/ukmagazine', icon: 'linkedin' },
-    { label: 'UK MAGAZINE on YouTube', handle: 'UK MAGAZINE', href: 'https://example.com/ukmagazine', icon: 'youtube' },
-    { label: 'UK MAGAZINE RSS feed', handle: 'RSS', href: 'https://example.com/ukmagazine', icon: 'rss' },
+    { label: 'یو‌کی مگزین در ایکس', handle: '@ukmagazine', href: 'https://example.com/ukmagazine', icon: 'x' },
+    { label: 'یو‌کی مگزین در لینکدین', handle: 'UK MAGAZINE', href: 'https://example.com/ukmagazine', icon: 'linkedin' },
+    { label: 'یو‌کی مگزین در یوتیوب', handle: 'UK MAGAZINE', href: 'https://example.com/ukmagazine', icon: 'youtube' },
+    { label: 'خوراک آر‌اس‌اس یو‌کی مگزین', handle: 'RSS', href: 'https://example.com/ukmagazine', icon: 'rss' },
   ],
   footer: {
     company: [
-      { label: 'About UK MAGAZINE', href: '/about' },
-      { label: 'Newsroom', href: '/about#newsroom' },
-      { label: 'Standards & ethics', href: '/about#standards' },
-      { label: 'Careers', href: '/about#careers' },
-      { label: 'Contact', href: '/about#contact' },
+      { label: 'دربارهٔ ما', href: '/about' },
+      { label: 'تحریریه', href: '/about#newsroom' },
+      { label: 'اصول و اخلاق حرفه‌ای', href: '/about#standards' },
+      { label: 'فرصت‌های شغلی', href: '/about#careers' },
+      { label: 'تماس با ما', href: '/about#contact' },
     ],
     legal: [
-      { label: 'Terms of service', href: '/about#terms' },
-      { label: 'Privacy policy', href: '/about#privacy' },
-      { label: 'Cookie preferences', href: '/about#cookies' },
-      { label: 'Corrections', href: '/about#corrections' },
-      { label: 'Accessibility', href: '/about#accessibility' },
+      { label: 'شرایط استفاده', href: '/about#terms' },
+      { label: 'سیاست حریم خصوصی', href: '/about#privacy' },
+      { label: 'تنظیمات کوکی', href: '/about#cookies' },
+      { label: 'اصلاحیه‌ها', href: '/about#corrections' },
+      { label: 'دسترس‌پذیری', href: '/about#accessibility' },
     ],
   },
 } as const;

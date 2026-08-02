@@ -11,10 +11,10 @@ interface SmartBriefingProps {
 }
 
 const SECTIONS = [
-  { key: 'whatHappened', label: 'What happened', Icon: Zap },
-  { key: 'whyItMatters', label: 'Why it matters', Icon: Flag },
-  { key: 'biggerPicture', label: 'The bigger picture', Icon: Layers },
-  { key: 'whatToWatch', label: 'What to watch', Icon: Binoculars },
+  { key: 'whatHappened', label: 'چه اتفاقی افتاد', Icon: Zap },
+  { key: 'whyItMatters', label: 'چرا مهم است', Icon: Flag },
+  { key: 'biggerPicture', label: 'تصویر بزرگ‌تر', Icon: Layers },
+  { key: 'whatToWatch', label: 'چه چیزی را دنبال کنیم', Icon: Binoculars },
 ] as const;
 
 /**
@@ -53,7 +53,7 @@ export function SmartBriefing({
         className="label mb-5 flex items-center gap-2 text-brand-red"
       >
         <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />
-        The briefing
+        خلاصهٔ گزارش
       </Heading>
 
       <dl className="space-y-4">
@@ -71,7 +71,7 @@ export function SmartBriefing({
       </dl>
 
       <div className="mt-6 border-t border-line pt-5">
-        <p className="label mb-2 text-ink-soft">Key takeaway</p>
+        <p className="label mb-2 text-ink-soft">نکتهٔ کلیدی</p>
         <p className="font-serif text-lg leading-snug text-ink sm:text-xl">
           {briefing.keyTakeaway}
         </p>

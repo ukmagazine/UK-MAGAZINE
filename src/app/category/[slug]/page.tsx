@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!category) {
     return buildMetadata({
-      title: 'Section not found',
+      title: 'سرویس پیدا نشد',
       description: 'The section you are looking for is not available.',
       path: `/category/${slug}`,
       noIndex: true,
@@ -56,7 +56,7 @@ export default async function CategoryPage({ params }: PageProps) {
   const mostRead = getMostRead(5, category.slug as CategorySlug);
 
   const trail = [
-    { name: 'Home', path: '/' },
+    { name: 'خانه', path: '/' },
     { name: category.name, path: `/category/${category.slug}` },
   ];
 
@@ -71,7 +71,7 @@ export default async function CategoryPage({ params }: PageProps) {
         {featured ? (
           <section aria-labelledby="featured-heading" className="mb-16 sm:mb-20">
             <h2 id="featured-heading" className="sr-only">
-              Featured story
+              گزارش برگزیده
             </h2>
 
             <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-12">
@@ -85,10 +85,10 @@ export default async function CategoryPage({ params }: PageProps) {
                 />
               </Reveal>
 
-              <aside className="lg:col-span-4" aria-label={`Most read in ${category.name}`}>
+              <aside className="lg:col-span-4" aria-label={`پربازدیدترین‌های ${category.name}`}>
                 <TrendingList
                   articles={mostRead}
-                  title={`Most read in ${category.shortName}`}
+                  title={`پربازدیدترین‌های ${category.shortName}`}
                   headingLevel="h2"
                 />
               </aside>
@@ -96,19 +96,19 @@ export default async function CategoryPage({ params }: PageProps) {
           </section>
         ) : (
           <p className="border border-line bg-surface-soft px-6 py-14 text-center font-serif text-2xl text-ink">
-            No stories have been filed to this desk yet.
+            هنوز گزارشی در این سرویس منتشر نشده است.
           </p>
         )}
 
         {rest.length > 0 ? (
-          <CategoryStream articles={rest} topics={category.topics} />
+          <CategoryStream articles={rest} />
         ) : null}
 
         <div className="mt-16 sm:mt-20">
           <NewsletterCard
             variant="band"
-            title={`Follow ${category.name} with the Daily Brief`}
-            description="Ten stories that moved overnight, each in under sixty words, with a line on why they matter."
+            title={`${category.name} را با خلاصهٔ روزانه دنبال کنید`}
+            description="ده گزارشی که شب گذشته تغییر کرده‌اند، هرکدام در کمتر از شصت کلمه، با یک جمله دربارهٔ اهمیتشان."
           />
         </div>
       </div>

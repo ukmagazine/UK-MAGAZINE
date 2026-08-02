@@ -1,3 +1,4 @@
+import { normalizePersian, normalizeTerms } from '@/lib/persian';
 import type { CardArticle, CategorySlug, DateRange, SortOrder } from '@/lib/types';
 
 /**
@@ -18,10 +19,10 @@ const RANGE_MS: Record<Exclude<DateRange, 'any'>, number> = {
 export function scoreCard(article: CardArticle, terms: string[]): number {
   if (terms.length === 0) return 1;
 
-  const title = article.title.toLowerCase();
-  const summary = article.summary.toLowerCase();
-  const tags = article.tags.join(' ').toLowerCase();
-  const category = article.categoryRef.name.toLowerCase();
+  const title = normalizePersian(article.title);
+  const summary = normalizePersian(article.summary);
+  const tags = normalizePersian(article.tags.join(' '));
+  const category = normalizePersian(article.categoryRef.name);
 
   let score = 0;
   for (const term of terms) {
@@ -46,7 +47,7 @@ export function searchCards(
   articles: CardArticle[],
   { query, categorySlugs = [], range = 'any', sort = 'relevance', now = Date.now() }: CardSearchOptions,
 ): CardArticle[] {
-  const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const terms = normalizeTerms(query);
   const cutoff = range === 'any' ? 0 : now - RANGE_MS[range];
 
   const scored = articles

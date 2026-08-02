@@ -22,7 +22,7 @@ export default function NotFound() {
           <div className="max-w-2xl">
             <p className="label mb-4 flex items-center text-brand-red">
               <span aria-hidden="true" className="me-2 h-[3px] w-6 bg-brand-red" />
-              Error 404
+              خطای ۴۰۴
             </p>
 
             <p
@@ -33,12 +33,12 @@ export default function NotFound() {
             </p>
 
             <h1 className="mt-4 font-serif text-display tracking-[-0.025em] text-ink">
-              This page is off the map.
+              این صفحه از نقشه خارج است.
             </h1>
 
             <p className="mt-5 max-w-xl text-base leading-relaxed text-ink-soft sm:text-lg">
-              The story you were looking for may have been moved, renamed, or never existed at this
-              address. Everything UK MAGAZINE has published is still one search away.
+              گزارشی که دنبالش بودید ممکن است جابه‌جا یا تغییر نام داده باشد، یا هرگز در این نشانی
+              نبوده باشد. هر آنچه منتشر کرده‌ایم هنوز فقط یک جست‌وجو با شما فاصله دارد.
             </p>
 
             <div className="mt-9 flex flex-wrap gap-3">
@@ -47,7 +47,7 @@ export default function NotFound() {
                 className="group inline-flex min-h-[48px] items-center gap-2 bg-ink px-6 text-sm font-semibold text-white transition-colors hover:bg-brand-red"
               >
                 <Compass aria-hidden="true" className="h-4 w-4" />
-                Back to the front page
+                بازگشت به صفحهٔ نخست
               </Link>
 
               <Link
@@ -55,7 +55,7 @@ export default function NotFound() {
                 className="group inline-flex min-h-[48px] items-center gap-2 border border-ink px-6 text-sm font-semibold text-ink transition-colors hover:border-brand-red hover:text-brand-red"
               >
                 <Search aria-hidden="true" className="h-4 w-4" />
-                Search every story
+                جست‌وجو در همهٔ گزارش‌ها
               </Link>
             </div>
           </div>
@@ -66,7 +66,7 @@ export default function NotFound() {
         <nav aria-labelledby="desks-heading">
           <h2 id="desks-heading" className="label mb-4 flex items-center text-ink">
             <span aria-hidden="true" className="me-2 h-[3px] w-5 bg-brand-red" />
-            Browse a desk
+            مرور سرویس‌ها
           </h2>
 
           <ul className="grid grid-cols-2 gap-x-6 border-t border-line sm:grid-cols-3 lg:grid-cols-5">
@@ -88,7 +88,7 @@ export default function NotFound() {
         </nav>
 
         <section className="mt-16">
-          <SectionHeader title="Today’s stories" href="/" linkLabel="See all" />
+          <SectionHeader title="گزارش‌های امروز" href="/" linkLabel="مشاهدهٔ همه" />
           <ArticleGrid articles={latest} columns={3} headingLevel="h3" />
         </section>
       </div>

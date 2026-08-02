@@ -8,6 +8,13 @@ const nextConfig: NextConfig = {
   // Pin file tracing to this project so an unrelated lockfile further up the
   // filesystem cannot be inferred as the workspace root.
   outputFileTracingRoot: __dirname,
+  /**
+   * The content loader reads `content/articles/` from disk at build time.
+   * `process.cwd()` is not reliable here — Next can be started from another
+   * directory (`next start <dir>`), which has already broken the PostCSS and
+   * Tailwind lookups in this repo. Pinning the root removes the ambiguity.
+   */
+  env: { PROJECT_ROOT: __dirname },
   images: {
     /**
      * Resizing is delegated to Unsplash's CDN (see src/lib/image-loader.ts).

@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
+import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import {
   DEFAULT_LOCALE,
   getDictionary,
@@ -17,63 +9,38 @@ import {
   type Locale,
 } from '@/i18n/dictionaries';
 
-const STORAGE_KEY = 'ukmagazine:locale';
-
 interface LocaleContextValue {
   locale: Locale;
   /** Translated UI copy for the active language. */
   t: Dictionary;
   dir: 'ltr' | 'rtl';
   isRtl: boolean;
-  setLocale: (locale: Locale) => void;
 }
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
-function readStored(): Locale | null {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw === 'en' || raw === 'fa' ? raw : null;
-  } catch {
-    return null;
-  }
-}
-
 /**
- * Language state for the interface.
+ * Language context for the interface.
  *
- * The first render always uses the default locale so the server and client
- * markup match; the stored preference is applied in an effect, which also
- * updates `lang` and `dir` on `<html>` so the browser handles bidirectional
- * text and Tailwind's `rtl:` variants take effect.
+ * The publication ships in Persian only, so the locale is fixed rather than
+ * chosen: `lang` and `dir` are rendered on `<html>` by the server, which means
+ * the correct language reaches crawlers and screen readers in the first byte
+ * and there is no direction flip after hydration.
+ *
+ * The English dictionary is still compiled in. Restoring a second language is
+ * a matter of lifting `locale` back into state and reinstating a switcher —
+ * every consumer already reads its copy through this context.
  */
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
-
-  useEffect(() => {
-    const stored = readStored();
-    if (stored) setLocaleState(stored);
-  }, []);
-
-  useEffect(() => {
-    const dir = getDirection(locale);
-    document.documentElement.lang = locale;
-    document.documentElement.dir = dir;
-  }, [locale]);
-
-  const setLocale = useCallback((next: Locale) => {
-    setLocaleState(next);
-    try {
-      window.localStorage.setItem(STORAGE_KEY, next);
-    } catch {
-      // Storage unavailable; the choice still applies for this session.
-    }
-  }, []);
-
   const value = useMemo<LocaleContextValue>(() => {
-    const dir = getDirection(locale);
-    return { locale, t: getDictionary(locale), dir, isRtl: dir === 'rtl', setLocale };
-  }, [locale, setLocale]);
+    const dir = getDirection(DEFAULT_LOCALE);
+    return {
+      locale: DEFAULT_LOCALE,
+      t: getDictionary(DEFAULT_LOCALE),
+      dir,
+      isRtl: dir === 'rtl',
+    };
+  }, []);
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }

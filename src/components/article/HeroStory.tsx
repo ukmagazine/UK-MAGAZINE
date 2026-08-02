@@ -26,7 +26,7 @@ interface HeroStoryProps {
  * laid over a busy crop on a small screen.
  */
 export function HeroStory({ lead, support }: HeroStoryProps) {
-  const { t, locale, isRtl } = useLocale();
+  const { t, isRtl } = useLocale();
   const href = `/article/${lead.slug}`;
 
   return (
@@ -71,7 +71,7 @@ export function HeroStory({ lead, support }: HeroStoryProps) {
                   href={`/category/${lead.category}`}
                   className="label -my-2 py-2 text-brand-red transition-colors hover:text-brand-deep"
                 >
-                  {categoryShortName(lead.categoryRef, locale)}
+                  {categoryShortName(lead.categoryRef)}
                 </Link>
                 <span aria-hidden="true" className="h-[2px] w-8 bg-brand-red" />
                 <ArticleBadge kind={lead.kind} />
@@ -112,7 +112,7 @@ export function HeroStory({ lead, support }: HeroStoryProps) {
 
               <div className="mt-7 flex items-center justify-between gap-4">
                 <p className="text-xs text-ink-soft">
-                  {t.home.by} <span className="font-medium text-ink">{lead.author.name}</span>
+                  <span className="font-medium text-ink">{lead.author.name}</span>
                   <span aria-hidden="true" className="mx-1.5 text-line-strong">
                     ·
                   </span>

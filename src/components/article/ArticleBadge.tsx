@@ -3,10 +3,10 @@ import type { ArticleKind } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 const BADGES = {
-  breaking: { label: 'Breaking', Icon: Radio },
-  opinion: { label: 'Opinion', Icon: MessageSquareQuote },
-  video: { label: 'Video', Icon: Clapperboard },
-  analysis: { label: 'Analysis', Icon: Telescope },
+  breaking: { label: 'فوری', Icon: Radio },
+  opinion: { label: 'دیدگاه', Icon: MessageSquareQuote },
+  video: { label: 'ویدیو', Icon: Clapperboard },
+  analysis: { label: 'تحلیل', Icon: Telescope },
 } as const;
 
 interface ArticleBadgeProps {

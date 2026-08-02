@@ -6,17 +6,18 @@ import { cn } from '@/lib/utils';
 interface ArticleMetaProps {
   article: CardArticle;
   className?: string;
-  showAuthor?: boolean;
   inverted?: boolean;
 }
 
-/** Byline · timestamp · reading time, in the compact metadata style. */
-export function ArticleMeta({
-  article,
-  className,
-  showAuthor = true,
-  inverted = false,
-}: ArticleMetaProps) {
+/**
+ * Timestamp · reading time.
+ *
+ * No byline: every story carries the same house byline, so printing it on each
+ * card in a listing would repeat the publication's own name a dozen times down
+ * the page. The attribution belongs on the article itself, where it is read
+ * once and means something.
+ */
+export function ArticleMeta({ article, className, inverted = false }: ArticleMetaProps) {
   return (
     <div
       className={cn(
@@ -25,17 +26,6 @@ export function ArticleMeta({
         className,
       )}
     >
-      {showAuthor ? (
-        <>
-          <span className={cn('font-medium', inverted ? 'text-white' : 'text-ink')}>
-            {article.author.name}
-          </span>
-          <span aria-hidden="true" className={inverted ? 'text-white/40' : 'text-line-strong'}>
-            ·
-          </span>
-        </>
-      ) : null}
-
       <RelativeTime iso={article.publishedAt} />
 
       <span aria-hidden="true" className={inverted ? 'text-white/40' : 'text-line-strong'}>

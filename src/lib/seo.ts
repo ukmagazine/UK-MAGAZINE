@@ -93,6 +93,7 @@ export function websiteJsonLd(): Record<string, unknown> {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
+    inLanguage: 'fa-IR',
     name: site.name,
     url: site.url,
     description: site.description,
@@ -111,6 +112,7 @@ export function articleJsonLd(article: ResolvedArticle): Record<string, unknown>
   return {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
+    inLanguage: 'fa-IR',
     headline: article.title,
     description: article.summary,
     image: [article.image],
@@ -122,10 +124,13 @@ export function articleJsonLd(article: ResolvedArticle): Record<string, unknown>
       (total, block) => (block.type === 'paragraph' ? total + block.text.split(/\s+/).length : total),
       0,
     ),
+    // Publication-authored: the stories are produced by the newsroom's own
+    // automation, so the author is the organisation itself. Naming a Person
+    // here would assert that an individual wrote copy they did not.
     author: {
-      '@type': 'Person',
-      name: article.author.name,
-      jobTitle: article.author.role,
+      '@type': 'NewsMediaOrganization',
+      name: site.name,
+      url: site.url,
     },
     publisher: {
       '@type': 'NewsMediaOrganization',
@@ -162,6 +167,7 @@ export function collectionJsonLd(
   return {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
+    inLanguage: 'fa-IR',
     name: `${category.name} — ${site.name}`,
     description: category.description,
     url: absoluteUrl(`/category/${category.slug}`),

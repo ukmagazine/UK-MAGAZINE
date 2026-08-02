@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { articles } from '@/data/articles';
 import { categories } from '@/data/categories';
 import { absoluteUrl } from '@/lib/seo';
+
 export const dynamic = 'force-static';
 /** Generated from the same data the routes are, so it can never drift. */
 export default function sitemap(): MetadataRoute.Sitemap {

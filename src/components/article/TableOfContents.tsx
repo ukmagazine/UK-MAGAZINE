@@ -44,7 +44,7 @@ export function TableOfContents({ headings, className }: TableOfContentsProps) {
     <nav aria-labelledby="toc-heading" className={cn(className)}>
       <h2 id="toc-heading" className="label mb-3 flex items-center text-ink">
         <span aria-hidden="true" className="me-2 h-[3px] w-5 bg-brand-red" />
-        In this article
+        در این گزارش
       </h2>
 
       <ol className="space-y-0 border-s border-line">

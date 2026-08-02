@@ -32,7 +32,7 @@ export function NewsletterForm({
   onRed = false,
   stacked = false,
   className,
-  buttonLabel = 'Subscribe',
+  buttonLabel = 'عضویت',
   showPrivacyNote = true,
 }: NewsletterFormProps) {
   const inputId = useId();
@@ -48,11 +48,11 @@ export function NewsletterForm({
 
     const value = email.trim();
     if (!value) {
-      setError('Enter your email address to subscribe.');
+      setError('برای عضویت، نشانی ایمیل خود را وارد کنید.');
       return;
     }
     if (!EMAIL_PATTERN.test(value)) {
-      setError('That address does not look right — check for a typo.');
+      setError('این نشانی درست به نظر نمی‌رسد — املای آن را بررسی کنید.');
       return;
     }
 
@@ -104,7 +104,7 @@ export function NewsletterForm({
         htmlFor={inputId}
         className={cn('label mb-2 block', onRed || inverted ? 'text-white/95' : 'text-ink-soft')}
       >
-        Email address
+        نشانی ایمیل
       </label>
 
       <div className={cn('flex flex-col gap-2', !stacked && 'sm:flex-row')}>
@@ -144,7 +144,7 @@ export function NewsletterForm({
             status === 'submitting' && 'cursor-wait opacity-70',
           )}
         >
-          {status === 'submitting' ? 'Subscribing…' : buttonLabel}
+          {status === 'submitting' ? 'در حال ثبت…' : buttonLabel}
           {status === 'idle' ? (
             <ArrowRight
               aria-hidden="true"
@@ -181,7 +181,7 @@ export function NewsletterForm({
           )}
         >
           <Lock aria-hidden="true" className="mt-0.5 h-3 w-3 shrink-0" />
-          We never sell reader data. Unsubscribe in one click from any edition.
+          هرگز دادهٔ مخاطب را نمی‌فروشیم. لغو عضویت از هر شماره، تنها با یک کلیک.
         </p>
       ) : null}
     </form>
