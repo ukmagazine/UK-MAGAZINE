@@ -85,7 +85,7 @@ src/
 │   └── ui/               # Wordmark, SectionHeader, CategoryHeader, Reveal, …
 ├── data/                 # Editorial configuration (not stories)
 │   ├── site.ts           # Brand name, wordmark, tagline, URL, footer links
-│   ├── categories.ts     # The ten desks
+│   ├── categories.ts     # The thirteen desks
 │   ├── authors.ts        # Fictional bylines (monogram avatars, no photos)
 │   ├── newsletters.ts    # The five editions
 │   └── articles.ts       # Thin re-export of the content loader
@@ -129,28 +129,30 @@ harvest → AI rewrite → Airtable → Make.com → WordPress
                                                  ▼
                                     content/articles/*.json
                                                  │
-                                  Zod validation │  ← a bad record fails the build
+                                  Zod validation │  ← bad local JSON is build-fatal; bad WP posts are skipped
                                                  ▼
                                           npm run build
 ```
 
 **Validation is the point.** `lib/content/schema.ts` is the contract: category must be one of the
-ten desks, `imageAlt` is mandatory, dates must parse, slugs must be Latin-hyphenated, duplicates are
-rejected. Content written by a machine is checked *before* it can reach a reader — a malformed
-record stops the build instead of shipping a broken page.
+thirteen supported desks, `imageAlt` is mandatory, dates must parse, slugs must be Latin-hyphenated,
+and duplicate routes are rejected. Local JSON remains build-fatal when malformed. During a
+WordPress sync, malformed posts are named in the log and skipped; the sync becomes fatal only when
+every returned post is invalid.
 
 **Derived, never authored.** `readingTime` is computed from word count, `relatedIds` from shared
 tags and desk, and `body` is parsed from Markdown. An automation cannot meaningfully hand-pick
 cross-references, so it is not asked to.
 
-**Adding a story by hand** — drop a JSON file into `content/articles/`:
+**Local test content** can still be dropped into `content/articles/`, but generated JSON is ignored
+by Git because CI recreates it on each run:
 
 ```jsonc
 {
   "id": "any-stable-key",          // Airtable record id or WordPress post id
   "slug": "latin-hyphenated",      // becomes /article/<slug>
   "title": "…", "summary": "…",
-  "category": "world",             // one of the ten desk slugs
+  "category": "world",             // one of the thirteen supported desk slugs
   "authorId": "a-rahimi",          // must exist in data/authors.ts
   "publishedAt": "2026-07-29T09:00:00.000Z",
   "image": "https://…", "imageAlt": "…",
@@ -163,12 +165,14 @@ and `![alt](src "caption")`. Anything else degrades to a paragraph rather than t
 
 **WordPress** — set `WORDPRESS_URL` (see `.env.example`) and run `npm run sync:wp`. Only *published*
 posts are pulled, so a draft in WordPress is a draft on the site: that is the human review gate for
-AI-written copy. The sync writes files rather than fetching during the build, which keeps every run
-a reviewable diff and means WordPress being unreachable cannot break a deploy.
+AI-written copy. The deploy workflow runs the sync immediately before the build; a WordPress
+network or authentication failure is intentionally fatal so an outage cannot silently deploy an
+empty site.
 
-> The WordPress adapter has been verified against a synthetic API response, not a live instance.
-> Confirm the `uk_subtitle` / `uk_image_credit` / `uk_kind` meta keys against your actual setup, and
-> make sure WordPress categories use the ten desk slugs.
+> The WordPress adapter has been verified against a synthetic API response, including mixed valid/invalid posts.
+> A final live verification still requires the production WordPress URL and a human-created test post.
+> Confirm the `uk_subtitle` / `uk_image_credit` / `uk_kind` / `uk_image_url` meta keys against your actual setup, and
+> make sure WordPress categories use the supported desk slugs.
 
 ## Language
 
@@ -216,20 +220,26 @@ thumbnail costs 5.8 KB instead of a 1.3 MB origin fetch.
 
 Every photo ID in the corpus is verified to resolve. Local files (anything starting with `/`) pass
 through the loader untouched, so to go fully offline you can drop images into `public/` and point
-the `image` field at them. When content moves to WordPress, re-host article art on a real image CDN
-rather than hotlinking the source — the loader's `?w=` convention already matches Unsplash, imgix,
-Contentful and Bunny.
+the `image` field at them. External Unsplash images must stay hotlinked from the URL supplied by
+the API; do not download and re-host them. The loader adds width/quality parameters to bare external
+URLs and keeps WordPress `#wp=` media variants on their separate path.
 
 ## Status
 
-All eight pages, all interactions and all card variants are implemented and verified. The production
-build passes clean (`0` type errors, `0` lint errors), with no console or hydration errors and no
-horizontal overflow at 320 / 360 / 390 / 430 / 540 / 768 / 1024 / 1280 / 1440 / 1920 px. Every route
-was swept for untranslated English and none remains.
+The source passes `npm run typecheck`. A clean production build must be run after `npm ci` in the
+target Linux/CI environment; copied `node_modules` directories are intentionally not distributed.
+The WordPress mapping and rejection paths have synthetic coverage, while the final live WordPress
+render verification remains a launch gate.
 
-**The 14 stories in `content/articles/` are throwaway fixtures.** They exist so the layouts have
-something to render and so the pipeline can be tested end to end; they are fictional and are meant
-to be replaced by the WordPress feed. Delete them once real content flows.
+`content/articles/` intentionally ships empty. The site builds safely with no articles, and the
+GitHub Actions job materialises WordPress JSON inside the runner before `next build`.
 
-Before a real launch: point `site.url` at the production origin, replace the `example.com`
-addresses in `src/data/site.ts`, and re-host article imagery on your own CDN.
+The deploy workflow runs hourly and can also be started manually. Create a repository Actions
+secret named **`WORDPRESS_URL`** containing only the WordPress origin. Scheduled runs are queued,
+so an hourly job may start several minutes after the hour. GitHub also disables scheduled workflows
+in public repositories after 60 days without repository activity; make a real commit or re-enable
+the workflow before that limit is reached.
+
+`site.url` currently uses the interim GitHub Pages URL
+`https://uniquensr.github.io/UK-MAGAZINE`. Replace it with the production origin when a custom
+domain launches; the Pages base path will disappear at that point, so canonical URLs will change.

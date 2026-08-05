@@ -5,6 +5,8 @@ on:
     branches:
       - main
   workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *'
 
 permissions:
   contents: read
@@ -31,6 +33,11 @@ jobs:
 
       - name: Install packages
         run: npm ci
+
+      - name: Sync content from WordPress
+        run: npm run sync:wp
+        env:
+          WORDPRESS_URL: ${{ secrets.WORDPRESS_URL }}
 
       - name: Configure GitHub Pages
         id: pages

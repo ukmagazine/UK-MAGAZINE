@@ -1,7 +1,7 @@
 import type { Category, CategorySlug } from '@/lib/types';
 
 /**
- * The ten desks the publication reports on.
+ * The thirteen desks the publication supports.
  *
  * To add a desk: append an entry here, set `inPrimaryNav` to control whether it
  * appears in the header, and tag articles with the new slug. Routes, sitemap
@@ -86,7 +86,7 @@ export const categories: Category[] = [
       'مقالهٔ اصلی را می‌خوانیم، نه خلاصهٔ خبری آن را. آنجا که یافته‌ای هنوز بازآزمایی نشده، همین را می‌نویسیم.',
     tint: '#5A3E9B',
     topics: ['فضا', 'پژوهش', 'روش‌شناسی', 'آزمایشگاه', 'بازآزمایی', 'داده'],
-    inPrimaryNav: true,
+    inPrimaryNav: false,
   },
   {
     slug: 'culture',
@@ -108,7 +108,7 @@ export const categories: Category[] = [
       'نظام سلامت را زیرساخت می‌دانیم: صف‌ها، بودجه‌ها و آدم‌هایی که آن را می‌گردانند.',
     tint: '#0F6E8C',
     topics: ['بیمارستان', 'سلامت عمومی', 'دارو', 'نیروی انسانی', 'بیمه', 'داده'],
-    inPrimaryNav: false,
+    inPrimaryNav: true,
   },
   {
     slug: 'environment',
@@ -120,6 +120,39 @@ export const categories: Category[] = [
     tint: '#3F7A34',
     topics: ['انرژی', 'شبکهٔ برق', 'اقلیم', 'تجدیدپذیر', 'سازگاری', 'آلودگی'],
     inPrimaryNav: false,
+  },
+  {
+    slug: 'society',
+    name: 'جامعه',
+    shortName: 'جامعه',
+    description: 'زندگی روزمره، مهاجرت، مسکن، کار و نهادهایی که به آنها شکل می‌دهند.',
+    standfirst:
+      'جامعه را از سمت آدم‌ها گزارش می‌کنیم: چه چیزی گران‌تر شده، چه چیزی سخت‌تر شده، و کدام تصمیم اداری پشت آن است.',
+    tint: '#6D4C7D',
+    topics: ['مهاجرت', 'مسکن', 'کار', 'خدمات عمومی', 'خانواده', 'شهر'],
+    inPrimaryNav: true,
+  },
+  {
+    slug: 'sports',
+    name: 'ورزش',
+    shortName: 'ورزش',
+    description: 'لیگ‌ها، باشگاه‌ها، اقتصاد ورزش و رویدادهای بین‌المللی.',
+    standfirst:
+      'ورزش را هم به‌عنوان مسابقه می‌بینیم و هم به‌عنوان صنعت — نتیجه، و آنچه نتیجه را ممکن کرده است.',
+    tint: '#C2410C',
+    topics: ['فوتبال', 'لیگ', 'باشگاه', 'رویداد بین‌المللی', 'اقتصاد ورزش', 'ورزشکار'],
+    inPrimaryNav: true,
+  },
+  {
+    slug: 'event',
+    name: 'رویداد',
+    shortName: 'رویداد',
+    description: 'نمایشگاه، کنسرت، جشنواره و آنچه در تقویم شهر می‌گذرد.',
+    standfirst:
+      'آنچه این هفته در شهر برگزار می‌شود، با تاریخ و نشانی — نه فهرست تبلیغاتی، بلکه تقویمی که بشود به آن تکیه کرد.',
+    tint: '#B8860B',
+    topics: ['نمایشگاه', 'جشنواره', 'کنسرت', 'تقویم', 'لندن', 'بلیت'],
+    inPrimaryNav: true,
   },
 ];
 
@@ -141,8 +174,11 @@ const NAV_ORDER: CategorySlug[] = [
   'politics',
   'business',
   'technology',
-  'science',
   'culture',
+  'health',
+  'society',
+  'sports',
+  'event',
 ];
 
 /** Categories rendered in the sticky header, in NAV_ORDER. */

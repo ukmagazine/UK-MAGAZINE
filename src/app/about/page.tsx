@@ -3,7 +3,7 @@ import { Globe2, PenLine, Scale, ShieldCheck } from 'lucide-react';
 import { NewsletterCard } from '@/components/newsletter/NewsletterCard';
 import { Reveal } from '@/components/ui/Reveal';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { categories } from '@/data/categories';
+import { categories, primaryNavCategories } from '@/data/categories';
 import { site } from '@/data/site';
 import { articles } from '@/data/articles';
 import { breadcrumbJsonLd, buildMetadata, jsonLdProps } from '@/lib/seo';
@@ -40,7 +40,7 @@ const PRINCIPLES = [
 const STATS = [
   { value: String(categories.length), label: 'سرویس خبری' },
   { value: String(articles.length), label: 'گزارش منتشرشده' },
-  { value: String(site.founded), label: 'سال تأسیس' },
+  { value: String(primaryNavCategories.length), label: 'سرویس اصلی' },
   { value: '۲۴/۷', label: 'پوشش پیوسته' },
 ];
 
@@ -63,7 +63,9 @@ const SECTIONS = [
   {
     id: 'contact',
     title: 'تماس با ما',
-    body: `پرسش‌های تحریریه، سرنخ خبری و اصلاحیه‌ها را به ${site.email} بفرستید. اسناد محرمانه را می‌توان با پست به تحریریه فرستاد؛ پیش از ارسال هر چیز حساس، نشانی را از ما بخواهید.`,
+    body: site.email
+      ? `پرسش‌های تحریریه، سرنخ خبری و اصلاحیه‌ها را به ${site.email} بفرستید.`
+      : 'راه ارتباطی رسمی تحریریه هم‌زمان با راه‌اندازی دامنهٔ اصلی اعلام می‌شود.',
   },
   {
     id: 'terms',
@@ -119,9 +121,11 @@ export default function AboutPage() {
             {site.description}
           </p>
 
-          <p className="mt-5 text-xs uppercase tracking-[0.14em] text-ink-faint">
-            {site.established}
-          </p>
+          {site.established ? (
+            <p className="mt-5 text-xs uppercase tracking-[0.14em] text-ink-faint">
+              {site.established}
+            </p>
+          ) : null}
         </div>
       </header>
 

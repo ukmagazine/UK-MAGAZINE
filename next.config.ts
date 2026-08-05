@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: 'export',
   trailingSlash: true,
-  basePath: process.env.PAGES_BASE_PATH || '',
+  basePath: '',
   // Pin file tracing to this project so an unrelated lockfile further up the
   // filesystem cannot be inferred as the workspace root.
   outputFileTracingRoot: __dirname,

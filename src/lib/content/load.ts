@@ -26,10 +26,8 @@ const RELATED_COUNT = 3;
 
 function readSources(): ArticleSource[] {
   if (!fs.existsSync(CONTENT_DIR)) {
-    throw new Error(
-      `پوشهٔ محتوا پیدا نشد: ${CONTENT_DIR}\n` +
-        'حداقل یک فایل JSON مقاله لازم است تا سایت ساخته شود.',
-    );
+    console.warn(`پوشهٔ محتوا پیدا نشد: ${CONTENT_DIR} — سایت بدون مقاله ساخته می‌شود.`);
+    return [];
   }
 
   const files = fs
@@ -38,7 +36,8 @@ function readSources(): ArticleSource[] {
     .sort();
 
   if (files.length === 0) {
-    throw new Error(`هیچ فایل مقاله‌ای در ${CONTENT_DIR} نیست.`);
+    console.warn(`هیچ فایل مقاله‌ای در ${CONTENT_DIR} نیست — سایت بدون مقاله ساخته می‌شود.`);
+    return [];
   }
 
   const sources: ArticleSource[] = [];

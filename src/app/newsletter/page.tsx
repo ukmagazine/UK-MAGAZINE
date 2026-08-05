@@ -192,7 +192,7 @@ export default function NewsletterPage() {
               >
                 سیاست حریم خصوصی
               </a>
-              {' '}ما آمده است. پرسش‌ها را به {site.email} بفرستید.
+              {' '}ما آمده است.{site.email ? ` پرسش‌ها را به ${site.email} بفرستید.` : ''}
             </p>
           </div>
         </section>

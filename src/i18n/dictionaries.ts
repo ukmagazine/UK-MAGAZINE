@@ -313,7 +313,7 @@ const en: Dictionary = {
     legal: 'Legal',
     dailyBrief: 'The Daily Brief',
     join: 'Join',
-    copyright: 'A fictional publication built as a design template.',
+    copyright: 'All rights reserved.',
   },
   notFound: {
     error: 'Error 404',
@@ -465,7 +465,7 @@ const fa: Dictionary = {
     legal: 'حقوقی',
     dailyBrief: 'خلاصهٔ روزانه',
     join: 'عضویت',
-    copyright: 'یک نشریهٔ خیالی، ساخته‌شده به‌عنوان قالب طراحی.',
+    copyright: 'تمام حقوق برای یو‌کی مگزین محفوظ است.',
   },
   notFound: {
     error: 'خطای ۴۰۴',

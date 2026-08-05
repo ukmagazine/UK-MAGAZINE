@@ -26,6 +26,9 @@ const CATEGORY_SLUGS = [
   'culture',
   'health',
   'environment',
+  'society',
+  'sports',
+  'event',
 ] as const;
 
 /** ISO 8601 instant. Checked by parsing rather than by pattern. */

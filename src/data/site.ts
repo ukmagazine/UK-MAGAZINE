@@ -15,18 +15,18 @@ export const site = {
   description:
     'یو‌کی مگزین یک نشریهٔ مستقل بین‌المللی است که هوش مصنوعی، آموزش، فناوری، سیاست، رویدادهای جهان، اقتصاد، علم، فرهنگ، سلامت و محیط زیست را پوشش می‌دهد — با گزارشی روشن و بی‌حاشیه.',
   shortDescription: 'گزارش‌های روشن و بی‌شتاب از نیروهایی که جهان را دگرگون می‌کنند.',
-  /** Replace with the production origin before deploying. */
-  url: 'https://ukmagazine.example.com',
+  /** Interim GitHub Pages origin; replace when the custom domain launches. */
+  url: 'https://uniquensr.github.io/UK-MAGAZINE',
   locale: 'fa_IR',
-  founded: 2019,
-  established: 'تأسیس ۱۳۹۸ · گزارش از ۳۴ کشور',
-  email: 'newsroom@ukmagazine.example.com',
-  social: [
-    { label: 'یو‌کی مگزین در ایکس', handle: '@ukmagazine', href: 'https://example.com/ukmagazine', icon: 'x' },
-    { label: 'یو‌کی مگزین در لینکدین', handle: 'UK MAGAZINE', href: 'https://example.com/ukmagazine', icon: 'linkedin' },
-    { label: 'یو‌کی مگزین در یوتیوب', handle: 'UK MAGAZINE', href: 'https://example.com/ukmagazine', icon: 'youtube' },
-    { label: 'خوراک آر‌اس‌اس یو‌کی مگزین', handle: 'RSS', href: 'https://example.com/ukmagazine', icon: 'rss' },
-  ],
+  founded: null,
+  established: '',
+  email: '',
+  social: [] as Array<{
+    label: string;
+    handle: string;
+    href: string;
+    icon: 'x' | 'linkedin' | 'youtube' | 'rss';
+  }>,
   footer: {
     company: [
       { label: 'دربارهٔ ما', href: '/about' },

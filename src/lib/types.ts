@@ -15,7 +15,10 @@ export type CategorySlug =
   | 'science'
   | 'culture'
   | 'health'
-  | 'environment';
+  | 'environment'
+  | 'society'
+  | 'sports'
+  | 'event';
 
 export interface Category {
   slug: CategorySlug;

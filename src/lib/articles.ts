@@ -97,14 +97,16 @@ export function getArticlesByCategory(slug: CategorySlug, limit?: number): Resol
 }
 
 /** The lead story for the homepage hero. */
-export function getLeadStory(): ResolvedArticle {
+export function getLeadStory(): ResolvedArticle | undefined {
   const lead = articles.find((article) => article.featured) ?? articles[0];
-  return resolve(lead);
+  return lead ? resolve(lead) : undefined;
 }
 
 /** Supporting stories shown beside the hero lead. */
 export function getHeroSupport(count = 3): ResolvedArticle[] {
   const lead = getLeadStory();
+  if (!lead) return [];
+
   return resolveAll(
     articles.filter((article) => article.featured && article.id !== lead.id).slice(0, count),
   );

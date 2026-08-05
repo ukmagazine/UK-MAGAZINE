@@ -44,9 +44,11 @@ export function Footer() {
               {site.description}
             </p>
 
-            <p className="mt-4 text-xs uppercase tracking-[0.14em] text-white/40">
-              {site.established}
-            </p>
+            {site.established ? (
+              <p className="mt-4 text-xs uppercase tracking-[0.14em] text-white/40">
+                {site.established}
+              </p>
+            ) : null}
 
             <div className="mt-8 max-w-sm">
               <p className="label mb-3 flex items-center text-white">

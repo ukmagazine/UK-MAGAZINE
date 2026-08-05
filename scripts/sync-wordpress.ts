@@ -4,13 +4,11 @@
  *
  *   npm run sync:wp
  *
- * Why a sync step rather than fetching during the build:
+ * Why a sync step rather than fetching inside Next.js:
  *
  *   - the content loader stays synchronous, so nothing downstream changes
- *   - the fetched content lands in the repository as files, which means every
- *     run is a reviewable diff and a bad batch can be reverted
- *   - a build cannot be broken by WordPress being unreachable at the moment it
- *     runs; the last good content is already on disk
+ *   - validation and logging happen before Next starts rendering routes
+ *   - CI can materialise JSON, build from it, then discard it without a bot commit
  *
  * Only files this script wrote are pruned (their ids carry a `wp-` prefix), so
  * hand-authored articles sitting alongside them are left alone.
@@ -18,7 +16,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fetchWordPressArticles } from '../src/lib/content/wordpress';
+import { fetchWordPressArticles, type WordPressFetchStats } from '../src/lib/content/wordpress';
 import type { ArticleSource } from '../src/lib/content/schema';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -36,7 +34,10 @@ async function main(): Promise<void> {
   }
 
   console.log(`دریافت از ${baseUrl} …`);
-  const articles: ArticleSource[] = await fetchWordPressArticles(baseUrl);
+  let fetchStats: WordPressFetchStats = { succeeded: 0, skipped: 0 };
+  const articles: ArticleSource[] = await fetchWordPressArticles(baseUrl, (stats) => {
+    fetchStats = stats;
+  });
 
   if (articles.length === 0) {
     console.error('هیچ پست منتشرشده‌ای برگردانده نشد — چیزی نوشته نشد.');
@@ -89,6 +90,9 @@ async function main(): Promise<void> {
   const allReports = articles.every((article) => article.kind === 'report');
 
   const notes: string[] = [];
+  if (fetchStats.skipped > 0) {
+    notes.push(`${fetchStats.skipped} پست نامعتبر رد شد؛ جزئیات در هشدارهای بالاتر آمده است.`);
+  }
   if (transliterated.length > 0) {
     notes.push(
       `${transliterated.length} اسلاگ از فارسی به لاتین برگردانده شد ` +

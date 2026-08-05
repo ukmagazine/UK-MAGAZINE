@@ -31,6 +31,8 @@ add_action('init', function () {
         'uk_image_credit' => 'اعتبار تصویر',
         // Editorial treatment: report | analysis | opinion | video | breaking
         'uk_kind'         => 'نوع گزارش',
+        // Absolute URL of the lead image, hotlinked from its origin CDN.
+        'uk_image_url'    => 'نشانی تصویر شاخص',
     ];
 
     foreach ($fields as $key => $label) {

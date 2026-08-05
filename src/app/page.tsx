@@ -23,6 +23,8 @@ import {
 
 export default function HomePage() {
   const lead = getLeadStory();
+  if (!lead) return null;
+
   const support = getHeroSupport(3);
   const heroIds = [lead.id, ...support.map((article) => article.id)];
 

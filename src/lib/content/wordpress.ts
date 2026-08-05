@@ -28,6 +28,7 @@ const META = {
   subtitle: 'uk_subtitle',
   imageCredit: 'uk_image_credit',
   kind: 'uk_kind',
+  imageUrl: 'uk_image_url',
 } as const;
 
 const PER_PAGE = 100;
@@ -83,6 +84,35 @@ function readImage(media: WpMedia | undefined): string | undefined {
   return unique.length > 0 ? `${source}#wp=${unique.join(',')}` : source;
 }
 
+/**
+ * Lead image supplied as an absolute URL in post meta.
+ *
+ * This is the automation's path: images are hotlinked from their origin CDN
+ * (Unsplash) rather than uploaded, so there is no media library entry and no
+ * `#wp=` size list to attach. `image-loader.ts` handles a bare URL.
+ */
+function readImageUrl(post: WpPost): string | undefined {
+  const raw = (post.meta?.[META.imageUrl] ?? '').trim();
+  if (!raw) {
+    console.warn(
+      `پست ${post.id} (${post.slug}) فیلد ${META.imageUrl} ندارد؛ تصویر شاخص وردپرس بررسی می‌شود.`,
+    );
+    return undefined;
+  }
+
+  try {
+    const url = new URL(raw);
+    if (url.protocol === 'https:' || url.protocol === 'http:') return raw;
+  } catch {
+    // The validation warning below will name the missing image field.
+  }
+
+  console.warn(
+    `پست ${post.id} (${post.slug}) مقدار نامعتبر ${META.imageUrl} داشت؛ تصویر شاخص وردپرس بررسی می‌شود.`,
+  );
+  return undefined;
+}
+
 /** WordPress returns HTML-escaped, tag-wrapped strings even for plain fields. */
 function plain(html: string): string {
   return html
@@ -133,6 +163,9 @@ const CATEGORY_SLUGS = new Set<string>([
   'culture',
   'health',
   'environment',
+  'society',
+  'sports',
+  'event',
 ]);
 
 /** First WordPress category term that matches one of our desks. */
@@ -222,7 +255,7 @@ function toSource(post: WpPost): unknown {
     authorId: author?.slug ?? 'a-rahimi',
     publishedAt: new Date(`${post.date_gmt}Z`).toISOString(),
     updatedAt: post.modified_gmt ? new Date(`${post.modified_gmt}Z`).toISOString() : undefined,
-    image: readImage(media),
+    image: readImageUrl(post) ?? readImage(media),
     imageAlt: media?.alt_text?.trim() || plain(post.title.rendered),
     imageCredit: (post.meta?.[META.imageCredit] ?? '').trim(),
     kind: readKind(post),
@@ -231,13 +264,23 @@ function toSource(post: WpPost): unknown {
   };
 }
 
+/** Result counts from a completed WordPress fetch. */
+export interface WordPressFetchStats {
+  succeeded: number;
+  skipped: number;
+}
+
 /** Every published post, paged through and validated. */
-export async function fetchWordPressArticles(baseUrl: string): Promise<ArticleSource[]> {
+export async function fetchWordPressArticles(
+  baseUrl: string,
+  onComplete?: (stats: WordPressFetchStats) => void,
+): Promise<ArticleSource[]> {
   const sources: ArticleSource[] = [];
   const problems: string[] = [];
+  let skipped = 0;
 
   for (let page = 1; ; page += 1) {
-    const url = new URL('/wp-json/wp/v2/posts', baseUrl);
+    const url = new URL(`${baseUrl.replace(/\/+$/, '')}/wp-json/wp/v2/posts`);
     url.searchParams.set('status', 'publish');
     url.searchParams.set('per_page', String(PER_PAGE));
     url.searchParams.set('page', String(page));
@@ -258,22 +301,31 @@ export async function fetchWordPressArticles(baseUrl: string): Promise<ArticleSo
       const result = articleSourceSchema.safeParse(toSource(post));
       if (result.success) {
         sources.push(result.data);
-      } else {
-        for (const issue of result.error.issues) {
-          problems.push(`پست ${post.id} (${post.slug}) → ${issue.path.join('.')}: ${issue.message}`);
-        }
+        continue;
       }
+
+      skipped += 1;
+      const postProblems = result.error.issues.map((issue) => {
+        const path = issue.path.length > 0 ? issue.path.join('.') : '(ریشه)';
+        return `پست ${post.id} (${post.slug}) → ${path}: ${issue.message}`;
+      });
+      problems.push(...postProblems);
+      console.warn(`پست رد شد:\n  - ${postProblems.join('\n  - ')}`);
     }
 
     const totalPages = Number(response.headers.get('x-wp-totalpages') ?? '1');
     if (page >= totalPages) break;
   }
 
-  if (problems.length > 0) {
+  const stats = { succeeded: sources.length, skipped } satisfies WordPressFetchStats;
+
+  if (sources.length === 0 && problems.length > 0) {
     throw new Error(
-      `اعتبارسنجی محتوای وردپرس شکست خورد (${problems.length} مورد):\n  - ${problems.join('\n  - ')}`,
+      `همهٔ پست‌های وردپرس رد شدند (${problems.length} خطا):\n  - ${problems.join('\n  - ')}`,
     );
   }
 
+  onComplete?.(stats);
+  console.log(`${stats.succeeded} پست معتبر دریافت شد، ${stats.skipped} پست رد شد.`);
   return sources;
 }

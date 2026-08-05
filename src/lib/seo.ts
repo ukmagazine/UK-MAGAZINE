@@ -81,9 +81,9 @@ export function organizationJsonLd(): Record<string, unknown> {
     name: site.name,
     url: site.url,
     description: site.description,
-    foundingDate: String(site.founded),
-    email: site.email,
-    sameAs: site.social.map((entry) => entry.href),
+    ...(site.founded ? { foundingDate: String(site.founded) } : {}),
+    ...(site.email ? { email: site.email } : {}),
+    ...(site.social.length > 0 ? { sameAs: site.social.map((entry) => entry.href) } : {}),
     publishingPrinciples: absoluteUrl('/about#standards'),
     diversityPolicy: absoluteUrl('/about#standards'),
   };
