@@ -27,7 +27,7 @@ interface HeroStoryProps {
  */
 export function HeroStory({ lead, support }: HeroStoryProps) {
   const { t, isRtl } = useLocale();
-  const href = `/article/${lead.slug}`;
+  const href = `/article/${lead.slug}/`;
 
   return (
     <section aria-labelledby="lead-story-heading" className="pt-6 sm:pt-8">

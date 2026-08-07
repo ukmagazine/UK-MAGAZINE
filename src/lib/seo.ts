@@ -139,7 +139,7 @@ export function articleJsonLd(article: ResolvedArticle): Record<string, unknown>
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': absoluteUrl(`/article/${article.slug}`),
+      '@id': absoluteUrl(`/article/${article.slug}/`),
     },
     isAccessibleForFree: true,
   };
@@ -176,7 +176,7 @@ export function collectionJsonLd(
       itemListElement: articles.slice(0, 10).map((article, index) => ({
         '@type': 'ListItem',
         position: index + 1,
-        url: absoluteUrl(`/article/${article.slug}`),
+        url: absoluteUrl(`/article/${article.slug}/`),
         name: article.title,
       })),
     },

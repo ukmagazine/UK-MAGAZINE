@@ -20,19 +20,38 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Download repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Install packages
         run: npm ci
+
+      - name: Verify WordPress secret
+        shell: bash
+        env:
+          WORDPRESS_URL: ${{ secrets.WORDPRESS_URL }}
+        run: |
+          if [ -z "$WORDPRESS_URL" ]; then
+            echo "::error::Repository secret WORDPRESS_URL is missing. Set it to https://cms.theukmag.com"
+            exit 1
+          fi
+
+      - name: Type-check source
+        run: npm run typecheck
+
+      - name: Remove legacy static article JSON
+        shell: bash
+        run: |
+          find content/articles -maxdepth 1 -type f -name '*.json' -print -delete || true
 
       - name: Sync content from WordPress
         run: npm run sync:wp
@@ -40,16 +59,13 @@ jobs:
           WORDPRESS_URL: ${{ secrets.WORDPRESS_URL }}
 
       - name: Configure GitHub Pages
-        id: pages
         uses: actions/configure-pages@v5
 
       - name: Build website
         run: npm run build
-        env:
-          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
 
       - name: Upload website
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./out
 
@@ -58,9 +74,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: build
 
     steps:
       - name: Deploy website
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

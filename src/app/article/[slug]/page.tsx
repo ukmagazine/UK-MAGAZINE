@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ChevronRight, ListChecks } from 'lucide-react';
 import type { Metadata } from 'next';
+import { AdSlot } from '@/components/ads/AdSlot';
 import { ArticleBadge } from '@/components/article/ArticleBadge';
 import { ArticleBody, extractHeadings } from '@/components/article/ArticleBody';
 import { BookmarkButton } from '@/components/article/BookmarkButton';
@@ -47,7 +48,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return buildMetadata({
       title: 'گزارش پیدا نشد',
       description: 'گزارشی که دنبالش هستید در دسترس نیست.',
-      path: `/article/${slug}`,
+      path: `/article/${slug}/`,
       noIndex: true,
     });
   }
@@ -55,7 +56,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return buildMetadata({
     title: article.title,
     description: article.summary,
-    path: `/article/${article.slug}`,
+    path: `/article/${article.slug}/`,
     image: article.image,
     type: 'article',
     publishedTime: article.publishedAt,
@@ -79,7 +80,7 @@ export default async function ArticlePage({ params }: PageProps) {
   const mostRead = getMostRead(5)
     .filter((item) => item.id !== article.id)
     .slice(0, 4);
-  const path = `/article/${article.slug}`;
+  const path = `/article/${article.slug}/`;
 
   const trail = [
     { name: 'خانه', path: '/' },
@@ -231,10 +232,9 @@ export default async function ArticlePage({ params }: PageProps) {
               style={{ clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }}
             />
           </div>
-          {/* Caption only. Imagery is the publication's own, so there is no
-              third party to credit. */}
           <figcaption className="mt-2.5 border-s-2 border-brand-red ps-3 text-sm text-ink-soft">
             {article.imageAlt}
+            {article.imageCredit ? ` · ${article.imageCredit}` : ''}
           </figcaption>
         </figure>
 
@@ -267,6 +267,7 @@ export default async function ArticlePage({ params }: PageProps) {
               ) : null}
 
               <ArticleBody blocks={article.body} />
+              <AdSlot placement="article-end" className="mt-10" />
 
               {/* Tags ---------------------------------------- */}
               <div className="mt-10 border-t border-line pt-6">
@@ -332,7 +333,7 @@ export default async function ArticlePage({ params }: PageProps) {
                       <div className="min-w-0">
                         <h3 className="font-serif text-[0.95rem] font-medium leading-snug text-ink">
                           <Link
-                            href={`/article/${item.slug}`}
+                            href={`/article/${item.slug}/`}
                             className="transition-colors after:absolute after:inset-0 after:content-[''] hover:text-brand-red"
                           >
                             {item.title}

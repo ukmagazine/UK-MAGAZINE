@@ -1,24 +1,21 @@
 /**
  * Publication-wide configuration.
  *
- * Change the brand name, tagline, canonical URL and footer link groups here —
- * the header wordmark, metadata, structured data and sitemap all read from it.
- *
- * The publication is Persian-only; the wordmark stays in Latin because it is
- * the registered brand mark, which is normal practice for Persian mastheads.
+ * Canonical URLs, Open Graph, sitemap and shared footer metadata read from this
+ * single object. Values that have not been supplied by the publisher stay
+ * empty/null and the UI omits them instead of inventing placeholder data.
  */
 export const site = {
   name: 'UK MAGAZINE',
-  /** Rendered as two weighted halves: bold lead, lighter trail. */
   wordmark: { lead: 'UK', trail: 'MAGAZINE' },
   tagline: 'جهان، در کانون توجه.',
   description:
-    'یو‌کی مگزین یک نشریهٔ مستقل بین‌المللی است که هوش مصنوعی، آموزش، فناوری، سیاست، رویدادهای جهان، اقتصاد، علم، فرهنگ، سلامت و محیط زیست را پوشش می‌دهد — با گزارشی روشن و بی‌حاشیه.',
-  shortDescription: 'گزارش‌های روشن و بی‌شتاب از نیروهایی که جهان را دگرگون می‌کنند.',
-  /** Interim GitHub Pages origin; replace when the custom domain launches. */
-  url: 'https://uniquensr.github.io/UK-MAGAZINE',
+    'یو‌کی مگزین یک نشریهٔ فارسی‌زبان برای ایرانیان بریتانیاست که جهان، سیاست، اقتصاد، فناوری، فرهنگ، سلامت، جامعه، ورزش و رویدادها را پوشش می‌دهد.',
+  shortDescription:
+    'خبرها و گزارش‌های فارسی برای ایرانیان بریتانیا، با تمرکز بر موضوعاتی که بر زندگی روزمره اثر می‌گذارند.',
+  url: 'https://theukmag.com',
   locale: 'fa_IR',
-  founded: null,
+  founded: null as number | null,
   established: '',
   email: '',
   social: [] as Array<{
@@ -27,13 +24,21 @@ export const site = {
     href: string;
     icon: 'x' | 'linkedin' | 'youtube' | 'rss';
   }>,
+  /**
+   * Provisional contractual hosting credit. Keep the three fields here so the
+   * final wording/URL/rel requested by Krystal can be changed in one place.
+   */
+  hostingCredit: {
+    label: 'میزبانی توسط Krystal',
+    href: 'https://krystal.io',
+    rel: 'noopener',
+  },
   footer: {
     company: [
       { label: 'دربارهٔ ما', href: '/about' },
       { label: 'تحریریه', href: '/about#newsroom' },
       { label: 'اصول و اخلاق حرفه‌ای', href: '/about#standards' },
       { label: 'فرصت‌های شغلی', href: '/about#careers' },
-      { label: 'تماس با ما', href: '/about#contact' },
     ],
     legal: [
       { label: 'شرایط استفاده', href: '/about#terms' },

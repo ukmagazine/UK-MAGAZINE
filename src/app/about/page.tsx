@@ -3,7 +3,7 @@ import { Globe2, PenLine, Scale, ShieldCheck } from 'lucide-react';
 import { NewsletterCard } from '@/components/newsletter/NewsletterCard';
 import { Reveal } from '@/components/ui/Reveal';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { categories, primaryNavCategories } from '@/data/categories';
+import { categories } from '@/data/categories';
 import { site } from '@/data/site';
 import { articles } from '@/data/articles';
 import { breadcrumbJsonLd, buildMetadata, jsonLdProps } from '@/lib/seo';
@@ -33,14 +33,14 @@ const PRINCIPLES = [
   {
     Icon: Globe2,
     title: 'شفافیت در شیوهٔ تولید',
-    body: 'گزارش‌های ما در تحریریهٔ خودکار این نشریه تولید و پیش از انتشار بازبینی می‌شوند. امضای هر مطلب نام نشریه است، نه نام یک خبرنگار خیالی — چون کار را نشریه انجام داده است.',
+    body: 'گزارش‌ها در یک خط تولید تحریریه‌ای با کمک اتوماسیون تهیه و پیش از انتشار بازبینی می‌شوند. امضای هر مطلب نام نشریه است تا شیوهٔ تولید برای خواننده شفاف بماند.',
   },
 ];
 
 const STATS = [
   { value: String(categories.length), label: 'سرویس خبری' },
   { value: String(articles.length), label: 'گزارش منتشرشده' },
-  { value: String(primaryNavCategories.length), label: 'سرویس اصلی' },
+  ...(site.founded ? [{ value: String(site.founded), label: 'سال تأسیس' }] : []),
   { value: '۲۴/۷', label: 'پوشش پیوسته' },
 ];
 
@@ -61,16 +61,9 @@ const SECTIONS = [
     body: 'خبرنگاری را استخدام می‌کنیم که بتواند سند بودجه بخواند و آن را برای کسی که نمی‌تواند توضیح دهد. آگهی‌ها به‌محض ایجاد همین‌جا منتشر می‌شوند، همراه با بازهٔ حقوق. از هر جایی که استخدام قانونی ممکن باشد درخواست می‌پذیریم.',
   },
   {
-    id: 'contact',
-    title: 'تماس با ما',
-    body: site.email
-      ? `پرسش‌های تحریریه، سرنخ خبری و اصلاحیه‌ها را به ${site.email} بفرستید.`
-      : 'راه ارتباطی رسمی تحریریه هم‌زمان با راه‌اندازی دامنهٔ اصلی اعلام می‌شود.',
-  },
-  {
     id: 'terms',
     title: 'شرایط استفاده',
-    body: 'این نشریه یک قالب طراحی است و این بخش جای شرایطی را می‌گیرد که یک رسانهٔ واقعی اینجا منتشر می‌کند — شامل استفادهٔ مجاز، شرایط اشتراک، مجوز بازنشر گزارش‌ها و حدود مسئولیت ما.',
+    body: 'جزئیات شرایط استفاده، مجوز بازنشر و حدود مسئولیت سایت پس از تأیید متن حقوقی در همین بخش منتشر می‌شود. تا آن زمان این متن به‌عنوان شرایط نهایی تلقی نمی‌شود.',
   },
   {
     id: 'privacy',
@@ -80,7 +73,7 @@ const SECTIONS = [
   {
     id: 'cookies',
     title: 'تنظیمات کوکی',
-    body: 'این قالب هیچ کوکی ردیابی‌ای تنظیم نمی‌کند. در استقرار واقعی، اینجا یک مرکز تنظیمات قرار می‌گیرد که به‌طور پیش‌فرض تنها کوکی‌های ضروری را فعال می‌کند و تحلیل و شخصی‌سازی تا زمان تأیید مخاطب خاموش می‌ماند.',
+    body: 'نسخهٔ فعلی سایت باید تنها از ذخیره‌سازی و کوکی‌های لازم برای قابلیت‌های خود استفاده کند. هر ابزار تحلیلی یا شخصی‌سازی آینده باید همراه با تنظیمات شفاف رضایت کاربر اضافه شود.',
   },
   {
     id: 'accessibility',
@@ -150,7 +143,7 @@ export default function AboutPage() {
         </dl>
 
         {/* Principles --------------------------------------- */}
-        <section className="mt-16" aria-labelledby="principles-heading">
+        <section id="newsroom" className="mt-16 scroll-mt-32" aria-labelledby="principles-heading">
           <SectionHeader
             title="چگونه کار می‌کنیم"
             kicker="اصول"

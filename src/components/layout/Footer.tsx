@@ -25,7 +25,7 @@ function XIcon({ className }: { className?: string }) {
   );
 }
 
-/** Dark charcoal footer with restrained red accents. */
+/** Dark charcoal footer with restrained brand accents. */
 export function Footer() {
   const { t } = useLocale();
   const year = new Date(Date.parse('2026-01-01T00:00:00.000Z')).getUTCFullYear();
@@ -119,28 +119,38 @@ export function Footer() {
 
         {/* Base bar --------------------------------------------- */}
         <div className="mt-12 flex flex-col gap-6 border-t border-line-dark pt-8 sm:mt-14 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-1">
-            {site.social.map((entry) => {
-              const Icon = SOCIAL_ICONS[entry.icon];
-              return (
-                <a
-                  key={entry.icon}
-                  href={entry.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={entry.label}
-                  className="inline-flex h-11 w-11 items-center justify-center text-white/60 transition-colors hover:text-brand-red"
-                >
-                  <Icon className="h-[18px] w-[18px]" />
-                </a>
-              );
-            })}
-          </div>
+          {site.social.length > 0 ? (
+            <div className="flex items-center gap-1">
+              {site.social.map((entry) => {
+                const Icon = SOCIAL_ICONS[entry.icon];
+                return (
+                  <a
+                    key={entry.icon}
+                    href={entry.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={entry.label}
+                    className="inline-flex h-11 w-11 items-center justify-center text-white/60 transition-colors hover:text-brand-red"
+                  >
+                    <Icon className="h-[18px] w-[18px]" />
+                  </a>
+                );
+              })}
+            </div>
+          ) : <span />}
 
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
             <p className="text-xs text-white/45">
               © {year} {site.name}. {t.footer.copyright}
             </p>
+            <a
+              href={site.hostingCredit.href}
+              target="_blank"
+              rel={site.hostingCredit.rel}
+              className="text-xs text-white/55 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white"
+            >
+              {site.hostingCredit.label}
+            </a>
           </div>
         </div>
       </div>

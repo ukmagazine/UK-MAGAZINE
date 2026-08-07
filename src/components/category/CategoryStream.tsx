@@ -1,12 +1,14 @@
 'use client';
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
+import { AdSlot } from '@/components/ads/AdSlot';
 import { ArticleCard } from '@/components/article/ArticleCard';
 import type { CardArticle } from '@/lib/types';
 import { useLocale } from '@/components/providers/LocaleProvider';
 import { fill } from '@/i18n/dictionaries';
 import { formatCount } from '@/lib/format';
+import { FEED_AD_INTERVAL } from '@/data/ads';
 
 interface CategoryStreamProps {
   articles: CardArticle[];
@@ -36,8 +38,8 @@ export function CategoryStream({ articles, pageSize = 6 }: CategoryStreamProps) 
       <div className="grid grid-cols-1 gap-x-6 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">
         <AnimatePresence mode="popLayout" initial={false}>
           {shown.map((article, index) => (
+            <Fragment key={article.id}>
             <motion.div
-              key={article.id}
               layout={!reduced}
               initial={reduced ? false : { opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -50,6 +52,10 @@ export function CategoryStream({ articles, pageSize = 6 }: CategoryStreamProps) 
             >
               <ArticleCard article={article} variant="standard" headingLevel="h3" />
             </motion.div>
+            {(index + 1) % FEED_AD_INTERVAL === 0 ? (
+              <AdSlot placement="feed" as="div" className="sm:col-span-2 lg:col-span-3" />
+            ) : null}
+            </Fragment>
           ))}
         </AnimatePresence>
       </div>

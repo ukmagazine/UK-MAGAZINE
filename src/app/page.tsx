@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import { AdSlot } from '@/components/ads/AdSlot';
 import { ArticleCard } from '@/components/article/ArticleCard';
 import { ArticleGrid } from '@/components/article/ArticleGrid';
 import { EditorsPicksRow } from '@/components/article/EditorsPicksRow';
@@ -23,8 +24,6 @@ import {
 
 export default function HomePage() {
   const lead = getLeadStory();
-  if (!lead) return null;
-
   const support = getHeroSupport(3);
   const heroIds = [lead.id, ...support.map((article) => article.id)];
 
@@ -34,12 +33,14 @@ export default function HomePage() {
   const latestFeature = latestAll.find((article) => article.id !== latestAll[0]?.id);
   const mostRead = getMostRead(5);
 
-  const aiTech = getByCategories(['ai', 'technology'], 5);
-  const [aiFeature, ...aiSupport] = aiTech;
+  const technology = getArticlesByCategory('technology', 5);
+  const [technologyFeature, ...technologySupport] = technology;
 
-  const education = getArticlesByCategory('education', 3);
+  const health = getArticlesByCategory('health', 3);
   const politicsWorld = getByCategories(['politics', 'world'], 4);
-  const scienceEnvironment = getByCategories(['science', 'environment'], 3);
+  const society = getArticlesByCategory('society', 3);
+  const sports = getArticlesByCategory('sports', 3);
+  const events = getArticlesByCategory('event', 3);
   const business = getArticlesByCategory('business', 4);
   const [businessLead, ...businessRest] = business;
   const culture = getArticlesByCategory('culture', 3);
@@ -96,15 +97,17 @@ export default function HomePage() {
           </aside>
         </section>
 
-        {/* AI and Technology ------------------------------------ */}
-        {aiFeature ? (
-          <section className="mt-12 sm:mt-16" aria-labelledby="ai-tech-heading">
-            <SectionHeader title="AI and Technology" titleKey="aiTech" href="/category/ai" />
+        <AdSlot placement="homepage" className="mt-12 sm:mt-16" />
+
+        {/* Technology -------------------------------------------- */}
+        {technologyFeature ? (
+          <section className="mt-12 sm:mt-16" aria-labelledby="technology-heading">
+            <SectionHeader title="فناوری" href="/category/technology" />
 
             <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-12">
               <Reveal className="lg:col-span-7">
                 <ArticleCard
-                  article={aiFeature}
+                  article={technologyFeature}
                   variant="standard"
                   headingLevel="h3"
                   priority
@@ -115,7 +118,7 @@ export default function HomePage() {
 
               <div className="lg:col-span-5">
                 <div className="space-y-6 lg:border-s lg:border-line lg:ps-8">
-                  {aiSupport.map((article, index) => (
+                  {technologySupport.map((article, index) => (
                     <Reveal
                       key={article.id}
                       delay={index * 0.06}
@@ -135,11 +138,13 @@ export default function HomePage() {
           </section>
         ) : null}
 
-        {/* Education -------------------------------------------- */}
-        <section className="mt-12 sm:mt-16" aria-labelledby="education-heading">
-          <SectionHeader title="آموزش" titleKey="education" href="/category/education" />
-          <ArticleGrid articles={education} columns={3} divided />
-        </section>
+        {/* Health ------------------------------------------------ */}
+        {health.length > 0 ? (
+          <section className="mt-12 sm:mt-16" aria-labelledby="health-heading">
+            <SectionHeader title="سلامت" href="/category/health" />
+            <ArticleGrid articles={health} columns={3} divided />
+          </section>
+        ) : null}
 
         {/* Politics and World ----------------------------------- */}
         <section className="mt-12 sm:mt-16" aria-labelledby="politics-heading">
@@ -166,11 +171,13 @@ export default function HomePage() {
       ) : null}
 
       <div className="frame">
-        {/* Science and Environment — image cards ---------------- */}
-        <section className="mt-12 sm:mt-16" aria-labelledby="science-heading">
-          <SectionHeader title="علم و محیط زیست" titleKey="scienceEnvironment" href="/category/science" />
-          <ArticleGrid articles={scienceEnvironment} variant="image" columns={3} />
-        </section>
+        {/* Society — image cards --------------------------------- */}
+        {society.length > 0 ? (
+          <section className="mt-12 sm:mt-16" aria-labelledby="society-heading">
+            <SectionHeader title="جامعه" href="/category/society" />
+            <ArticleGrid articles={society} variant="image" columns={3} />
+          </section>
+        ) : null}
 
         {/* Business --------------------------------------------- */}
         {businessLead ? (
@@ -226,6 +233,21 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
+          </section>
+        ) : null}
+
+        {/* Sports and events ------------------------------------- */}
+        {sports.length > 0 ? (
+          <section className="mt-12 sm:mt-16" aria-labelledby="sports-heading">
+            <SectionHeader title="ورزش" href="/category/sports" />
+            <ArticleGrid articles={sports} columns={3} showSummary={false} />
+          </section>
+        ) : null}
+
+        {events.length > 0 ? (
+          <section className="mt-12 sm:mt-16" aria-labelledby="events-heading">
+            <SectionHeader title="رویداد" href="/category/event" />
+            <ArticleGrid articles={events} columns={3} showSummary={false} />
           </section>
         ) : null}
 

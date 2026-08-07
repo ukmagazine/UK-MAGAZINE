@@ -5,20 +5,8 @@
  * field here surfaces compile errors at every place that needs updating.
  */
 
-export type CategorySlug =
-  | 'ai'
-  | 'education'
-  | 'technology'
-  | 'politics'
-  | 'world'
-  | 'business'
-  | 'science'
-  | 'culture'
-  | 'health'
-  | 'environment'
-  | 'society'
-  | 'sports'
-  | 'event';
+import type { CategorySlug } from '@/lib/category-slugs';
+export type { CategorySlug } from '@/lib/category-slugs';
 
 export interface Category {
   slug: CategorySlug;

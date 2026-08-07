@@ -20,7 +20,7 @@ export function NextArticleNav({ previous, next, className }: NextArticleNavProp
     >
       {previous ? (
         <Link
-          href={`/article/${previous.slug}`}
+          href={`/article/${previous.slug}/`}
           className="group flex flex-col gap-2 border-b border-line p-5 transition-colors hover:bg-surface-soft sm:border-b-0 sm:border-e sm:p-7"
         >
           <span className="label inline-flex items-center gap-1.5 text-ink-soft">
@@ -40,7 +40,7 @@ export function NextArticleNav({ previous, next, className }: NextArticleNavProp
 
       {next ? (
         <Link
-          href={`/article/${next.slug}`}
+          href={`/article/${next.slug}/`}
           className="group flex flex-col items-start gap-2 p-5 transition-colors hover:bg-surface-soft sm:items-end sm:p-7 sm:text-end"
         >
           <span className="label inline-flex items-center gap-1.5 text-ink-soft">

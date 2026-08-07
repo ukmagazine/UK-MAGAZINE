@@ -1,47 +1,39 @@
 <?php
 /**
- * Plugin Name: UK Magazine bridge
- * Description: Exposes the three extra fields the static front end reads over the REST API.
- * Version:     1.0.0
+ * Plugin Name: UK Magazine Bridge
+ * Description: Registers the four UK Magazine post meta fields for Make.com and the static front end, and adds an editor meta box.
+ * Version:     2.0.0
  *
- * ── نصب ─────────────────────────────────────────────────────────────
- * این فایل را در وردپرس اینجا بگذارید:
- *
- *     wp-content/mu-plugins/uk-magazine-bridge.php
- *
- * پوشهٔ mu-plugins اگر نبود بسازید. افزونه‌های این پوشه همیشه فعال‌اند و
- * نیازی به فعال‌سازی دستی ندارند.
- * ────────────────────────────────────────────────────────────────────
+ * Install as a must-use plugin:
+ *   wp-content/mu-plugins/uk-magazine-bridge.php
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
+function ukmag_bridge_fields() {
+    return [
+        'uk_subtitle'     => ['label' => 'زیرعنوان', 'type' => 'text'],
+        'uk_image_credit' => ['label' => 'اعتبار تصویر', 'type' => 'text'],
+        'uk_kind'         => ['label' => 'نوع گزارش', 'type' => 'text'],
+        'uk_image_url'    => ['label' => 'نشانی تصویر (Hotlink URL)', 'type' => 'url'],
+    ];
+}
+
 /**
- * Register the meta keys the front end maps onto `subtitle`, `imageCredit`
- * and `kind`. `show_in_rest` is what makes them visible to the sync script —
- * without it they exist in the database but never reach the API.
+ * These keys are the API contract with Make.com. `show_in_rest` is essential:
+ * without it WordPress may accept the post while silently discarding meta from
+ * the REST payload seen by the static sync job.
  */
 add_action('init', function () {
-    $fields = [
-        // Deck / standfirst under the headline.
-        'uk_subtitle'     => 'زیرعنوان',
-        // Photo credit shown under the lead image.
-        'uk_image_credit' => 'اعتبار تصویر',
-        // Editorial treatment: report | analysis | opinion | video | breaking
-        'uk_kind'         => 'نوع گزارش',
-        // Absolute URL of the lead image, hotlinked from its origin CDN.
-        'uk_image_url'    => 'نشانی تصویر شاخص',
-    ];
-
-    foreach ($fields as $key => $label) {
+    foreach (ukmag_bridge_fields() as $key => $config) {
         register_post_meta('post', $key, [
-            'type'         => 'string',
-            'description'  => $label,
-            'single'       => true,
-            'default'      => '',
-            'show_in_rest' => true,
+            'type'          => 'string',
+            'description'   => $config['label'],
+            'single'        => true,
+            'default'       => '',
+            'show_in_rest'  => true,
             'auth_callback' => function () {
                 return current_user_can('edit_posts');
             },
@@ -49,25 +41,72 @@ add_action('init', function () {
     }
 });
 
-/**
- * Generate a variant close to the site's 1440px canvas.
- *
- * WordPress ships thumbnail/medium/medium_large/large (max 1024). The lead
- * image on a desktop hero is wider than that, and without this the browser
- * falls back to the full-size original for it.
- */
-add_action('after_setup_theme', function () {
-    add_image_size('uk-wide', 1440, 0, false);
+/** Make the four fields obvious in wp-admin; editors should not rely on the generic Custom Fields box. */
+add_action('add_meta_boxes', function () {
+    add_meta_box(
+        'ukmagazine-fields',
+        'UK Magazine Fields',
+        function ($post) {
+            wp_nonce_field('ukmagazine_fields_save', 'ukmagazine_fields_nonce');
+
+            echo '<div style="display:grid;gap:14px">';
+            foreach (ukmag_bridge_fields() as $key => $config) {
+                $value = get_post_meta($post->ID, $key, true);
+                printf(
+                    '<label for="%1$s"><strong>%2$s</strong><br><input id="%1$s" name="%1$s" type="%3$s" value="%4$s" style="width:100%%;margin-top:5px" autocomplete="off"></label>',
+                    esc_attr($key),
+                    esc_html($config['label']),
+                    esc_attr($config['type']),
+                    esc_attr($value)
+                );
+            }
+            echo '<p style="margin:0;color:#646970">uk_kind: report | analysis | opinion | video | breaking</p>';
+            echo '</div>';
+        },
+        'post',
+        'normal',
+        'high'
+    );
 });
 
-/**
- * Allow the static front end to read the API from its build machine.
- *
- * Reading published posts is public in WordPress by default, so this is only
- * needed if a security plugin has locked the REST API down. Narrow the origin
- * before using it in production.
- */
-add_filter('rest_pre_serve_request', function ($served) {
-    // header('Access-Control-Allow-Origin: https://your-site.example');
-    return $served;
+add_action('save_post_post', function ($post_id) {
+    if (!isset($_POST['ukmagazine_fields_nonce']) ||
+        !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['ukmagazine_fields_nonce'])), 'ukmagazine_fields_save')) {
+        return;
+    }
+
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+
+    foreach (ukmag_bridge_fields() as $key => $config) {
+        if (!array_key_exists($key, $_POST)) {
+            continue;
+        }
+
+        $raw = wp_unslash($_POST[$key]);
+        if ($key === 'uk_image_url') {
+            $value = esc_url_raw($raw, ['http', 'https']);
+        } elseif ($key === 'uk_kind') {
+            $candidate = sanitize_key($raw);
+            $value = in_array($candidate, ['report', 'analysis', 'opinion', 'video', 'breaking'], true)
+                ? $candidate
+                : 'report';
+        } else {
+            $value = sanitize_text_field($raw);
+        }
+
+        update_post_meta($post_id, $key, $value);
+    }
+});
+
+/** The CMS is a headless content store; the public WordPress theme must not compete with the static site in search. */
+add_filter('wp_robots', function ($robots) {
+    $robots['noindex'] = true;
+    $robots['nofollow'] = true;
+    return $robots;
 });

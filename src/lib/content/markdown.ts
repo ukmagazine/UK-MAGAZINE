@@ -38,7 +38,23 @@ const UNORDERED_ITEM_RE = /^[-*+]\s+/;
 
 /** Strip inline emphasis markers the renderer does not interpret. */
 function clean(text: string): string {
-  return text.replace(/\s+/g, ' ').trim();
+  // Protect only link destinations so emphasis in a link label is cleaned too,
+  // while a rare `*` inside the URL itself remains byte-for-byte unchanged.
+  const hrefs: string[] = [];
+  const protectedText = text.replace(
+    /\[([^\]]+)\]\(([^)]+)\)/g,
+    (_, label: string, href: string) => {
+      const token = `@@UKMAG_HREF_${hrefs.length}@@`;
+      hrefs.push(href);
+      return `[${label}](${token})`;
+    },
+  );
+
+  return protectedText
+    .replace(/\*{1,3}/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/@@UKMAG_HREF_(\d+)@@/g, (_, index: string) => hrefs[Number(index)] ?? '');
 }
 
 export function markdownToBlocks(markdown: string): ArticleBlock[] {

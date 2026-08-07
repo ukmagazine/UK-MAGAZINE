@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: 'export',
   trailingSlash: true,
+  // Production is served at the custom-domain root; Make hard-codes /article/<slug>/.
   basePath: '',
   // Pin file tracing to this project so an unrelated lockfile further up the
   // filesystem cannot be inferred as the workspace root.

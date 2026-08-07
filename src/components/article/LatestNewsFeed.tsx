@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import { Fragment } from 'react';
+import { AdSlot } from '@/components/ads/AdSlot';
 import { ArticleBadge } from '@/components/article/ArticleBadge';
 import { BookmarkButton } from '@/components/article/BookmarkButton';
 import { CategoryLabel } from '@/components/ui/CategoryLabel';
@@ -9,6 +11,7 @@ import { formatTime } from '@/lib/format';
 import type { CardArticle } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useLocale } from '@/components/providers/LocaleProvider';
+import { FEED_AD_INTERVAL } from '@/data/ads';
 
 interface LatestNewsFeedProps {
   articles: CardArticle[];
@@ -40,9 +43,9 @@ export function LatestNewsFeed({
       </h2>
 
       <ol className="divide-y divide-line border-b border-line">
-        {articles.map((article) => (
+        {articles.map((article, index) => (
+          <Fragment key={article.id}>
           <li
-            key={article.id}
             className={cn('group relative flex items-start gap-4', compact ? 'py-3.5' : 'py-4')}
           >
             {showTimeRail ? (
@@ -67,7 +70,7 @@ export function LatestNewsFeed({
                 )}
               >
                 <Link
-                  href={`/article/${article.slug}`}
+                  href={`/article/${article.slug}/`}
                   className="transition-colors duration-200 after:absolute after:inset-0 after:content-[''] hover:text-brand-red focus-visible:text-brand-red"
                 >
                   {article.title}
@@ -87,6 +90,10 @@ export function LatestNewsFeed({
               />
             )}
           </li>
+          {(index + 1) % FEED_AD_INTERVAL === 0 ? (
+            <AdSlot placement="feed" as="li" className="border-t border-line py-4" />
+          ) : null}
+          </Fragment>
         ))}
       </ol>
     </section>

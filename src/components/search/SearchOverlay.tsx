@@ -286,7 +286,7 @@ export function SearchOverlay({ articles, suggestions }: SearchOverlayProps) {
                       {results.map((article) => (
                         <li key={article.id}>
                           <Link
-                            href={`/article/${article.slug}`}
+                            href={`/article/${article.slug}/`}
                             onClick={closeSearch}
                             className="group flex items-start justify-between gap-4 py-3.5"
                           >

@@ -3,9 +3,9 @@ import type { Category, CategorySlug } from '@/lib/types';
 /**
  * The thirteen desks the publication supports.
  *
- * To add a desk: append an entry here, set `inPrimaryNav` to control whether it
- * appears in the header, and tag articles with the new slug. Routes, sitemap
- * entries and filters are all generated from this list.
+ * Nine are the live Make.com/WordPress contract and appear in primary
+ * navigation. Four legacy desks remain routable so old links do not break, but
+ * they are intentionally hidden from the primary navigation.
  *
  * Slugs stay Latin because they are URL segments; every reader-facing string is
  * Persian.
@@ -18,7 +18,7 @@ export const categories: Category[] = [
     description: 'عرضهٔ مدل‌ها، پژوهش، مقررات و اقتصادِ هوش ماشینی.',
     standfirst:
       'هوش مصنوعی را هم به‌عنوان یک صنعت می‌بینیم و هم یک نهاد — اینکه این سامانه‌ها واقعاً چه می‌توانند بکنند، چه کسی آنها را در اختیار دارد، و با ورودشان به محیط‌های کار معمولی چه چیزی تغییر می‌کند.',
-    tint: '#D3122A',
+    tint: '#6D4C7D',
     topics: ['پژوهش', 'سیاست‌گذاری', 'تراشه', 'ایمنی', 'کار', 'متن‌باز'],
     inPrimaryNav: false,
   },
@@ -61,7 +61,7 @@ export const categories: Category[] = [
     shortName: 'جهان',
     description: 'دیپلماسی، تجارت، مرزها و رویدادهایی که از یک کشور فراتر می‌روند.',
     standfirst:
-      'خبرنگاران ما از محل رویداد گزارش می‌دهند. آنجا که به کار رسانه‌ای دیگر تکیه می‌کنیم، نامش را می‌بریم و به آن پیوند می‌دهیم.',
+      'رویدادهای بین‌المللی را با تمرکز بر اثری که بر زندگی ایرانیان بریتانیا می‌گذارند دنبال می‌کنیم و هرجا به گزارش رسانه‌ای دیگر تکیه کنیم، منبع را شفاف ذکر می‌کنیم.',
     tint: '#1F6F6B',
     topics: ['دیپلماسی', 'تجارت', 'مهاجرت', 'امنیت', 'زنجیرهٔ تأمین', 'مرز'],
     inPrimaryNav: true,
@@ -165,9 +165,8 @@ export function getCategory(slug: CategorySlug | string): Category | undefined {
 }
 
 /**
- * Order the desks appear in the sticky header. Edit this list to change the
- * navigation — anything omitted stays reachable via "More", the footer and
- * search. Slugs not marked `inPrimaryNav` are ignored.
+ * Primary navigation order. These nine values are the Make.com/WordPress
+ * production contract; legacy desks stay available under their old routes.
  */
 const NAV_ORDER: CategorySlug[] = [
   'world',
@@ -181,9 +180,8 @@ const NAV_ORDER: CategorySlug[] = [
   'event',
 ];
 
-/** Categories rendered in the sticky header, in NAV_ORDER. */
 export const primaryNavCategories: Category[] = NAV_ORDER.map((slug) =>
   categories.find((category) => category.slug === slug),
 ).filter((category): category is Category => Boolean(category?.inPrimaryNav));
 
-export const categorySlugs: CategorySlug[] = categories.map((c) => c.slug);
+export const categorySlugs: CategorySlug[] = categories.map((category) => category.slug);

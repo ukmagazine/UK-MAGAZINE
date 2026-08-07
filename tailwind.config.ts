@@ -3,7 +3,7 @@ import type { Config } from 'tailwindcss';
 import plugin from 'tailwindcss/plugin';
 
 /**
- * UK MAGAZINE design tokens — luxury editorial red-and-white system.
+ * UK MAGAZINE design tokens — luxury editorial plum-and-white system.
  *
  * Editing the brand palette: change the hex values in `theme.extend.colors.brand`
  * and `theme.extend.colors.ink` — every component reads from these tokens, so a
@@ -20,9 +20,9 @@ const config: Config = {
       },
       colors: {
         brand: {
-          red: '#E10600',
-          deep: '#A90804',
-          wash: '#FFF1F0',
+          red: '#420B5E',
+          deep: '#2A0740',
+          wash: '#F5F0F8',
         },
         ink: {
           DEFAULT: '#111111',

@@ -1,14 +1,14 @@
 # UK MAGAZINE
 
-A production-quality, responsive news publication template. A luxury editorial system: white
-architectural surfaces, sharp red geometry, elegant serif headlines and generous Swiss-style
-whitespace — the clarity of a modern briefing platform with the elegance of a luxury magazine.
+A production-oriented, responsive Persian news publication for Iranians in the UK. The interface
+uses clean editorial surfaces, deep-purple brand accents and generous magazine-style whitespace,
+while the content layer is supplied by the Make.com → WordPress → GitHub Pages pipeline.
 
 **Design system at a glance**
 
 | Token group | Values |
 | ----------- | ------ |
-| Brand red   | `#E10600` · deep `#A90804` · wash `#FFF1F0` |
+| Brand accent | `#420B5E` · deep `#2A0740` · wash `#F5F0F8` |
 | Ink         | `#111111` · strong `#303030` · muted `#6C6C6C` |
 | Surfaces    | page `#F5F5F2` · surface `#FFFFFF` · soft `#FAFAF8` |
 | Borders     | `#E6E6E1` · strong `#D5D5CF` |
@@ -41,7 +41,7 @@ Open http://localhost:3000. Other scripts:
 
 ## What's inside
 
-**Pages** — Homepage, `/category/[slug]` (10 desks), `/article/[slug]` (36 stories),
+**Pages** — Homepage, `/category/[slug]` (13 routable desks; 9 primary), `/article/[slug]/`,
 `/search`, `/about`, `/newsletter`, `/bookmarks`, custom 404, plus `sitemap.xml` and `robots.txt`.
 
 **Features** — sticky compacting header with animated active-desk indicator; slide-in mobile menu
@@ -85,8 +85,8 @@ src/
 │   └── ui/               # Wordmark, SectionHeader, CategoryHeader, Reveal, …
 ├── data/                 # Editorial configuration (not stories)
 │   ├── site.ts           # Brand name, wordmark, tagline, URL, footer links
-│   ├── categories.ts     # The thirteen desks
-│   ├── authors.ts        # Fictional bylines (monogram avatars, no photos)
+│   ├── categories.ts     # 9 primary desks + 4 legacy routable desks
+│   ├── authors.ts        # House byline for the publication
 │   ├── newsletters.ts    # The five editions
 │   └── articles.ts       # Thin re-export of the content loader
 ├── hooks/usePresence.ts  # Deterministic mount/unmount for overlays
@@ -129,31 +129,28 @@ harvest → AI rewrite → Airtable → Make.com → WordPress
                                                  ▼
                                     content/articles/*.json
                                                  │
-                                  Zod validation │  ← bad local JSON is build-fatal; bad WP posts are skipped
+                                  Zod validation │  ← bad records warn + skip; zero valid fails
                                                  ▼
                                           npm run build
 ```
 
-**Validation is the point.** `lib/content/schema.ts` is the contract: category must be one of the
-thirteen supported desks, `imageAlt` is mandatory, dates must parse, slugs must be Latin-hyphenated,
-and duplicate routes are rejected. Local JSON remains build-fatal when malformed. During a
-WordPress sync, malformed posts are named in the log and skipped; the sync becomes fatal only when
-every returned post is invalid.
+**Validation is the point.** `lib/content/schema.ts` is the contract: category must match one of the 13 supported slugs, `imageAlt` is mandatory, dates must parse, and
+slugs must be Latin-hyphenated. Malformed files and duplicate slugs are warned about and skipped;
+the build stops only when no valid article remains.
 
 **Derived, never authored.** `readingTime` is computed from word count, `relatedIds` from shared
 tags and desk, and `body` is parsed from Markdown. An automation cannot meaningfully hand-pick
 cross-references, so it is not asked to.
 
-**Local test content** can still be dropped into `content/articles/`, but generated JSON is ignored
-by Git because CI recreates it on each run:
+**Adding a story by hand** — drop a JSON file into `content/articles/`:
 
 ```jsonc
 {
   "id": "any-stable-key",          // Airtable record id or WordPress post id
-  "slug": "latin-hyphenated",      // becomes /article/<slug>
+  "slug": "latin-hyphenated",      // becomes /article/<slug>/
   "title": "…", "summary": "…",
-  "category": "world",             // one of the thirteen supported desk slugs
-  "authorId": "a-rahimi",          // must exist in data/authors.ts
+  "category": "world",             // one of the supported desk slugs
+  "authorId": "ukmagazine",         // house byline
   "publishedAt": "2026-07-29T09:00:00.000Z",
   "image": "https://…", "imageAlt": "…",
   "bodyMarkdown": "## عنوان\n\nمتن…\n\n> نقل قول\n> — منبع"
@@ -165,14 +162,13 @@ and `![alt](src "caption")`. Anything else degrades to a paragraph rather than t
 
 **WordPress** — set `WORDPRESS_URL` (see `.env.example`) and run `npm run sync:wp`. Only *published*
 posts are pulled, so a draft in WordPress is a draft on the site: that is the human review gate for
-AI-written copy. The deploy workflow runs the sync immediately before the build; a WordPress
-network or authentication failure is intentionally fatal so an outage cannot silently deploy an
-empty site.
+AI-written copy. The sync materialises WordPress posts as files before `next build`, so the static loader stays
+deterministic. In CI the sync is intentionally mandatory: if WordPress is unreachable, the workflow
+fails rather than silently deploying stale content.
 
-> The WordPress adapter has been verified against a synthetic API response, including mixed valid/invalid posts.
-> A final live verification still requires the production WordPress URL and a human-created test post.
-> Confirm the `uk_subtitle` / `uk_image_credit` / `uk_kind` / `uk_image_url` meta keys against your actual setup, and
-> make sure WordPress categories use the supported desk slugs.
+> WordPress must run the MU plugin in `wordpress/uk-magazine-bridge.php`. The API contract uses
+> `uk_subtitle`, `uk_image_credit`, `uk_kind` and `uk_image_url`; images are hotlinked from the
+> source CDN and WordPress categories must match the shared slug contract exactly.
 
 ## Language
 
@@ -202,7 +198,7 @@ most Persian display fonts are not free).
 | **Brand name/wordmark** | `src/data/site.ts` — `name`, `wordmark.lead` / `wordmark.trail`, tagline, URL, socials          |
 | **Colours**             | `tailwind.config.ts` (`brand`, `ink`, `surface`, `line` tokens) + the matching CSS variables at the top of `src/app/globals.css`. Changing `brand.red` re-skins every accent |
 | **Site canvas**         | The `lg:` classes on the shell `<div>` in `src/app/layout.tsx` (width, radius, `shadow-page`) |
-| **Logo mark**           | `src/components/ui/Wordmark.tsx` — the red slash's size, gradient and `animate-sheen` sweep |
+| **Logo mark**           | `src/components/ui/Wordmark.tsx` — the accent slash's size, gradient and `animate-sheen` sweep |
 | **Fonts**               | `src/app/layout.tsx` — swap the two `next/font` imports (serif display + sans UI)               |
 | **Categories**          | `src/data/categories.ts` — add/remove desks; nav, routes, sitemap and filters follow automatically. Toggle `inPrimaryNav` per desk |
 | **Articles**            | Add a JSON file to `content/articles/` (see [Content pipeline](#content-pipeline)), or run `npm run sync:wp`. Routes, search, "most read" and related stories all derive from it |
@@ -220,26 +216,15 @@ thumbnail costs 5.8 KB instead of a 1.3 MB origin fetch.
 
 Every photo ID in the corpus is verified to resolve. Local files (anything starting with `/`) pass
 through the loader untouched, so to go fully offline you can drop images into `public/` and point
-the `image` field at them. External Unsplash images must stay hotlinked from the URL supplied by
-the API; do not download and re-host them. The loader adds width/quality parameters to bare external
-URLs and keeps WordPress `#wp=` media variants on their separate path.
+the `image` field at them. For WordPress content the production contract keeps the original CDN URL in `uk_image_url`;
+Unsplash images remain hotlinked and are resized through Unsplash query parameters.
 
 ## Status
 
-The source passes `npm run typecheck`. A clean production build must be run after `npm ci` in the
-target Linux/CI environment; copied `node_modules` directories are intentionally not distributed.
-The WordPress mapping and rejection paths have synthetic coverage, while the final live WordPress
-render verification remains a launch gate.
+Production configuration now targets `https://theukmag.com`, keeps the custom-domain `CNAME`,
+syncs WordPress before each GitHub Pages build, and contains no committed demo article JSON.
+`content/articles/` is populated by `npm run sync:wp` during CI/local publishing.
 
-`content/articles/` intentionally ships empty. The site builds safely with no articles, and the
-GitHub Actions job materialises WordPress JSON inside the runner before `next build`.
-
-The deploy workflow runs hourly and can also be started manually. Create a repository Actions
-secret named **`WORDPRESS_URL`** containing only the WordPress origin. Scheduled runs are queued,
-so an hourly job may start several minutes after the hour. GitHub also disables scheduled workflows
-in public repositories after 60 days without repository activity; make a real commit or re-enable
-the workflow before that limit is reached.
-
-`site.url` currently uses the interim GitHub Pages URL
-`https://uniquensr.github.io/UK-MAGAZINE`. Replace it with the production origin when a custom
-domain launches; the Pages base path will disappear at that point, so canonical URLs will change.
+Before a live deployment, create the GitHub Actions secret `WORDPRESS_URL=https://cms.theukmag.com`,
+run the authenticated WordPress acceptance test, then run the manual workflow and inspect the live
+sitemap. See `docs/DEPLOYMENT-CHECKLIST-FA.md`.

@@ -8,9 +8,9 @@
  * can reference the same palette.
  * ------------------------------------------------------------------ */
 :root {
-  --brand-red: #e10600;
-  --brand-deep: #a90804;
-  --brand-soft: #fff1f0;
+  --brand-red: #420b5e;
+  --brand-deep: #2a0740;
+  --brand-soft: #f5f0f8;
   --ink: #111111;
   --ink-soft: #6c6c6c;
   --surface: #ffffff;
@@ -106,13 +106,13 @@
     @apply text-2xs font-semibold uppercase tracking-[0.16em];
   }
 
-  /* Red marker that precedes section headings — a thin sharp bar. */
+  /* Brand marker that precedes section headings — a thin sharp bar. */
   .marker::before {
     content: '';
     @apply mr-2.5 inline-block h-3 w-[3px] translate-y-[1px] bg-brand-red;
   }
 
-  /* Angular red corner detail (Mirror's-Edge-inspired geometry). */
+  /* Angular brand corner detail (Mirror's-Edge-inspired geometry). */
   .corner-cut {
     position: relative;
   }

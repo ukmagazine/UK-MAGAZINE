@@ -2,7 +2,7 @@
   "name": "uk-magazine",
   "version": "1.0.0",
   "private": true,
-  "description": "UK MAGAZINE — a premium international news publication template.",
+  "description": "UK MAGAZINE — Persian-language news publication for Iranians in the UK.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

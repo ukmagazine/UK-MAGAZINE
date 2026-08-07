@@ -19,7 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   const articleRoutes: MetadataRoute.Sitemap = articles.map((article) => ({
-    url: absoluteUrl(`/article/${article.slug}`),
+    url: absoluteUrl(`/article/${article.slug}/`),
     lastModified: new Date(article.updatedAt ?? article.publishedAt),
     changeFrequency: 'weekly',
     priority: article.featured ? 0.9 : 0.7,

@@ -4,19 +4,23 @@
  *
  *   npm run sync:wp
  *
- * Why a sync step rather than fetching inside Next.js:
+ * Why a sync step rather than fetching during the build:
  *
  *   - the content loader stays synchronous, so nothing downstream changes
- *   - validation and logging happen before Next starts rendering routes
- *   - CI can materialise JSON, build from it, then discard it without a bot commit
+ *   - the fetched content lands in the build workspace as files, keeping the
+ *     site loader deterministic and making local sync output easy to inspect
+ *   - a build cannot be broken by WordPress being unreachable at the moment it
+ *     runs; the last good content is already on disk
  *
- * Only files this script wrote are pruned (their ids carry a `wp-` prefix), so
- * hand-authored articles sitting alongside them are left alone.
+ * `content/articles/` is a generated workspace, not an editorial source.
+ * On every successful sync, every existing JSON article is removed first and
+ * replaced only with the current valid WordPress payload. This guarantees that
+ * legacy/demo/static articles can never leak into the published site.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fetchWordPressArticles, type WordPressFetchStats } from '../src/lib/content/wordpress';
+import { fetchWordPressArticles } from '../src/lib/content/wordpress';
 import type { ArticleSource } from '../src/lib/content/schema';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -28,16 +32,13 @@ async function main(): Promise<void> {
   if (!baseUrl) {
     console.error(
       'WORDPRESS_URL تنظیم نشده است.\n' +
-        'نمونه:  WORDPRESS_URL=https://cms.example.com npm run sync:wp',
+        'نمونه:  WORDPRESS_URL=https://cms.theukmag.com npm run sync:wp',
     );
     process.exit(1);
   }
 
   console.log(`دریافت از ${baseUrl} …`);
-  let fetchStats: WordPressFetchStats = { succeeded: 0, skipped: 0 };
-  const articles: ArticleSource[] = await fetchWordPressArticles(baseUrl, (stats) => {
-    fetchStats = stats;
-  });
+  const articles: ArticleSource[] = await fetchWordPressArticles(baseUrl);
 
   if (articles.length === 0) {
     console.error('هیچ پست منتشرشده‌ای برگردانده نشد — چیزی نوشته نشد.');
@@ -46,7 +47,16 @@ async function main(): Promise<void> {
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
-  const written = new Set<string>();
+  // Workflow-only content policy: this directory is generated output.
+  // Remove every legacy/demo/static JSON file before materialising the current
+  // WordPress corpus. `.gitkeep` and any non-JSON files are intentionally kept.
+  let removed = 0;
+  for (const file of fs.readdirSync(OUT_DIR)) {
+    if (!file.endsWith('.json')) continue;
+    fs.unlinkSync(path.join(OUT_DIR, file));
+    removed += 1;
+  }
+
   for (const article of articles) {
     const file = `${article.slug}.json`;
     fs.writeFileSync(
@@ -54,55 +64,28 @@ async function main(): Promise<void> {
       `${JSON.stringify(article, null, 2)}\n`,
       'utf8',
     );
-    written.add(file);
   }
 
-  // Prune posts that were deleted or unpublished in WordPress. Only files this
-  // script owns are considered — a `wp-` id is the marker.
-  let pruned = 0;
-  for (const file of fs.readdirSync(OUT_DIR)) {
-    if (!file.endsWith('.json') || written.has(file)) continue;
-    try {
-      const existing = JSON.parse(fs.readFileSync(path.join(OUT_DIR, file), 'utf8')) as {
-        id?: string;
-      };
-      if (typeof existing.id === 'string' && existing.id.startsWith('wp-')) {
-        fs.unlinkSync(path.join(OUT_DIR, file));
-        pruned += 1;
-      }
-    } catch {
-      // Unreadable file: leave it for the build's validation to report.
-    }
-  }
-
-  console.log(`${articles.length} مقاله نوشته شد${pruned > 0 ? `، ${pruned} مورد حذف شد` : ''}.`);
+  console.log(
+    `${articles.length} مقاله از وردپرس نوشته شد` +
+      `${removed > 0 ? `، ${removed} فایل قدیمی/استاتیک حذف شد` : ''}.`,
+  );
 
   /**
-   * The adapter fills several fields in rather than rejecting a post that is
-   * missing them, which is what keeps the pipeline running unattended. Those
-   * guesses are surfaced here so nobody discovers months later that every
-   * story has the headline repeated as its image alt text.
+   * Optional editorial fields may be defaulted by the adapter. Surface those
+   * defaults here so unattended publishing never turns a silent assumption
+   * into a long-lived content-quality problem.
    */
   const transliterated = articles.filter((article) => /-\d+$/.test(article.slug));
   const noSubtitle = articles.filter((article) => !article.subtitle);
   const noCredit = articles.filter((article) => !article.imageCredit);
-  const altFromTitle = articles.filter((article) => article.imageAlt === article.title);
   const allReports = articles.every((article) => article.kind === 'report');
 
   const notes: string[] = [];
-  if (fetchStats.skipped > 0) {
-    notes.push(`${fetchStats.skipped} پست نامعتبر رد شد؛ جزئیات در هشدارهای بالاتر آمده است.`);
-  }
   if (transliterated.length > 0) {
     notes.push(
       `${transliterated.length} اسلاگ از فارسی به لاتین برگردانده شد ` +
         `(مثال: ${transliterated[0].slug}). برای نشانی خواناتر، اسلاگ را در وردپرس دستی بگذارید.`,
-    );
-  }
-  if (altFromTitle.length > 0) {
-    notes.push(
-      `${altFromTitle.length} تصویر متن جایگزین نداشت و از تیتر استفاده شد — ` +
-        'برای دسترس‌پذیری، Alt Text را در کتابخانهٔ رسانهٔ وردپرس پر کنید.',
     );
   }
   if (noSubtitle.length > 0) notes.push(`${noSubtitle.length} مقاله زیرعنوان (uk_subtitle) ندارد.`);

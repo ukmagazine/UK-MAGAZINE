@@ -1,29 +1,21 @@
 import { articleSourceSchema, type ArticleSource } from '@/lib/content/schema';
+import { CATEGORY_SLUG_SET } from '@/lib/category-slugs';
 import { decodeSlug, isLatinSlug, toLatinSlug } from '@/lib/content/slug';
 import type { CategorySlug } from '@/lib/types';
 
 /**
- * Headless WordPress source.
+ * Headless WordPress adapter for the Make.com → WordPress → static-site
+ * pipeline. Published posts are fetched at build time, converted to the same
+ * `ArticleSource` contract as local JSON, then validated before use.
  *
- * WordPress is the content store the Make.com pipeline writes into — its
- * native module makes creating a post with a featured image a two-request job,
- * which is far less work for the automation than committing files. This module
- * pulls those posts at build time and maps them onto exactly the same
- * `ArticleSource` shape the local JSON files use, so the rest of the site
- * cannot tell the two apart.
- *
- * Enabled by setting `WORDPRESS_URL` (see `.env.example`). Unset, the build
- * falls back to `content/articles/*.json`.
- *
- * Only published posts are fetched, so a draft in WordPress is a draft on the
- * site — which is the human review gate for AI-written copy.
- *
- * NOTE: untested against a live instance. The field mapping follows the
- * documented `wp/v2/posts` response, but the ACF/meta key names below must be
- * confirmed against the actual WordPress setup before going live.
+ * Production contracts:
+ * - article routes are built from a Latin WordPress slug
+ * - category slugs must match the shared category contract exactly
+ * - the four `uk_*` meta keys must be registered by the MU plugin
+ * - lead images are hotlinked from `uk_image_url`; featured media is not used
+ * - malformed posts are warned about and skipped; HTTP failures remain fatal
  */
 
-/** Meta keys the pipeline is expected to register via `register_post_meta`. */
 const META = {
   subtitle: 'uk_subtitle',
   imageCredit: 'uk_image_credit',
@@ -37,14 +29,6 @@ interface WpRendered {
   rendered: string;
 }
 
-interface WpMedia {
-  source_url?: string;
-  alt_text?: string;
-  media_details?: {
-    sizes?: Record<string, { width?: number; height?: number; source_url?: string }>;
-  };
-}
-
 interface WpPost {
   id: number;
   slug: string;
@@ -56,124 +40,92 @@ interface WpPost {
   meta?: Record<string, string | undefined>;
   _embedded?: {
     author?: Array<{ slug?: string; name?: string }>;
-    'wp:featuredmedia'?: WpMedia[];
     'wp:term'?: Array<Array<{ taxonomy?: string; slug?: string; name?: string }>>;
   };
 }
 
-/**
- * Featured image URL, tagged with the sizes WordPress generated on upload.
- *
- * The tag is a `#wp=1024x576,768x432,…` fragment that `image-loader.ts` reads to
- * request the right variant. Without it the browser downloads the full-size
- * original for a 68px thumbnail — WordPress does not resize on request.
- */
-function readImage(media: WpMedia | undefined): string | undefined {
-  const source = media?.source_url;
-  if (!source) return undefined;
-
-  // The suffix is read off each variant's own URL rather than computed from its
-  // width and height. WordPress's `full` entry points at the untouched original
-  // (`hero.jpg`, no suffix) — deriving `1920x1080` from its dimensions would
-  // produce a URL that 404s. Only genuinely suffixed files are offered.
-  const labels = Object.values(media?.media_details?.sizes ?? {})
-    .map((size) => /-(\d+x\d+)\.[a-z0-9]+(?:$|\?)/i.exec(size.source_url ?? '')?.[1])
-    .filter((label): label is string => Boolean(label));
-
-  const unique = [...new Set(labels)];
-  return unique.length > 0 ? `${source}#wp=${unique.join(',')}` : source;
-}
-
-/**
- * Lead image supplied as an absolute URL in post meta.
- *
- * This is the automation's path: images are hotlinked from their origin CDN
- * (Unsplash) rather than uploaded, so there is no media library entry and no
- * `#wp=` size list to attach. `image-loader.ts` handles a bare URL.
- */
-function readImageUrl(post: WpPost): string | undefined {
-  const raw = (post.meta?.[META.imageUrl] ?? '').trim();
-  if (!raw) {
-    console.warn(
-      `پست ${post.id} (${post.slug}) فیلد ${META.imageUrl} ندارد؛ تصویر شاخص وردپرس بررسی می‌شود.`,
-    );
-    return undefined;
-  }
-
-  try {
-    const url = new URL(raw);
-    if (url.protocol === 'https:' || url.protocol === 'http:') return raw;
-  } catch {
-    // The validation warning below will name the missing image field.
-  }
-
-  console.warn(
-    `پست ${post.id} (${post.slug}) مقدار نامعتبر ${META.imageUrl} داشت؛ تصویر شاخص وردپرس بررسی می‌شود.`,
-  );
-  return undefined;
+function decodeEntities(text: string): string {
+  return text
+    .replace(/&#(\d+);/g, (_, code: string) => String.fromCharCode(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code: string) => String.fromCharCode(Number.parseInt(code, 16)))
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0?39;|&apos;/gi, "'");
 }
 
 /** WordPress returns HTML-escaped, tag-wrapped strings even for plain fields. */
 function plain(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&#(\d+);/g, (_, code: string) => String.fromCharCode(Number(code)))
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#0?39;|&apos;/g, "'")
-    .replace(/\s+/g, ' ')
+  return decodeEntities(html.replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Convert inline HTML while preserving source links as Markdown links.
+ * Everything except anchors and line breaks is intentionally flattened.
+ */
+function inlineHtmlToMarkdown(html: string): string {
+  const withLinks = html.replace(
+    /<a[^>]+href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gis,
+    (_, href: string, text: string) => {
+      const label = plain(text);
+      const url = decodeEntities(href).trim();
+      return label && url ? `[${label}](${url})` : label;
+    },
+  );
+
+  return decodeEntities(
+    withLinks
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<[^>]*>/g, ' '),
+  )
+    .replace(/[\t ]+/g, ' ')
+    .replace(/ *\n */g, '\n')
     .trim();
 }
 
 /**
- * Post HTML → Markdown.
- *
- * Deliberately minimal: the pipeline is expected to write Markdown-ish content
- * through the block editor, so this only has to undo the wrapper markup that
- * WordPress adds. Anything it does not recognise survives as a paragraph.
+ * Post HTML → the deliberately small Markdown subset understood by the static
+ * renderer. Ordered and unordered lists are processed independently so list
+ * semantics survive the WordPress conversion. The final strip-all pass comes
+ * only after anchors have been converted to `[label](href)`.
  */
-function htmlToMarkdown(html: string): string {
+export function htmlToMarkdown(html: string): string {
   return html
     .replace(/<h([2-4])[^>]*>(.*?)<\/h\1>/gis, (_, level: string, text: string) =>
       `\n\n${'#'.repeat(Number(level))} ${plain(text)}\n\n`,
     )
     .replace(/<blockquote[^>]*>(.*?)<\/blockquote>/gis, (_, text: string) =>
-      `\n\n> ${plain(text)}\n\n`,
+      `\n\n> ${inlineHtmlToMarkdown(text)}\n\n`,
     )
-    .replace(/<li[^>]*>(.*?)<\/li>/gis, (_, text: string) => `\n- ${plain(text)}`)
-    .replace(/<\/(ul|ol)>/gi, '\n\n')
-    .replace(/<p[^>]*>(.*?)<\/p>/gis, (_, text: string) => `\n\n${plain(text)}\n\n`)
+    .replace(/<ol[^>]*>(.*?)<\/ol>/gis, (_, inner: string) => {
+      const items = [...inner.matchAll(/<li[^>]*>(.*?)<\/li>/gis)];
+      if (items.length === 0) return '\n\n';
+      return `\n\n${items
+        .map((match, index) => `${index + 1}. ${inlineHtmlToMarkdown(match[1])}`)
+        .join('\n')}\n\n`;
+    })
+    .replace(/<ul[^>]*>(.*?)<\/ul>/gis, (_, inner: string) => {
+      const items = [...inner.matchAll(/<li[^>]*>(.*?)<\/li>/gis)];
+      if (items.length === 0) return '\n\n';
+      return `\n\n${items.map((match) => `- ${inlineHtmlToMarkdown(match[1])}`).join('\n')}\n\n`;
+    })
+    .replace(/<p[^>]*>(.*?)<\/p>/gis, (_, text: string) =>
+      `\n\n${inlineHtmlToMarkdown(text)}\n\n`,
+    )
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<[^>]*>/g, '')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
 
-const CATEGORY_SLUGS = new Set<string>([
-  'ai',
-  'education',
-  'technology',
-  'politics',
-  'world',
-  'business',
-  'science',
-  'culture',
-  'health',
-  'environment',
-  'society',
-  'sports',
-  'event',
-]);
-
-/** First WordPress category term that matches one of our desks. */
+/** First WordPress category term that matches one of our supported desks. */
 function readCategory(post: WpPost): CategorySlug | undefined {
   const groups = post._embedded?.['wp:term'] ?? [];
   for (const group of groups) {
     for (const term of group) {
-      if (term.taxonomy === 'category' && term.slug && CATEGORY_SLUGS.has(term.slug)) {
+      if (term.taxonomy === 'category' && term.slug && CATEGORY_SLUG_SET.has(term.slug)) {
         return term.slug as CategorySlug;
       }
     }
@@ -194,22 +146,11 @@ function readTags(post: WpPost): string[] {
 
 const KINDS = new Set(['report', 'analysis', 'opinion', 'video', 'breaking']);
 
-/**
- * `register_post_meta` with a `''` default returns an empty string, not
- * `undefined`, for any post whose editor never touched the field — so `??`
- * never fires and the enum rejects it. Anything unrecognised becomes a plain
- * report, which is the correct neutral treatment.
- */
 function readKind(post: WpPost): string {
   const raw = (post.meta?.[META.kind] ?? '').trim();
   return KINDS.has(raw) ? raw : 'report';
 }
 
-/**
- * WordPress auto-generates an excerpt from the body, but a short post — or one
- * whose content is mostly markup — can still yield an empty string. Fall back
- * to the opening of the body rather than refusing to publish the story.
- */
 function readSummary(post: WpPost, body: string): string {
   const excerpt = plain(post.excerpt.rendered);
   if (excerpt) return excerpt;
@@ -221,18 +162,15 @@ function readSummary(post: WpPost, body: string): string {
 
   if (!firstParagraph) return plain(post.title.rendered);
 
-  // Trim to a sentence boundary where there is one nearby, else a word one.
   const cut = firstParagraph.slice(0, 200);
-  const sentence = cut.lastIndexOf('.');
+  const sentence = Math.max(cut.lastIndexOf('.'), cut.lastIndexOf('؟'), cut.lastIndexOf('!'));
   if (sentence > 80) return cut.slice(0, sentence + 1);
   return cut.length < firstParagraph.length ? `${cut.replace(/\s\S*$/, '')}…` : cut;
 }
 
 /**
- * A slug an editor set by hand is kept verbatim. Anything else — which means
- * WordPress derived it from a Persian title and percent-encoded it — is
- * transliterated and suffixed with the post id, because two different titles
- * can transliterate to the same consonant skeleton.
+ * Keep an editor-supplied Latin slug. Persian/encoded slugs are transliterated
+ * and suffixed with the WordPress id so they remain stable and collision-safe.
  */
 function readSlug(post: WpPost): string {
   const decoded = decodeSlug(post.slug);
@@ -241,22 +179,23 @@ function readSlug(post: WpPost): string {
 }
 
 function toSource(post: WpPost): unknown {
-  const media = post._embedded?.['wp:featuredmedia']?.[0];
-  const author = post._embedded?.author?.[0];
   const bodyMarkdown = htmlToMarkdown(post.content.rendered);
+  const title = plain(post.title.rendered);
 
   return {
     id: `wp-${post.id}`,
     slug: readSlug(post),
-    title: plain(post.title.rendered),
+    title,
     subtitle: (post.meta?.[META.subtitle] ?? '').trim(),
     summary: readSummary(post, bodyMarkdown),
     category: readCategory(post),
-    authorId: author?.slug ?? 'a-rahimi',
+    authorId: 'ukmagazine',
     publishedAt: new Date(`${post.date_gmt}Z`).toISOString(),
     updatedAt: post.modified_gmt ? new Date(`${post.modified_gmt}Z`).toISOString() : undefined,
-    image: readImageUrl(post) ?? readImage(media),
-    imageAlt: media?.alt_text?.trim() || plain(post.title.rendered),
+    // Contract: images are hotlinked from the source CDN. Do not substitute
+    // WordPress `featured_media`, which would violate the current media flow.
+    image: (post.meta?.[META.imageUrl] ?? '').trim() || undefined,
+    imageAlt: title,
     imageCredit: (post.meta?.[META.imageCredit] ?? '').trim(),
     kind: readKind(post),
     tags: readTags(post),
@@ -264,22 +203,14 @@ function toSource(post: WpPost): unknown {
   };
 }
 
-/** Result counts from a completed WordPress fetch. */
-export interface WordPressFetchStats {
-  succeeded: number;
-  skipped: number;
-}
-
 /** Every published post, paged through and validated. */
-export async function fetchWordPressArticles(
-  baseUrl: string,
-  onComplete?: (stats: WordPressFetchStats) => void,
-): Promise<ArticleSource[]> {
+export async function fetchWordPressArticles(baseUrl: string): Promise<ArticleSource[]> {
   const sources: ArticleSource[] = [];
-  const problems: string[] = [];
-  let skipped = 0;
+  const rejected: string[] = [];
 
   for (let page = 1; ; page += 1) {
+    // Do not use `new URL('/wp-json/...', baseUrl)`: a leading slash discards a
+    // possible WordPress subdirectory (the exact bug the local install exposed).
     const url = new URL(`${baseUrl.replace(/\/+$/, '')}/wp-json/wp/v2/posts`);
     url.searchParams.set('status', 'publish');
     url.searchParams.set('per_page', String(PER_PAGE));
@@ -304,28 +235,27 @@ export async function fetchWordPressArticles(
         continue;
       }
 
-      skipped += 1;
-      const postProblems = result.error.issues.map((issue) => {
-        const path = issue.path.length > 0 ? issue.path.join('.') : '(ریشه)';
-        return `پست ${post.id} (${post.slug}) → ${path}: ${issue.message}`;
+      const issues = result.error.issues.map((issue) => {
+        const where = issue.path.length > 0 ? issue.path.join('.') : '(ریشه)';
+        return `${where}: ${issue.message}`;
       });
-      problems.push(...postProblems);
-      console.warn(`پست رد شد:\n  - ${postProblems.join('\n  - ')}`);
+      const message = `پست ${post.id} (${post.slug}) رد شد → ${issues.join(' | ')}`;
+      rejected.push(message);
+      console.warn(`[sync:wp] ${message}`);
     }
 
     const totalPages = Number(response.headers.get('x-wp-totalpages') ?? '1');
     if (page >= totalPages) break;
   }
 
-  const stats = { succeeded: sources.length, skipped } satisfies WordPressFetchStats;
-
-  if (sources.length === 0 && problems.length > 0) {
+  if (sources.length === 0) {
     throw new Error(
-      `همهٔ پست‌های وردپرس رد شدند (${problems.length} خطا):\n  - ${problems.join('\n  - ')}`,
+      `هیچ پست معتبر وردپرسی باقی نماند${
+        rejected.length > 0 ? ` (${rejected.length} پست رد شد):\n  - ${rejected.join('\n  - ')}` : '.'
+      }`,
     );
   }
 
-  onComplete?.(stats);
-  console.log(`${stats.succeeded} پست معتبر دریافت شد، ${stats.skipped} پست رد شد.`);
+  console.info(`[sync:wp] ${sources.length} معتبر، ${rejected.length} رد شد.`);
   return sources;
 }

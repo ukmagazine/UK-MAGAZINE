@@ -64,7 +64,7 @@ export function ArticleCard({
   sizes = DEFAULT_SIZES,
   imageAspect,
 }: ArticleCardProps) {
-  const href = `/article/${article.slug}`;
+  const href = `/article/${article.slug}/`;
 
   const headline = (
     <Heading className={headlineClass(variant)}>

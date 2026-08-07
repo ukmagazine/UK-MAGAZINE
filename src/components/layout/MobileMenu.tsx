@@ -212,9 +212,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                     </Link>
                   </li>
                 </ul>
-                {site.established ? (
-                  <p className="mt-5 text-xs leading-relaxed text-ink-faint">{site.established}</p>
-                ) : null}
+                <p className="mt-5 text-xs leading-relaxed text-ink-faint">{site.established}</p>
               </div>
             </div>
       </div>

@@ -1,10 +1,57 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import type { ArticleBlock } from '@/lib/types';
 
 interface ArticleBodyProps {
   blocks: ArticleBlock[];
+}
+
+
+const INLINE_LINK_RE = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+
+function safeExternalHref(value: string): string | null {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:' ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Render the tiny inline Markdown subset produced by the WordPress adapter. */
+function renderInlineMarkdown(text: string): ReactNode[] {
+  const nodes: ReactNode[] = [];
+  let cursor = 0;
+  let match: RegExpExecArray | null;
+
+  INLINE_LINK_RE.lastIndex = 0;
+  while ((match = INLINE_LINK_RE.exec(text)) !== null) {
+    if (match.index > cursor) nodes.push(text.slice(cursor, match.index));
+
+    const href = safeExternalHref(match[2]);
+    if (href) {
+      nodes.push(
+        <a
+          key={`${match.index}-${href}`}
+          href={href}
+          target="_blank"
+          rel="noopener"
+          className="font-medium text-brand-deep underline decoration-brand-red/40 underline-offset-[3px] transition-colors hover:decoration-brand-red"
+        >
+          {match[1]}
+        </a>,
+      );
+    } else {
+      nodes.push(match[1]);
+    }
+
+    cursor = match.index + match[0].length;
+  }
+
+  if (cursor < text.length) nodes.push(text.slice(cursor));
+  return nodes;
 }
 
 /**
@@ -19,7 +66,7 @@ export function ArticleBody({ blocks }: ArticleBodyProps) {
       {blocks.map((block, index) => {
         switch (block.type) {
           case 'paragraph':
-            return <p key={index}>{block.text}</p>;
+            return <p key={index}>{renderInlineMarkdown(block.text)}</p>;
 
           case 'heading':
             return (
@@ -61,7 +108,7 @@ export function ArticleBody({ blocks }: ArticleBodyProps) {
           case 'list': {
             const items = block.items.map((item, itemIndex) => (
               <li key={itemIndex} className="ps-1.5 marker:text-brand-red">
-                {item}
+                {renderInlineMarkdown(item)}
               </li>
             ));
 

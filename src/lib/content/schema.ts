@@ -1,13 +1,13 @@
 import { z } from 'zod';
+import { CATEGORY_SLUGS } from '@/lib/category-slugs';
 
 /**
  * The contract between the content pipeline and the site.
  *
  * Every file in `content/articles/` is validated against this before the build
- * is allowed to use it. That is deliberate: the articles are written by an AI
- * and delivered by an automation, neither of which can be trusted to keep to a
- * shape. A malformed record fails the build with a readable message instead of
- * reaching a reader as a half-rendered page.
+ * is allowed to use it. Automation output is untrusted: malformed records are
+ * warned about and skipped, and the build fails only when no valid article is
+ * left to publish.
  *
  * Fields the pipeline must NOT supply are absent here on purpose —
  * `readingTime`, `relatedIds` and `body` are derived at load time (see
@@ -15,21 +15,7 @@ import { z } from 'zod';
  * choices.
  */
 
-const CATEGORY_SLUGS = [
-  'ai',
-  'education',
-  'technology',
-  'politics',
-  'world',
-  'business',
-  'science',
-  'culture',
-  'health',
-  'environment',
-  'society',
-  'sports',
-  'event',
-] as const;
+
 
 /** ISO 8601 instant. Checked by parsing rather than by pattern. */
 const isoDate = z
