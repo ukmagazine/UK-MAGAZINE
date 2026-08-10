@@ -19,13 +19,20 @@ export interface Category {
   standfirst: string;
   /**
    * Subtle per-category identity. Used only as a low-opacity wash behind the
-   * category header and as the glyph tint — red remains the brand colour.
+   * category header and as the glyph tint — the brand purple remains the
+   * publication colour.
    */
   tint: string;
   /** Topic filters offered on the category page. */
   topics: string[];
   /** Whether the category appears in the primary header navigation. */
   inPrimaryNav: boolean;
+  /**
+   * A hidden desk stays defined and routable but is kept out of the navigation
+   * and the footer, and its category page is always `noindex` — even when it has
+   * articles. Used for desks that are deliberately not being published yet.
+   */
+  hidden?: boolean;
 }
 
 export interface Author {

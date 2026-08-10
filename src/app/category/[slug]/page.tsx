@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { ArticleCard } from '@/components/article/ArticleCard';
 import { TrendingList } from '@/components/article/TrendingList';
 import { CategoryStream } from '@/components/category/CategoryStream';
-import { NewsletterCard } from '@/components/newsletter/NewsletterCard';
 import { CategoryHeader } from '@/components/ui/CategoryHeader';
 import { Reveal } from '@/components/ui/Reveal';
 import { categories, getCategory } from '@/data/categories';
@@ -20,7 +19,7 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-/** One static page per desk. */
+/** One static page per desk — hidden desks included, so their routes resolve. */
 export function generateStaticParams() {
   return categories.map((category) => ({ slug: category.slug }));
 }
@@ -38,10 +37,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     });
   }
 
+  /**
+   * Two independent reasons to stay out of the index:
+   *
+   * 1. the desk is hidden — regardless of how many articles it holds;
+   * 2. the desk has no articles yet — an empty listing is a thin page.
+   *
+   * The second clears itself: the count is read at build time, so the first
+   * build after the desk's first article publishes drops the `noindex` with no
+   * human action.
+   */
+  const isEmpty = getArticlesByCategory(category.slug).length === 0;
+
   return buildMetadata({
     title: category.name,
     description: category.description,
     path: `/category/${category.slug}`,
+    noIndex: Boolean(category.hidden) || isEmpty,
   });
 }
 
@@ -85,13 +97,17 @@ export default async function CategoryPage({ params }: PageProps) {
                 />
               </Reveal>
 
-              <aside className="lg:col-span-4" aria-label={`پربازدیدترین‌های ${category.name}`}>
-                <TrendingList
-                  articles={mostRead}
-                  title={`پربازدیدترین‌های ${category.shortName}`}
-                  headingLevel="h2"
-                />
-              </aside>
+              {/* The rail renders nothing at all when the desk is too small to
+                  rank, rather than a heading over an empty list. */}
+              {mostRead.length > 1 ? (
+                <aside className="lg:col-span-4" aria-label={`پربازدیدترین‌های ${category.name}`}>
+                  <TrendingList
+                    articles={mostRead}
+                    title={`پربازدیدترین‌های ${category.shortName}`}
+                    headingLevel="h2"
+                  />
+                </aside>
+              ) : null}
             </div>
           </section>
         ) : (
@@ -103,14 +119,6 @@ export default async function CategoryPage({ params }: PageProps) {
         {rest.length > 0 ? (
           <CategoryStream articles={rest} />
         ) : null}
-
-        <div className="mt-16 sm:mt-20">
-          <NewsletterCard
-            variant="band"
-            title={`${category.name} را با خلاصهٔ روزانه دنبال کنید`}
-            description="ده گزارشی که شب گذشته تغییر کرده‌اند، هرکدام در کمتر از شصت کلمه، با یک جمله دربارهٔ اهمیتشان."
-          />
-        </div>
       </div>
     </>
   );

@@ -1,3 +1,4 @@
+import { CATEGORY_SLUGS } from '@/lib/category-slugs';
 import type { Author } from '@/lib/types';
 import { site } from '@/data/site';
 
@@ -21,21 +22,7 @@ export const authors: Author[] = [
     role: 'تحریریه',
     bio: site.shortDescription,
     location: 'لندن',
-    beats: [
-      'world',
-      'politics',
-      'business',
-      'technology',
-      'culture',
-      'health',
-      'society',
-      'sports',
-      'event',
-      'ai',
-      'education',
-      'science',
-      'environment',
-    ],
+    beats: [...CATEGORY_SLUGS],
   },
 ];
 

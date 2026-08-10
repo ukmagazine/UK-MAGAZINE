@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { HIDDEN_CATEGORY_SLUG_SET } from '@/lib/category-slugs';
 import { articleSourceSchema, type ArticleSource } from '@/lib/content/schema';
 import { estimateReadingTime, markdownToBlocks } from '@/lib/content/markdown';
 import type { Article, BreakingItem } from '@/lib/types';
@@ -130,9 +131,15 @@ function build(): { articles: Article[]; breakingItems: BreakingItem[] } {
     })
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
 
+  // The breaking bar sits on every page, so it is a discovery surface like any
+  // other and a hidden desk must not reach it.
+  const surfaceable = articles.filter(
+    (article) => !HIDDEN_CATEGORY_SLUG_SET.has(article.category),
+  );
+
   const breakingItems: BreakingItem[] = [
-    ...articles.filter((article) => article.kind === 'breaking'),
-    ...articles.filter((article) => article.kind !== 'breaking'),
+    ...surfaceable.filter((article) => article.kind === 'breaking'),
+    ...surfaceable.filter((article) => article.kind !== 'breaking'),
   ]
     .slice(0, 5)
     .map((article) => ({

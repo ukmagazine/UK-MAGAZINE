@@ -24,8 +24,10 @@ import {
 
 export default function HomePage() {
   const lead = getLeadStory();
-  const support = getHeroSupport(3);
-  const heroIds = [lead.id, ...support.map((article) => article.id)];
+  const support = getHeroSupport(3, lead?.id);
+  const heroIds = [lead?.id, ...support.map((article) => article.id)].filter(
+    (id): id is string => Boolean(id),
+  );
 
   const latestAll = getLatest(7, heroIds);
   const latest = latestAll;
@@ -39,7 +41,8 @@ export default function HomePage() {
   const health = getArticlesByCategory('health', 3);
   const politicsWorld = getByCategories(['politics', 'world'], 4);
   const society = getArticlesByCategory('society', 3);
-  const sports = getArticlesByCategory('sports', 3);
+  // No `sports` section: the desk is hidden, and a homepage rail is exactly the
+  // route to it that Task 6 closes. Its category page still exists.
   const events = getArticlesByCategory('event', 3);
   const business = getArticlesByCategory('business', 4);
   const [businessLead, ...businessRest] = business;
@@ -52,7 +55,7 @@ export default function HomePage() {
     <>
       <div className="frame">
         {/* Hero ------------------------------------------------- */}
-        <HeroStory lead={lead} support={support} />
+        {lead ? <HeroStory lead={lead} support={support} /> : null}
 
         {/* Latest · feature · most read · newsletter ------------- */}
         <section
@@ -236,14 +239,7 @@ export default function HomePage() {
           </section>
         ) : null}
 
-        {/* Sports and events ------------------------------------- */}
-        {sports.length > 0 ? (
-          <section className="mt-12 sm:mt-16" aria-labelledby="sports-heading">
-            <SectionHeader title="ورزش" href="/category/sports" />
-            <ArticleGrid articles={sports} columns={3} showSummary={false} />
-          </section>
-        ) : null}
-
+        {/* Events ------------------------------------------------ */}
         {events.length > 0 ? (
           <section className="mt-12 sm:mt-16" aria-labelledby="events-heading">
             <SectionHeader title="رویداد" href="/category/event" />

@@ -276,7 +276,7 @@ export default async function ArticlePage({ params }: PageProps) {
                   {article.tags.map((tag) => (
                     <li key={tag}>
                       <Link
-                        href={`/search?q=${encodeURIComponent(tag)}`}
+                        href={`/tag/${encodeURIComponent(tag)}/`}
                         className="inline-flex min-h-[44px] items-center rounded-sm border border-line px-3 text-sm text-ink-soft transition-colors hover:border-ink hover:text-brand-red"
                       >
                         {tag}

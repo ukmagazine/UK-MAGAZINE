@@ -24,6 +24,12 @@ interface PageMetaOptions {
   authors?: string[];
   section?: string;
   tags?: string[];
+  /**
+   * Keeps the page out of the index while still letting crawlers follow its
+   * links. `follow` stays true on purpose: a desk with no articles yet, or one
+   * that is switched off, still links to pages that should be crawled, and
+   * `nofollow` would strand them.
+   */
   noIndex?: boolean;
 }
 
@@ -48,7 +54,7 @@ export function buildMetadata({
     title,
     description,
     alternates: { canonical: url },
-    robots: noIndex ? { index: false, follow: false } : undefined,
+    robots: noIndex ? { index: false, follow: true } : undefined,
     openGraph: {
       title,
       description,
