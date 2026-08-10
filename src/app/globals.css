@@ -200,6 +200,55 @@
   @apply float-left mr-3 mt-1 font-serif text-[3.9rem] font-semibold leading-[0.8] text-ink;
 }
 
+/* ------------------------------------------------------------------ *
+ * Standing pages (about, contact, services, terms, privacy)
+ * One rhythm for all five, so they cannot drift apart as copy is
+ * edited. Same type scale and measure as the article body.
+ * ------------------------------------------------------------------ */
+.static-prose {
+  font-size: clamp(1rem, 0.95rem + 0.25vw, 1.0625rem);
+  line-height: 1.9;
+  @apply text-ink;
+}
+
+.static-prose > p + p,
+.static-prose > ul + p,
+.static-prose > p + ul {
+  @apply mt-5;
+}
+
+.static-prose h2 {
+  @apply mt-11 font-serif text-2xl leading-snug text-ink sm:text-[1.75rem];
+}
+
+.static-prose h2::before {
+  content: '';
+  @apply mb-3 block h-[3px] w-9 bg-brand-red;
+}
+
+.static-prose h3 {
+  @apply mt-8 font-serif text-lg leading-snug text-ink sm:text-xl;
+}
+
+.static-prose h2 + p,
+.static-prose h3 + p,
+.static-prose h2 + ul,
+.static-prose h3 + ul {
+  @apply mt-4;
+}
+
+.static-prose ul {
+  @apply my-5 list-disc space-y-2.5 ps-6 marker:text-brand-red;
+}
+
+.static-prose a {
+  @apply font-medium text-brand-deep underline decoration-brand-red/40 underline-offset-[3px] transition-colors hover:decoration-brand-red;
+}
+
+.static-prose strong {
+  @apply font-semibold text-ink;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

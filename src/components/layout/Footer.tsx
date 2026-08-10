@@ -1,33 +1,24 @@
-'use client';
-
 import Link from 'next/link';
-import { Linkedin, Rss, Youtube } from 'lucide-react';
-import { NewsletterForm } from '@/components/newsletter/NewsletterForm';
 import { Wordmark } from '@/components/ui/Wordmark';
-import { useLocale } from '@/components/providers/LocaleProvider';
+import { SocialLinks } from '@/components/ui/SocialLinks';
 import { categoryShortName } from '@/i18n/category';
-import { categories } from '@/data/categories';
-import { site } from '@/data/site';
+import { footerCategories } from '@/data/categories';
+import { activeSocial, site } from '@/data/site';
 
-const SOCIAL_ICONS = {
-  x: XIcon,
-  linkedin: Linkedin,
-  youtube: Youtube,
-  rss: Rss,
-} as const;
-
-/** Simple X glyph — Lucide has no brand mark for it. */
-function XIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-    </svg>
-  );
-}
-
-/** Dark charcoal footer with restrained brand accents. */
+/**
+ * Dark charcoal footer with restrained brand accents.
+ *
+ * Four columns: the eleven visible desks, the publication's own pages, the
+ * legal pages, and the social row. Hidden desks never appear here — that is
+ * part of what "hidden" means.
+ *
+ * There is deliberately no /corrections/ link: a corrections page with no
+ * corrections in it is worse than none.
+ *
+ * A server component now. It stopped needing client state when the newsletter
+ * form came out (see NewsletterForm), so the whole footer leaves the bundle.
+ */
 export function Footer() {
-  const { t } = useLocale();
   const year = new Date(Date.parse('2026-01-01T00:00:00.000Z')).getUTCFullYear();
 
   return (
@@ -36,41 +27,27 @@ export function Footer() {
 
       <div className="frame py-12 sm:py-16">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12">
-          {/* Brand + newsletter --------------------------------- */}
-          <div className="lg:col-span-5">
+          {/* Brand ------------------------------------------------ */}
+          <div className="lg:col-span-4">
             <Wordmark inverted />
 
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/65">
               {site.description}
             </p>
-
-            {site.established ? (
-              <p className="mt-4 text-xs uppercase tracking-[0.14em] text-white/40">
-                {site.established}
-              </p>
-            ) : null}
-
-            <div className="mt-8 max-w-sm">
-              <p className="label mb-3 flex items-center text-white">
-                <span aria-hidden="true" className="me-2 h-[3px] w-5 bg-brand-red" />
-                {t.footer.dailyBrief}
-              </p>
-              <NewsletterForm inverted buttonLabel={t.footer.join} />
-            </div>
           </div>
 
-          {/* Link columns --------------------------------------- */}
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-7">
-            <nav aria-labelledby="footer-sections">
+          {/* Link columns ---------------------------------------- */}
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4 lg:col-span-8">
+            <nav aria-labelledby="footer-sections" className="col-span-2 sm:col-span-2">
               <h2 id="footer-sections" className="label mb-4 text-white/50">
-                {t.footer.sections}
+                بخش‌ها
               </h2>
-              <ul className="space-y-2.5">
-                {categories.map((category) => (
+              <ul className="grid grid-cols-2 gap-x-4">
+                {footerCategories.map((category) => (
                   <li key={category.slug}>
                     <Link
-                      href={`/category/${category.slug}`}
-                      className="inline-flex min-h-[44px] items-center text-sm text-white/75 transition-colors hover:text-brand-red"
+                      href={`/category/${category.slug}/`}
+                      className="inline-flex min-h-[40px] items-center text-sm text-white/75 transition-colors hover:text-white"
                     >
                       {categoryShortName(category)}
                     </Link>
@@ -81,14 +58,14 @@ export function Footer() {
 
             <nav aria-labelledby="footer-company">
               <h2 id="footer-company" className="label mb-4 text-white/50">
-                {t.footer.company}
+                دربارهٔ ما
               </h2>
-              <ul className="space-y-2.5">
+              <ul>
                 {site.footer.company.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="inline-flex min-h-[44px] items-center text-sm text-white/75 transition-colors hover:text-brand-red"
+                      className="inline-flex min-h-[40px] items-center text-sm text-white/75 transition-colors hover:text-white"
                     >
                       {link.label}
                     </Link>
@@ -97,61 +74,53 @@ export function Footer() {
               </ul>
             </nav>
 
-            <nav aria-labelledby="footer-legal">
-              <h2 id="footer-legal" className="label mb-4 text-white/50">
-                {t.footer.legal}
-              </h2>
-              <ul className="space-y-2.5">
-                {site.footer.legal.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="inline-flex min-h-[44px] items-center text-sm text-white/75 transition-colors hover:text-brand-red"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+            <div>
+              <nav aria-labelledby="footer-legal">
+                <h2 id="footer-legal" className="label mb-4 text-white/50">
+                  حقوقی
+                </h2>
+                <ul>
+                  {site.footer.legal.map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="inline-flex min-h-[40px] items-center text-sm text-white/75 transition-colors hover:text-white"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+
+              {/* The heading only appears when a channel actually has a URL. */}
+              {activeSocial.length > 0 ? (
+                <div className="mt-8">
+                  <h2 id="footer-social" className="label mb-2 text-white/50">
+                    ما را دنبال کنید
+                  </h2>
+                  <nav aria-labelledby="footer-social">
+                    <SocialLinks inverted className="-ms-3" />
+                  </nav>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
 
         {/* Base bar --------------------------------------------- */}
-        <div className="mt-12 flex flex-col gap-6 border-t border-line-dark pt-8 sm:mt-14 md:flex-row md:items-center md:justify-between">
-          {site.social.length > 0 ? (
-            <div className="flex items-center gap-1">
-              {site.social.map((entry) => {
-                const Icon = SOCIAL_ICONS[entry.icon];
-                return (
-                  <a
-                    key={entry.icon}
-                    href={entry.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={entry.label}
-                    className="inline-flex h-11 w-11 items-center justify-center text-white/60 transition-colors hover:text-brand-red"
-                  >
-                    <Icon className="h-[18px] w-[18px]" />
-                  </a>
-                );
-              })}
-            </div>
-          ) : <span />}
-
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
-            <p className="text-xs text-white/45">
-              © {year} {site.name}. {t.footer.copyright}
-            </p>
-            <a
-              href={site.hostingCredit.href}
-              target="_blank"
-              rel={site.hostingCredit.rel}
-              className="text-xs text-white/55 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white"
-            >
-              {site.hostingCredit.label}
-            </a>
-          </div>
+        <div className="mt-12 flex flex-col gap-3 border-t border-line-dark pt-8 sm:mt-14 sm:flex-row sm:items-center sm:gap-6">
+          <p className="text-xs text-white/45">
+            © {year} {site.name}. تمامی حقوق محفوظ است.
+          </p>
+          <a
+            href={site.hostingCredit.href}
+            target="_blank"
+            rel={site.hostingCredit.rel}
+            className="text-xs text-white/55 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white"
+          >
+            {site.hostingCredit.label}
+          </a>
         </div>
       </div>
     </footer>

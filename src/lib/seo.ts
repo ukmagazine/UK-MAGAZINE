@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { site } from '@/data/site';
+import { activeSocial, site } from '@/data/site';
 import type { Category, ResolvedArticle } from '@/lib/types';
 
 /**
@@ -89,9 +89,11 @@ export function organizationJsonLd(): Record<string, unknown> {
     description: site.description,
     ...(site.founded ? { foundingDate: String(site.founded) } : {}),
     ...(site.email ? { email: site.email } : {}),
-    ...(site.social.length > 0 ? { sameAs: site.social.map((entry) => entry.href) } : {}),
-    publishingPrinciples: absoluteUrl('/about#standards'),
-    diversityPolicy: absoluteUrl('/about#standards'),
+    ...(activeSocial.length > 0 ? { sameAs: activeSocial.map((entry) => entry.href) } : {}),
+    // The old value pointed at /about#standards. That anchor no longer exists
+    // — the About page was rebuilt from the publisher's copy — and a
+    // structured-data URL that 404s is worse than one that is simply broader.
+    publishingPrinciples: absoluteUrl('/about/'),
   };
 }
 
