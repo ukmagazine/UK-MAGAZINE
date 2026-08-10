@@ -11,7 +11,7 @@ import type { CategorySlug } from '@/lib/types';
  * Production contracts:
  * - article routes are built from a Latin WordPress slug
  * - category slugs must match the shared category contract exactly
- * - the four `uk_*` meta keys must be registered by the MU plugin
+ * - the five `uk_*` meta keys must be registered by the MU plugin
  * - lead images are hotlinked from `uk_image_url`; featured media is not used
  * - malformed posts are warned about and skipped; HTTP failures remain fatal
  */
@@ -21,6 +21,7 @@ const META = {
   imageCredit: 'uk_image_credit',
   kind: 'uk_kind',
   imageUrl: 'uk_image_url',
+  sponsored: 'uk_sponsored',
 } as const;
 
 const PER_PAGE = 100;
@@ -151,6 +152,23 @@ function readKind(post: WpPost): string {
   return KINDS.has(raw) ? raw : 'report';
 }
 
+const SPONSORED = new Set(['paid', 'advertorial', 'supported']);
+
+/**
+ * Anything unrecognised is coerced to editorial rather than guessed at, and
+ * says so, because the failure mode in the other direction is labelling a
+ * newsroom report as an advertisement.
+ */
+function readSponsored(post: WpPost): string {
+  const raw = (post.meta?.[META.sponsored] ?? '').trim();
+  if (raw === '' || SPONSORED.has(raw)) return raw;
+  console.warn(
+    `[sync:wp] پست ${post.id} (${post.slug}): مقدار ناشناختهٔ uk_sponsored «${raw}» ` +
+      'نادیده گرفته شد و محتوا تحریریه در نظر گرفته می‌شود.',
+  );
+  return '';
+}
+
 function readSummary(post: WpPost, body: string): string {
   const excerpt = plain(post.excerpt.rendered);
   if (excerpt) return excerpt;
@@ -198,6 +216,7 @@ function toSource(post: WpPost): unknown {
     imageAlt: title,
     imageCredit: (post.meta?.[META.imageCredit] ?? '').trim(),
     kind: readKind(post),
+    sponsored: readSponsored(post),
     tags: readTags(post),
     bodyMarkdown,
   };

@@ -72,6 +72,11 @@ export const articleSourceSchema = z.object({
   imageAlt: z.string().min(1, 'متن جایگزین تصویر برای دسترس‌پذیری الزامی است'),
   imageCredit: z.string().default(''),
   kind: z.enum(['report', 'analysis', 'opinion', 'video', 'breaking']).default('report'),
+  /**
+   * Commercial disclosure. Defaults to editorial, so an automated record that
+   * never mentions the field — every one of them — is unaffected.
+   */
+  sponsored: z.enum(['paid', 'advertorial', 'supported', '']).default(''),
   tags: z.array(z.string().min(1)).default([]),
 
   // Editorial flags. The pipeline defaults them to false; a human promotes.

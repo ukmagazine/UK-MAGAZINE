@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Play } from 'lucide-react';
 import { ArticleBadge } from '@/components/article/ArticleBadge';
+import { SponsorPill } from '@/components/article/SponsorDisclosure';
 import { ArticleMeta } from '@/components/article/ArticleMeta';
 import { BookmarkButton } from '@/components/article/BookmarkButton';
 import { CategoryLabel } from '@/components/ui/CategoryLabel';
@@ -93,7 +94,10 @@ export function ArticleCard({
     return (
       <article className={cn('group relative flex items-start justify-between gap-3', className)}>
         <div className="min-w-0 flex-1">
-          <CategoryLabel category={article.categoryRef} className="relative z-10 mb-1.5" />
+          <div className="relative z-10 mb-1.5 flex flex-wrap items-center gap-2">
+            <CategoryLabel category={article.categoryRef} />
+            <SponsorPill sponsored={article.sponsored} />
+          </div>
           {headline}
           <ArticleMeta article={article} className="mt-2" />
         </div>
@@ -184,6 +188,7 @@ export function ArticleCard({
           <div className="relative z-10 mb-1.5 flex flex-wrap items-center gap-2">
             <CategoryLabel category={article.categoryRef} />
             <ArticleBadge kind={article.kind} />
+            <SponsorPill sponsored={article.sponsored} />
           </div>
           {headline}
           {showSummary ? (
@@ -229,6 +234,7 @@ export function ArticleCard({
           <div className="relative z-10 mb-2.5 flex flex-wrap items-center gap-2">
             <CategoryLabel category={article.categoryRef} inverted />
             <ArticleBadge kind={article.kind} inverted />
+            <SponsorPill sponsored={article.sponsored} />
           </div>
           {headline}
           <ArticleMeta article={article} inverted className="mt-3" />
@@ -272,6 +278,7 @@ export function ArticleCard({
           <div className="relative z-10 mb-3 flex flex-wrap items-center gap-2">
             <CategoryLabel category={article.categoryRef} inverted />
             <ArticleBadge kind={article.kind} inverted />
+            <SponsorPill sponsored={article.sponsored} />
           </div>
           {headline}
           {showSummary ? (
@@ -300,6 +307,7 @@ export function ArticleCard({
       >
         <div className="relative z-10 mb-3 flex flex-wrap items-center gap-2">
           <ArticleBadge kind="opinion" />
+          <SponsorPill sponsored={article.sponsored} />
           <CategoryLabel category={article.categoryRef} />
         </div>
 
@@ -334,6 +342,7 @@ export function ArticleCard({
       >
         <div className="relative z-10 mb-3 flex flex-wrap items-center gap-2">
           <ArticleBadge kind="breaking" />
+          <SponsorPill sponsored={article.sponsored} />
           <CategoryLabel category={article.categoryRef} />
         </div>
 
@@ -379,6 +388,7 @@ export function ArticleCard({
           <div className="relative z-10 mb-2 flex flex-wrap items-center gap-2">
             <CategoryLabel category={article.categoryRef} />
             <ArticleBadge kind={article.kind} />
+            <SponsorPill sponsored={article.sponsored} />
           </div>
 
           {headline}
@@ -429,6 +439,7 @@ export function ArticleCard({
         <div className="relative z-10 mb-2 flex flex-wrap items-center gap-2">
           <CategoryLabel category={article.categoryRef} />
           <ArticleBadge kind={article.kind} />
+            <SponsorPill sponsored={article.sponsored} />
         </div>
 
         {headline}

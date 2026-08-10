@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: UK Magazine Bridge
- * Description: Registers the four UK Magazine post meta fields for Make.com and the static front end, and adds an editor meta box.
- * Version:     2.0.0
+ * Description: Registers the UK Magazine post meta fields for Make.com and the static front end, and adds an editor meta box.
+ * Version:     2.1.0
  *
  * Install as a must-use plugin:
  *   wp-content/mu-plugins/uk-magazine-bridge.php
@@ -18,6 +18,7 @@ function ukmag_bridge_fields() {
         'uk_image_credit' => ['label' => 'اعتبار تصویر', 'type' => 'text'],
         'uk_kind'         => ['label' => 'نوع گزارش', 'type' => 'text'],
         'uk_image_url'    => ['label' => 'نشانی تصویر (Hotlink URL)', 'type' => 'url'],
+        'uk_sponsored'    => ['label' => 'نوع محتوای تجاری', 'type' => 'text'],
     ];
 }
 
@@ -41,7 +42,7 @@ add_action('init', function () {
     }
 });
 
-/** Make the four fields obvious in wp-admin; editors should not rely on the generic Custom Fields box. */
+/** Make the fields obvious in wp-admin; editors should not rely on the generic Custom Fields box. */
 add_action('add_meta_boxes', function () {
     add_meta_box(
         'ukmagazine-fields',
@@ -61,6 +62,7 @@ add_action('add_meta_boxes', function () {
                 );
             }
             echo '<p style="margin:0;color:#646970">uk_kind: report | analysis | opinion | video | breaking</p>';
+            echo '<p style="margin:0;color:#646970">uk_sponsored: paid | advertorial | supported | (خالی)</p>';
             echo '</div>';
         },
         'post',
@@ -96,6 +98,14 @@ add_action('save_post_post', function ($post_id) {
             $value = in_array($candidate, ['report', 'analysis', 'opinion', 'video', 'breaking'], true)
                 ? $candidate
                 : 'report';
+        } elseif ($key === 'uk_sponsored') {
+            // Anything unrecognised becomes empty, i.e. ordinary editorial.
+            // Never guess a commercial label onto a post that did not ask for
+            // one: a wrongly applied «تبلیغ» is as damaging as a missing one.
+            $candidate = sanitize_key($raw);
+            $value = in_array($candidate, ['paid', 'advertorial', 'supported'], true)
+                ? $candidate
+                : '';
         } else {
             $value = sanitize_text_field($raw);
         }

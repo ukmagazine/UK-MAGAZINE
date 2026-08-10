@@ -11,6 +11,7 @@ import { NextArticleNav } from '@/components/article/NextArticleNav';
 import { ReadingProgress } from '@/components/article/ReadingProgress';
 import { RelatedStories } from '@/components/article/RelatedStories';
 import { ShareButtons } from '@/components/article/ShareButtons';
+import { SponsorDisclosure } from '@/components/article/SponsorDisclosure';
 import { SmartBriefing } from '@/components/article/SmartBriefing';
 import { TableOfContents } from '@/components/article/TableOfContents';
 import { RelativeTime } from '@/components/ui/RelativeTime';
@@ -160,6 +161,10 @@ export default async function ArticlePage({ params }: PageProps) {
             </ol>
           </nav>
 
+          {/* Disclosure sits immediately above the headline, before the
+              reader has taken the piece for a news report. */}
+          <SponsorDisclosure sponsored={article.sponsored} className="mb-5" />
+
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <Link
               href={`/category/${article.category}/`}
@@ -269,7 +274,7 @@ export default async function ArticlePage({ params }: PageProps) {
                 </div>
               ) : null}
 
-              <ArticleBody blocks={article.body} />
+              <ArticleBody blocks={article.body} sponsored={article.sponsored} />
               <AdSlot placement="article-end" className="mt-10" />
 
               {/* Tags — heading and rule only when there are tags to list. */}

@@ -80,6 +80,22 @@ export default async function CategoryPage({ params }: PageProps) {
       <CategoryHeader category={category} articleCount={all.length} />
 
       <div className="frame py-12 sm:py-16">
+        {/*
+          Standing note on the spotlight desk. Permanent, above the list, and
+          not conditional on whether the desk has articles — the point is that
+          a reader arriving at the desk knows the selection cannot be bought
+          before they read anything on it. The per-article «معرفی» band says
+          the same thing at the piece level.
+        */}
+        {category.slug === 'spotlight' ? (
+          <p
+            role="note"
+            className="mb-10 rounded-sm border-s-4 border-ink-soft bg-surface-soft px-4 py-3 text-sm leading-relaxed text-ink-strong sm:mb-12"
+          >
+            معرفی‌های این بخش رایگان‌اند و خریدنی نیستند. انتخاب با تحریریه است.
+          </p>
+        ) : null}
+
         {featured ? (
           <section aria-labelledby="featured-heading" className="mb-16 sm:mb-20">
             <h2 id="featured-heading" className="sr-only">

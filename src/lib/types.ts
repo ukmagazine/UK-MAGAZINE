@@ -71,6 +71,17 @@ export interface Briefing {
 /** Editorial treatment, which drives the card variant and badge. */
 export type ArticleKind = 'report' | 'analysis' | 'opinion' | 'video' | 'breaking';
 
+/**
+ * Commercial-content disclosure.
+ *
+ * `paid` and `advertorial` both involve money: both carry a visible label and
+ * both put `rel="sponsored"` on every outbound link in the body. `supported`
+ * is a free spotlight feature chosen by the desk — it is labelled, but no
+ * payment changed hands, so its links stay ordinary. Empty means editorial,
+ * which is everything the automation produces; Make.com never sets this.
+ */
+export type SponsoredKind = 'paid' | 'advertorial' | 'supported' | '';
+
 export interface Article {
   id: string;
   slug: string;
@@ -93,6 +104,8 @@ export interface Article {
   editorsPick: boolean;
   inDepth: boolean;
   kind: ArticleKind;
+  /** Set by a human in wp-admin only. See `SponsoredKind`. */
+  sponsored: SponsoredKind;
   /** Relative popularity, used to rank the "Most read" list. */
   reads: number;
   briefing?: Briefing;
@@ -134,6 +147,7 @@ export type CardArticle = Pick<
   | 'image'
   | 'imageAlt'
   | 'kind'
+  | 'sponsored'
   | 'tags'
   | 'reads'
 > & {

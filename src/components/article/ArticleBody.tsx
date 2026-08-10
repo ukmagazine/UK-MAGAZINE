@@ -2,10 +2,30 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { ArrowUpRight } from 'lucide-react';
-import type { ArticleBlock } from '@/lib/types';
+import type { ArticleBlock, SponsoredKind } from '@/lib/types';
 
 interface ArticleBodyProps {
   blocks: ArticleBlock[];
+  /** Drives the `rel` on outbound links. See `externalRel`. */
+  sponsored?: SponsoredKind;
+}
+
+/**
+ * `rel` for every external link in the body.
+ *
+ * Google requires `rel="sponsored"` on links where payment was involved, which
+ * is `paid` and `advertorial` — and only those.
+ *
+ * Everywhere else, including `supported`, links keep a plain `rel="noopener"`
+ * and must NOT get `nofollow`. Source citations are the credibility backbone of
+ * this publication: every article ends by linking the outlet it is drawn from,
+ * and marking those `nofollow` would disown them. A `supported` feature
+ * involves no payment, so its links are ordinary editorial links.
+ */
+export function externalRel(sponsored: SponsoredKind | undefined): string {
+  return sponsored === 'paid' || sponsored === 'advertorial'
+    ? 'sponsored noopener'
+    : 'noopener';
 }
 
 
@@ -21,7 +41,7 @@ function safeExternalHref(value: string): string | null {
 }
 
 /** Render the tiny inline Markdown subset produced by the WordPress adapter. */
-function renderInlineMarkdown(text: string): ReactNode[] {
+function renderInlineMarkdown(text: string, rel: string): ReactNode[] {
   const nodes: ReactNode[] = [];
   let cursor = 0;
   let match: RegExpExecArray | null;
@@ -37,7 +57,7 @@ function renderInlineMarkdown(text: string): ReactNode[] {
           key={`${match.index}-${href}`}
           href={href}
           target="_blank"
-          rel="noopener"
+          rel={rel}
           className="font-medium text-brand-deep underline decoration-brand-red/40 underline-offset-[3px] transition-colors hover:decoration-brand-red"
         >
           {match[1]}
@@ -60,13 +80,15 @@ function renderInlineMarkdown(text: string): ReactNode[] {
  * Blocks are structured data rather than HTML strings, so there is no
  * `dangerouslySetInnerHTML` anywhere in the reading experience.
  */
-export function ArticleBody({ blocks }: ArticleBodyProps) {
+export function ArticleBody({ blocks, sponsored = '' }: ArticleBodyProps) {
+  const rel = externalRel(sponsored);
+
   return (
     <div className="article-body">
       {blocks.map((block, index) => {
         switch (block.type) {
           case 'paragraph':
-            return <p key={index}>{renderInlineMarkdown(block.text)}</p>;
+            return <p key={index}>{renderInlineMarkdown(block.text, rel)}</p>;
 
           case 'heading':
             return (
@@ -108,7 +130,7 @@ export function ArticleBody({ blocks }: ArticleBodyProps) {
           case 'list': {
             const items = block.items.map((item, itemIndex) => (
               <li key={itemIndex} className="ps-1.5 marker:text-brand-red">
-                {renderInlineMarkdown(item)}
+                {renderInlineMarkdown(item, rel)}
               </li>
             ));
 
@@ -163,6 +185,9 @@ export function ArticleBody({ blocks }: ArticleBodyProps) {
                     <li key={item.href}>
                       <Link
                         href={item.href}
+                        {...(safeExternalHref(item.href)
+                          ? { target: '_blank', rel }
+                          : {})}
                         className="group inline-flex items-start gap-1.5 text-base font-medium leading-snug text-ink no-underline transition-colors hover:text-brand-red"
                       >
                         <span className="link-underline">{item.label}</span>

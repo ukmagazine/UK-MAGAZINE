@@ -75,6 +75,7 @@ export function toCardArticle(article: ResolvedArticle): CardArticle {
     image: article.image,
     imageAlt: article.imageAlt,
     kind: article.kind,
+    sponsored: article.sponsored,
     tags: article.tags,
     reads: article.reads,
     author: {
