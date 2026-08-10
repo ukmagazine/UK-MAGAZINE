@@ -13,7 +13,6 @@ import { RelatedStories } from '@/components/article/RelatedStories';
 import { ShareButtons } from '@/components/article/ShareButtons';
 import { SmartBriefing } from '@/components/article/SmartBriefing';
 import { TableOfContents } from '@/components/article/TableOfContents';
-import { NewsletterCard } from '@/components/newsletter/NewsletterCard';
 import { RelativeTime } from '@/components/ui/RelativeTime';
 import { articles } from '@/data/articles';
 import { site } from '@/data/site';
@@ -35,7 +34,7 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-/** Pre-render every article at build time. */
+/** Pre-render every article at build time, hidden desks included. */
 export function generateStaticParams() {
   return articles.map((article) => ({ slug: article.slug }));
 }
@@ -64,6 +63,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     authors: [site.name],
     section: article.categoryRef.name,
     tags: article.tags,
+    // An article on a hidden desk keeps its URL but stays out of the index,
+    // for the same reason its desk does.
+    noIndex: Boolean(article.categoryRef.hidden),
   });
 }
 
@@ -84,7 +86,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
   const trail = [
     { name: 'خانه', path: '/' },
-    { name: article.categoryRef.name, path: `/category/${article.category}` },
+    { name: article.categoryRef.name, path: `/category/${article.category}/` },
     { name: article.title, path },
   ];
 
@@ -141,7 +143,7 @@ export default async function ArticlePage({ params }: PageProps) {
               </li>
               <li>
                 <Link
-                  href={`/category/${article.category}`}
+                  href={`/category/${article.category}/`}
                   className="inline-flex min-h-[44px] items-center transition-colors hover:text-brand-red"
                 >
                   {article.categoryRef.name}
@@ -160,7 +162,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <Link
-              href={`/category/${article.category}`}
+              href={`/category/${article.category}/`}
               className="label inline-flex min-h-[44px] items-center gap-1.5 text-brand-red transition-colors hover:text-brand-deep"
             >
               <span aria-hidden="true" className="h-[3px] w-4 bg-brand-red" />
@@ -171,9 +173,11 @@ export default async function ArticlePage({ params }: PageProps) {
 
           <h1 className="font-serif text-headline tracking-[-0.02em] text-ink">{article.title}</h1>
 
-          <p className="mt-5 text-lg leading-relaxed text-ink-soft sm:text-xl">
-            {article.subtitle}
-          </p>
+          {article.subtitle ? (
+            <p className="mt-5 text-lg leading-relaxed text-ink-soft sm:text-xl">
+              {article.subtitle}
+            </p>
+          ) : null}
 
           {/* Byline ------------------------------------------- */}
           <div className="mt-7 flex flex-wrap items-center justify-between gap-x-6 gap-y-4 border-y border-line py-4">
@@ -241,14 +245,13 @@ export default async function ArticlePage({ params }: PageProps) {
         {/* Three-column editorial layout ---------------------- */}
         <div className="mt-12 grid grid-cols-1 gap-x-10 xl:grid-cols-[minmax(180px,230px)_minmax(0,720px)_minmax(200px,260px)] xl:justify-center lg:grid-cols-12">
           {/* Left rail — key takeaways (desktop only) --------- */}
-          <aside
-            className="hidden xl:block"
-            aria-label="نکته‌های کلیدی"
-          >
-            {keyFactsPanel ? (
+          {keyFactsPanel ? (
+            <aside className="hidden xl:block" aria-label="نکته‌های کلیدی">
               <div className="sticky top-28">{keyFactsPanel}</div>
-            ) : null}
-          </aside>
+            </aside>
+          ) : (
+            <div aria-hidden="true" className="hidden xl:block" />
+          )}
 
           <div className="lg:col-span-8 lg:col-start-1 xl:col-span-1 xl:col-start-auto">
             <div className="mx-auto max-w-read xl:max-w-none">
@@ -269,31 +272,29 @@ export default async function ArticlePage({ params }: PageProps) {
               <ArticleBody blocks={article.body} />
               <AdSlot placement="article-end" className="mt-10" />
 
-              {/* Tags ---------------------------------------- */}
-              <div className="mt-10 border-t border-line pt-6">
-                <h2 className="label mb-3 text-ink-soft">ثبت‌شده در</h2>
-                <ul className="flex flex-wrap gap-2">
-                  {article.tags.map((tag) => (
-                    <li key={tag}>
-                      <Link
-                        href={`/tag/${encodeURIComponent(tag)}/`}
-                        className="inline-flex min-h-[44px] items-center rounded-sm border border-line px-3 text-sm text-ink-soft transition-colors hover:border-ink hover:text-brand-red"
-                      >
-                        {tag}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {/* Tags — heading and rule only when there are tags to list. */}
+              {article.tags.length > 0 ? (
+                <div className="mt-10 border-t border-line pt-6">
+                  <h2 className="label mb-3 text-ink-soft">ثبت‌شده در</h2>
+                  <ul className="flex flex-wrap gap-2">
+                    {article.tags.map((tag) => (
+                      <li key={tag}>
+                        <Link
+                          href={`/tag/${encodeURIComponent(tag)}/`}
+                          className="inline-flex min-h-[44px] items-center rounded-sm border border-line px-3 text-sm text-ink-soft transition-colors hover:border-ink hover:text-brand-red"
+                        >
+                          {tag}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
 
               <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
                 <ShareButtons title={article.title} path={path} />
                 <BookmarkButton articleId={article.id} title={article.title} variant="labelled" />
               </div>
-
-
-              {/* Newsletter appears inline on mobile, in the rail on desktop. */}
-              <NewsletterCard variant="rail" className="mt-10 lg:hidden" headingLevel="h2" />
             </div>
           </div>
 
@@ -313,42 +314,45 @@ export default async function ArticlePage({ params }: PageProps) {
                 <ShareButtons title={article.title} path={path} />
               </div>
 
-              <div>
-                <h2 className="label mb-4 flex items-center border-t border-line pt-5 text-ink">
-                  <span aria-hidden="true" className="me-2 h-[3px] w-5 bg-brand-red" />
-                  پربازدیدترین
-                </h2>
-                <ol className="space-y-4">
-                  {mostRead.map((item, rank) => (
-                    <li
-                      key={item.id}
-                      className="group relative flex gap-3 border-t border-line pt-4 first:border-t-0 first:pt-0"
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="tabular shrink-0 text-sm font-semibold leading-5 text-brand-red"
+              {/* «پربازدیدترین» renders only when the corpus can actually fill
+                  it. On a small site this list is often empty, and the heading
+                  was standing over nothing. */}
+              {mostRead.length > 0 ? (
+                <div>
+                  <h2 className="label mb-4 flex items-center border-t border-line pt-5 text-ink">
+                    <span aria-hidden="true" className="me-2 h-[3px] w-5 bg-brand-red" />
+                    پربازدیدترین
+                  </h2>
+                  <ol className="space-y-4">
+                    {mostRead.map((item, rank) => (
+                      <li
+                        key={item.id}
+                        className="group relative flex gap-3 border-t border-line pt-4 first:border-t-0 first:pt-0"
                       >
-                        {String(rank + 1).padStart(2, '0')}
-                      </span>
-                      <div className="min-w-0">
-                        <h3 className="font-serif text-[0.95rem] font-medium leading-snug text-ink">
-                          <Link
-                            href={`/article/${item.slug}/`}
-                            className="transition-colors after:absolute after:inset-0 after:content-[''] hover:text-brand-red"
-                          >
-                            {item.title}
-                          </Link>
-                        </h3>
-                        <p className="mt-1.5 text-xs text-ink-soft">
-                          <RelativeTime iso={item.publishedAt} />
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-
-              <NewsletterCard variant="rail" headingLevel="h2" />
+                        <span
+                          aria-hidden="true"
+                          className="tabular shrink-0 text-sm font-semibold leading-5 text-brand-red"
+                        >
+                          {String(rank + 1).padStart(2, '0')}
+                        </span>
+                        <div className="min-w-0">
+                          <h3 className="font-serif text-[0.95rem] font-medium leading-snug text-ink">
+                            <Link
+                              href={`/article/${item.slug}/`}
+                              className="transition-colors after:absolute after:inset-0 after:content-[''] hover:text-brand-red"
+                            >
+                              {item.title}
+                            </Link>
+                          </h3>
+                          <p className="mt-1.5 text-xs text-ink-soft">
+                            <RelativeTime iso={item.publishedAt} />
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              ) : null}
             </div>
           </aside>
         </div>
@@ -357,10 +361,6 @@ export default async function ArticlePage({ params }: PageProps) {
       <div className="frame">
         <NextArticleNav previous={previous} next={next} className="mt-12" />
         <RelatedStories articles={related} className="mt-16" />
-      </div>
-
-      <div className="frame mt-16">
-        <NewsletterCard />
       </div>
     </>
   );

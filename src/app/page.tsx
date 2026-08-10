@@ -7,7 +7,6 @@ import { EditorsPicksRow } from '@/components/article/EditorsPicksRow';
 import { HeroStory } from '@/components/article/HeroStory';
 import { LatestNewsFeed } from '@/components/article/LatestNewsFeed';
 import { TrendingList } from '@/components/article/TrendingList';
-import { NewsletterCard } from '@/components/newsletter/NewsletterCard';
 import { Reveal } from '@/components/ui/Reveal';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import {
@@ -63,12 +62,14 @@ export default function HomePage() {
           /* Explicit fractions rather than 12-col spans: a 2-of-12 "پربازدیدترین"
              column was only 189px, which wrapped its headlines into a 1335px
              tower and stretched every sibling to match. */
-          className="mt-16 grid scroll-mt-32 grid-cols-1 gap-x-8 gap-y-12 sm:mt-20 md:grid-cols-2 lg:grid-cols-[2.5fr_4fr_2.5fr_3fr]"
+          className="mt-16 grid scroll-mt-32 grid-cols-1 gap-x-8 gap-y-12 sm:mt-20 md:grid-cols-2 lg:grid-cols-[3fr_5fr_3fr]"
         >
           {/* Latest — compact chronological list */}
-          <div>
-            <LatestNewsFeed articles={latest.slice(0, 5)} showTimeRail={false} compact />
-          </div>
+          {latest.length > 0 ? (
+            <div>
+              <LatestNewsFeed articles={latest.slice(0, 5)} showTimeRail={false} compact />
+            </div>
+          ) : null}
 
           {/* Feature — one large image-led story */}
           {latestFeature ? (
@@ -85,19 +86,13 @@ export default function HomePage() {
             </div>
           ) : null}
 
-          {/* Most read — red ranking */}
-          <aside aria-label="پربازدیدترین">
-            <TrendingList articles={mostRead} />
-          </aside>
-
-          {/* Newsletter — rich red accent block */}
-          <aside aria-label="خبرنامه">
-            <NewsletterCard
-              variant="panel"
-              title="گزارش‌هایی که جهان ما را شکل می‌دهند"
-              description="گزیده‌ای از مهم‌ترین‌ها، هر روز."
-            />
-          </aside>
+          {/* Most read — ranked list. Renders nothing when the corpus is
+              too small to rank, rather than a heading over an empty column. */}
+          {mostRead.length > 0 ? (
+            <aside aria-label="پربازدیدترین">
+              <TrendingList articles={mostRead} />
+            </aside>
+          ) : null}
         </section>
 
         <AdSlot placement="homepage" className="mt-12 sm:mt-16" />
@@ -105,7 +100,7 @@ export default function HomePage() {
         {/* Technology -------------------------------------------- */}
         {technologyFeature ? (
           <section className="mt-12 sm:mt-16" aria-labelledby="technology-heading">
-            <SectionHeader title="فناوری" href="/category/technology" />
+            <SectionHeader title="فناوری" href="/category/technology/" />
 
             <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-12">
               <Reveal className="lg:col-span-7">
@@ -144,21 +139,23 @@ export default function HomePage() {
         {/* Health ------------------------------------------------ */}
         {health.length > 0 ? (
           <section className="mt-12 sm:mt-16" aria-labelledby="health-heading">
-            <SectionHeader title="سلامت" href="/category/health" />
+            <SectionHeader title="سلامت" href="/category/health/" />
             <ArticleGrid articles={health} columns={3} divided />
           </section>
         ) : null}
 
         {/* Politics and World ----------------------------------- */}
-        <section className="mt-12 sm:mt-16" aria-labelledby="politics-heading">
-          <SectionHeader title="سیاست و جهان" titleKey="politicsWorld" href="/category/politics" />
-          <ArticleGrid
-            articles={politicsWorld}
-            columns={4}
-            showSummary={false}
-            variant="standard"
-          />
-        </section>
+        {politicsWorld.length > 0 ? (
+          <section className="mt-12 sm:mt-16" aria-labelledby="politics-heading">
+            <SectionHeader title="سیاست و جهان" titleKey="politicsWorld" href="/category/politics/" />
+            <ArticleGrid
+              articles={politicsWorld}
+              columns={4}
+              showSummary={false}
+              variant="standard"
+            />
+          </section>
+        ) : null}
       </div>
 
       {/* Editor's picks — row of elevated editorial cards --------
@@ -177,7 +174,7 @@ export default function HomePage() {
         {/* Society — image cards --------------------------------- */}
         {society.length > 0 ? (
           <section className="mt-12 sm:mt-16" aria-labelledby="society-heading">
-            <SectionHeader title="جامعه" href="/category/society" />
+            <SectionHeader title="جامعه" href="/category/society/" />
             <ArticleGrid articles={society} variant="image" columns={3} />
           </section>
         ) : null}
@@ -185,7 +182,7 @@ export default function HomePage() {
         {/* Business --------------------------------------------- */}
         {businessLead ? (
           <section className="mt-12 sm:mt-16" aria-labelledby="business-heading">
-            <SectionHeader title="اقتصاد" titleKey="business" href="/category/business" />
+            <SectionHeader title="اقتصاد" titleKey="business" href="/category/business/" />
 
             <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-12">
               <Reveal className="lg:col-span-5">
@@ -211,7 +208,7 @@ export default function HomePage() {
         {/* Culture — magazine layout ---------------------------- */}
         {cultureLead ? (
           <section className="mt-12 sm:mt-16" aria-labelledby="culture-heading">
-            <SectionHeader title="فرهنگ" titleKey="culture" href="/category/culture" />
+            <SectionHeader title="فرهنگ" titleKey="culture" href="/category/culture/" />
 
             <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-12">
               <Reveal className="lg:col-span-7">
@@ -242,7 +239,7 @@ export default function HomePage() {
         {/* Events ------------------------------------------------ */}
         {events.length > 0 ? (
           <section className="mt-12 sm:mt-16" aria-labelledby="events-heading">
-            <SectionHeader title="رویداد" href="/category/event" />
+            <SectionHeader title="رویداد" href="/category/event/" />
             <ArticleGrid articles={events} columns={3} showSummary={false} />
           </section>
         ) : null}
@@ -280,10 +277,6 @@ export default function HomePage() {
         ) : null}
       </div>
 
-      {/* Newsletter ------------------------------------------- */}
-      <div className="frame mt-12 sm:mt-16">
-        <NewsletterCard />
-      </div>
     </>
   );
 }

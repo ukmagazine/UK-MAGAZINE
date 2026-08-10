@@ -21,6 +21,21 @@ interface NewsletterFormProps {
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /**
+ * The newsletter is switched off, not removed. It is expected back in one to
+ * two months, so the component, its states and its styling stay here.
+ *
+ * It has no backend: the site is a static export and cannot receive a
+ * submission, and until this week the form appeared up to four times on a
+ * single article page, each one silently discarding whatever was typed into
+ * it. `NewsletterCard` reads the same flag, so the surrounding heading and
+ * copy disappear with the field rather than standing over nothing.
+ *
+ * // Re-enabling this form will connect a third-party provider that sets cookies.
+ * // PECR consent will need re-evaluating at that point — see /privacy/.
+ */
+export const NEWSLETTER_ENABLED = false;
+
+/**
  * Client-side validated signup with a simulated submission.
  *
  * No network request is made — this is a template. Replace `submit` with a real
@@ -42,6 +57,8 @@ export function NewsletterForm({
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
   const [error, setError] = useState<string | null>(null);
+
+  if (!NEWSLETTER_ENABLED) return null;
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

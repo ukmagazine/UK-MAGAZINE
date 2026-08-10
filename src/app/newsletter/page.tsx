@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import {
   BookOpen,
@@ -9,7 +10,7 @@ import {
   ShieldCheck,
   Users,
 } from 'lucide-react';
-import { NewsletterForm } from '@/components/newsletter/NewsletterForm';
+import { NEWSLETTER_ENABLED, NewsletterForm } from '@/components/newsletter/NewsletterForm';
 import { Reveal } from '@/components/ui/Reveal';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { newsletters } from '@/data/newsletters';
@@ -21,7 +22,8 @@ export const metadata: Metadata = buildMetadata({
   title: 'خبرنامه‌ها',
   description:
     'پنج خبرنامهٔ یو‌کی مگزین: خلاصهٔ روزانه، هفته‌نامهٔ هوش مصنوعی، به‌روزرسانی آموزش، سیاست جهانی و مرور آخر هفته. کوتاه، ویراسته و رایگان.',
-  path: '/newsletter',
+  path: '/newsletter/',
+  noIndex: true,
 });
 
 const ICONS: Record<Newsletter['icon'], typeof Newspaper> = {
@@ -39,6 +41,18 @@ const TRUST = [
 ];
 
 export default function NewsletterPage() {
+  /**
+   * The whole page is signup: five forms and the copy around them. With the
+   * newsletter switched off it would be a page of headings over nothing, so
+   * the route is taken out of service rather than rendered hollow. Nothing
+   * links here any more and it is out of the sitemap.
+   *
+   * Kept in the repository, not deleted — the newsletter is expected back in
+   * one to two months and this page comes back with it. Flip
+   * NEWSLETTER_ENABLED and every part of it returns at once.
+   */
+  if (!NEWSLETTER_ENABLED) notFound();
+
   return (
     <>
       {/* Value proposition ----------------------------------- */}
@@ -187,7 +201,7 @@ export default function NewsletterPage() {
             <p className="text-sm leading-relaxed text-ink-soft">
               جزئیات کامل در{' '}
               <a
-                href="/about#privacy"
+                href="/privacy/"
                 className="font-medium text-brand-deep underline decoration-brand-red/40 underline-offset-2 transition-colors hover:decoration-brand-red"
               >
                 سیاست حریم خصوصی

@@ -8,6 +8,7 @@ import { LocaleProvider } from '@/components/providers/LocaleProvider';
 import { SearchProvider } from '@/components/providers/SearchProvider';
 import { SearchOverlay } from '@/components/search/SearchOverlay';
 import { breakingItems } from '@/data/articles';
+import { footerCategories } from '@/data/categories';
 import { site } from '@/data/site';
 import { getPopularTags } from '@/lib/articles';
 import { buildSearchIndex } from '@/lib/search-index';
@@ -55,19 +56,14 @@ export const metadata: Metadata = {
   authors: [{ name: site.name }],
   creator: site.name,
   publisher: site.name,
-  keywords: [
-    'اخبار',
-    'هوش مصنوعی',
-    'آموزش',
-    'فناوری',
-    'سیاست',
-    'جهان',
-    'اقتصاد',
-    'علم',
-    'فرهنگ',
-    'سلامت',
-    'محیط زیست',
-  ],
+  /**
+   * Derived from the visible desks rather than hand-written. The hand-written
+   * list had gone stale — it still advertised هوش مصنوعی، آموزش، علم and
+   * محیط زیست, three of which are hidden and one of which no longer exists,
+   * and it named none of the new desks. Search engines ignore this tag, so an
+   * inconsistent one is strictly worse than an accurate one.
+   */
+  keywords: ['اخبار', 'بریتانیا', 'فارسی', ...footerCategories.map((c) => c.name)],
   alternates: { canonical: '/' },
   robots: {
     index: true,
@@ -92,7 +88,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#ffffff',
+  // Matches the brand purple sampled from the logo.
+  themeColor: '#8E1B9C',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

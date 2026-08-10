@@ -1,5 +1,5 @@
 import { Mail } from 'lucide-react';
-import { NewsletterForm } from '@/components/newsletter/NewsletterForm';
+import { NEWSLETTER_ENABLED, NewsletterForm } from '@/components/newsletter/NewsletterForm';
 import { cn } from '@/lib/utils';
 
 interface NewsletterCardProps {
@@ -24,6 +24,11 @@ export function NewsletterCard({
   className,
   headingLevel: Heading = 'h2',
 }: NewsletterCardProps) {
+  // The card is only ever a wrapper around the form. With the form switched
+  // off it would be a heading and a promise over an empty box, which is the
+  // stranded-heading pattern Task 26 removes everywhere else.
+  if (!NEWSLETTER_ENABLED) return null;
+
   if (variant === 'rail') {
     return (
       <aside className={cn('relative rounded-md border border-line bg-surface p-5 shadow-card', className)}>
