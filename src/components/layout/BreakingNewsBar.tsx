@@ -75,7 +75,8 @@ export function BreakingNewsBar({ items }: BreakingNewsBarProps) {
 
           <Link
             href="/#latest"
-            className="group hidden shrink-0 items-center gap-1 text-xs font-medium text-ink-soft transition-colors hover:text-brand-red sm:inline-flex"
+            /* py-2 -my-2 lifts the hit area to 32px without changing the bar's height. */
+            className="group hidden shrink-0 items-center gap-1 py-2 -my-2 text-xs font-medium text-ink-soft transition-colors hover:text-brand-red sm:inline-flex"
           >
             {t.breaking.viewAll}
             <ArrowRight

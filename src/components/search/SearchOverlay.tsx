@@ -215,7 +215,7 @@ export function SearchOverlay({ articles, suggestions }: SearchOverlayProps) {
                         {categories.map((category) => (
                           <li key={category.slug}>
                             <Link
-                              href={`/category/${category.slug}`}
+                              href={`/category/${category.slug}/`}
                               onClick={closeSearch}
                               className="inline-flex min-h-[44px] items-center border border-line px-3 text-sm text-ink-soft transition-colors hover:border-ink hover:text-brand-red"
                             >

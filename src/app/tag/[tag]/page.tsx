@@ -98,6 +98,10 @@ export default async function TagPage({ params }: PageProps) {
       </header>
 
       <div className="frame py-12 sm:py-16">
+        {/* The cards inside the stream are h3. Without this the outline jumps
+            straight from the tag name to h3, which is a skipped level. The
+            category page has the equivalent heading over its own stream. */}
+        <h2 className="sr-only">گزارش‌های این برچسب</h2>
         <CategoryStream articles={articles} />
       </div>
     </>

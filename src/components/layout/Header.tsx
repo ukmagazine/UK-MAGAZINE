@@ -13,7 +13,7 @@ import { categoryShortName } from '@/i18n/category';
 import { fill } from '@/i18n/dictionaries';
 import { Wordmark } from '@/components/ui/Wordmark';
 import { primaryNavCategories } from '@/data/categories';
-import { cn } from '@/lib/utils';
+import { cn, isActivePath } from '@/lib/utils';
 
 /**
  * `useLayoutEffect` warns when it runs during server rendering. The measurement
@@ -161,8 +161,8 @@ export function Header() {
               <nav aria-label={t.nav.sections} className="hidden min-w-0 flex-1 xl:block">
                 <ul ref={listRef} className="flex items-center gap-1 overflow-hidden">
                   {primaryNavCategories.map((category, index) => {
-                    const href = `/category/${category.slug}`;
-                    const active = pathname === href;
+                    const href = `/category/${category.slug}/`;
+                    const active = isActivePath(pathname, href);
 
                     return (
                       <li
@@ -233,7 +233,7 @@ export function Header() {
               </button>
 
               <Link
-                href="/bookmarks"
+                href="/bookmarks/"
                 aria-label={
                   hydrated && ids.length > 0
                     ? fill(t.nav.savedCount, { count: ids.length })

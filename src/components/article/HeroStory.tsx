@@ -66,10 +66,12 @@ export function HeroStory({ lead, support }: HeroStoryProps) {
             {/* Copy */}
             <div className="flex flex-col justify-center p-6 sm:p-8 lg:p-10">
               <div className="relative z-10 flex items-center gap-3">
-                {/* `py-2 -my-2` grows the tap target without shifting the row. */}
+                {/* Padding with matching negative margin grows the tap target
+                    without shifting the row. The shortest desk name is only
+                    24px wide, which sat exactly on the WCAG 2.2 minimum. */}
                 <Link
-                  href={`/category/${lead.category}`}
-                  className="label -my-2 py-2 text-brand-red transition-colors hover:text-brand-deep"
+                  href={`/category/${lead.category}/`}
+                  className="label -mx-1 -my-2 px-1 py-2 text-brand-red transition-colors hover:text-brand-deep"
                 >
                   {categoryShortName(lead.categoryRef)}
                 </Link>

@@ -117,7 +117,9 @@ export function Footer() {
             href={site.hostingCredit.href}
             target="_blank"
             rel={site.hostingCredit.rel}
-            className="text-xs text-white/55 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white"
+            /* py-2 -my-2 lifts a 16px-tall link to a 32px hit area without
+               moving the baseline of the row it sits in. */
+            className="inline-flex w-fit py-2 -my-2 text-xs text-white/55 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white"
           >
             {site.hostingCredit.label}
           </a>

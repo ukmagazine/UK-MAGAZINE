@@ -22,9 +22,11 @@ export function CategoryLabel({
   asText = false,
 }: CategoryLabelProps) {
   const classes = cn(
-    // `py-2 -my-2` grows the tap target without altering the visual rhythm.
+    // Padding with a matching negative margin grows the tap target without
+    // altering the visual rhythm. The shortest desk name («جهان») was 24px
+    // wide — exactly on the WCAG 2.2 minimum rather than comfortably past it.
     'label inline-flex items-center gap-1.5 transition-colors',
-    asText ? null : 'py-2 -my-2',
+    asText ? null : 'px-1 -mx-1 py-2 -my-2',
     inverted ? 'text-white' : 'text-brand-red hover:text-brand-deep',
     className,
   );
@@ -42,7 +44,7 @@ export function CategoryLabel({
   if (asText) return <span className={classes}>{content}</span>;
 
   return (
-    <Link href={`/category/${category.slug}`} className={classes}>
+    <Link href={`/category/${category.slug}/`} className={classes}>
       {content}
     </Link>
   );

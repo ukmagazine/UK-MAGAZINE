@@ -51,7 +51,7 @@ export default function NotFound() {
               </Link>
 
               <Link
-                href="/search"
+                href="/search/"
                 className="group inline-flex min-h-[48px] items-center gap-2 border border-ink px-6 text-sm font-semibold text-ink transition-colors hover:border-brand-red hover:text-brand-red"
               >
                 <Search aria-hidden="true" className="h-4 w-4" />
@@ -73,7 +73,7 @@ export default function NotFound() {
             {categories.map((category) => (
               <li key={category.slug} className="border-b border-line">
                 <Link
-                  href={`/category/${category.slug}`}
+                  href={`/category/${category.slug}/`}
                   className="group flex min-h-[56px] items-center justify-between gap-2 py-3 text-ink transition-colors hover:text-brand-red"
                 >
                   <span className="font-serif text-base sm:text-lg">{category.shortName}</span>

@@ -11,7 +11,7 @@ import { categoryName } from '@/i18n/category';
 import { usePresence } from '@/hooks/usePresence';
 import { Wordmark } from '@/components/ui/Wordmark';
 import { footerCategories } from '@/data/categories';
-import { cn } from '@/lib/utils';
+import { cn, isActivePath } from '@/lib/utils';
 
 interface MobileMenuProps {
   open: boolean;
@@ -154,8 +154,8 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
 
             <ul className="border-t border-line">
               {footerCategories.map((category) => {
-                const href = `/category/${category.slug}`;
-                const active = pathname === href;
+                const href = `/category/${category.slug}/`;
+                const active = isActivePath(pathname, href);
 
                 return (
                   <li key={category.slug} className="border-b border-line">
@@ -181,7 +181,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
 
           <div className="mt-7">
             <Link
-              href="/bookmarks"
+              href="/bookmarks/"
               className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 border border-line text-sm font-medium text-ink transition-colors hover:border-ink hover:text-brand-red"
             >
               <Bookmark aria-hidden="true" className="h-4 w-4" />

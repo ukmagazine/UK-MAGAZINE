@@ -36,6 +36,10 @@
     @apply bg-surface-page text-ink font-sans antialiased;
     font-feature-settings: 'kern' 1, 'liga' 1;
     text-rendering: optimizeLegibility;
+    /* Last-resort breaking for strings with no break opportunity. Normal words
+       are unaffected; this only catches things like a bare source URL, which
+       otherwise pushes the whole document sideways on a phone. */
+    overflow-wrap: break-word;
   }
 
   /* A single, consistent focus treatment across the whole publication. */
@@ -186,6 +190,14 @@
   font-size: clamp(1.05rem, 0.95rem + 0.35vw, 1.2rem);
   line-height: 1.8;
   @apply text-ink;
+  /*
+   * `anywhere` rather than `break-word`: only `anywhere` also shrinks the
+   * element's min-content width, which is what stops a long URL forcing a
+   * grid or flex track wider than the viewport. Automated articles cite their
+   * sources, and a bare gov.uk link is long enough to do exactly that — it was
+   * pushing the article page 78px sideways at 360px.
+   */
+  overflow-wrap: anywhere;
 }
 
 .article-body > p + p {
@@ -210,6 +222,8 @@
   font-size: clamp(1rem, 0.95rem + 0.25vw, 1.0625rem);
   line-height: 1.9;
   @apply text-ink;
+  /* Same reasoning as .article-body — these pages carry email addresses. */
+  overflow-wrap: anywhere;
 }
 
 .static-prose > p + p,
