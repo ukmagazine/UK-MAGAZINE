@@ -6,6 +6,7 @@ import type { Metadata } from 'next';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { ArticleBadge } from '@/components/article/ArticleBadge';
 import { ArticleBody, extractHeadings } from '@/components/article/ArticleBody';
+import { FollowRow } from '@/components/article/FollowRow';
 import { BookmarkButton } from '@/components/article/BookmarkButton';
 import { NextArticleNav } from '@/components/article/NextArticleNav';
 import { ReadingProgress } from '@/components/article/ReadingProgress';
@@ -275,6 +276,10 @@ export default async function ArticlePage({ params }: PageProps) {
               ) : null}
 
               <ArticleBody blocks={article.body} sponsored={article.sponsored} />
+
+              {/* Below the source line the body ends with. */}
+              <FollowRow className="mt-10" />
+
               <AdSlot placement="article-end" className="mt-10" />
 
               {/* Tags — heading and rule only when there are tags to list. */}
