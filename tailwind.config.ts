@@ -3,11 +3,12 @@ import type { Config } from 'tailwindcss';
 import plugin from 'tailwindcss/plugin';
 
 /**
- * UK MAGAZINE design tokens — luxury editorial plum-and-white system.
+ * UK MAGAZINE design tokens — editorial purple-and-white system.
  *
  * Editing the brand palette: change the hex values in `theme.extend.colors.brand`
  * and `theme.extend.colors.ink` — every component reads from these tokens, so a
- * single edit re-skins the whole publication.
+ * single edit re-skins the whole publication. Keep globals.css in step; it
+ * mirrors the same values for plain CSS.
  */
 const config: Config = {
   // Absolute, so class scanning works regardless of the working directory.
@@ -20,9 +21,21 @@ const config: Config = {
       },
       colors: {
         brand: {
-          red: '#420B5E',
-          deep: '#2A0740',
-          wash: '#F5F0F8',
+          /**
+           * ⚠️ The token name `red` is historical and now inaccurate. It is
+           * kept deliberately: renaming it means touching dozens of
+           * components for no functional gain.
+           *
+           * #8E1B9C is sampled from the logo, which predates the site and
+           * will not change — the site matches the mark, not the reverse.
+           * White text on it measures 7.54:1 (AA and AAA). Black text
+           * measures 2.79:1 and fails; never pair them.
+           */
+          red: '#8E1B9C',
+          /** 10.59:1 against white. */
+          deep: '#6B1475',
+          /** Tint. Gives 6.7:1 with `brand.red` text on it. */
+          wash: '#F7EFF9',
         },
         ink: {
           DEFAULT: '#111111',

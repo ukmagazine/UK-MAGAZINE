@@ -87,6 +87,7 @@ export function organizationJsonLd(): Record<string, unknown> {
     name: site.name,
     url: site.url,
     description: site.description,
+    logo: absoluteUrl('/logo.png'),
     ...(site.founded ? { foundingDate: String(site.founded) } : {}),
     ...(site.email ? { email: site.email } : {}),
     ...(activeSocial.length > 0 ? { sameAs: activeSocial.map((entry) => entry.href) } : {}),
@@ -144,6 +145,12 @@ export function articleJsonLd(article: ResolvedArticle): Record<string, unknown>
       '@type': 'NewsMediaOrganization',
       name: site.name,
       url: site.url,
+      logo: {
+        '@type': 'ImageObject',
+        url: absoluteUrl('/logo.png'),
+        width: 160,
+        height: 160,
+      },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',

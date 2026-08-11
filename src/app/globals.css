@@ -8,9 +8,10 @@
  * can reference the same palette.
  * ------------------------------------------------------------------ */
 :root {
-  --brand-red: #420b5e;
-  --brand-deep: #2a0740;
-  --brand-soft: #f5f0f8;
+  /* Name is historical — see tailwind.config.ts. #8E1B9C is the logo purple. */
+  --brand-red: #8e1b9c;
+  --brand-deep: #6b1475;
+  --brand-soft: #f7eff9;
   --ink: #111111;
   --ink-soft: #6c6c6c;
   --surface: #ffffff;

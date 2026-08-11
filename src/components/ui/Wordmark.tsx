@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { site } from '@/data/site';
 import { cn } from '@/lib/utils';
@@ -9,16 +10,25 @@ interface WordmarkProps {
   /** Suppresses the link wrapper when the mark sits inside another link. */
   asText?: boolean;
   /**
-   * Renders the red slash alone, without the wordmark text. Used in the sticky
-   * header, where the publication name would crowd the navigation. The link
-   * still carries an accessible name via its aria-label.
+   * Renders the mark alone, without the name. Used where the publication name
+   * would crowd the row. The link still carries an accessible name via its
+   * aria-label.
    */
   markOnly?: boolean;
 }
 
 /**
- * The UK MAGAZINE wordmark: a sharp red angular slash followed by the name, set
- * in the display serif with the second half in a lighter weight.
+ * The UK MAGAZINE lockup: the circular mark beside the publication name.
+ *
+ * The mark is circular and reads as a mark, not a wordmark, so it sits beside
+ * the words «UK Magazine» set in the site's own typeface rather than being
+ * cropped or reconstructed into a horizontal lockup. The circle, the arc and
+ * the curved `uk magazine` text are all part of the mark as the audience
+ * already knows it.
+ *
+ * Served from `public/logo.png` — 160px square, 5.4 KB, derived from the
+ * 2000×2000 master archived at `brand/ukmag-logo.png` (see the note there).
+ * The master is 865 KB and is never served.
  */
 export function Wordmark({
   className,
@@ -27,30 +37,32 @@ export function Wordmark({
   markOnly = false,
 }: WordmarkProps) {
   const content = (
-    // The mark is laid out left-to-right even on this right-to-left page: it is
-    // a Latin brand lockup, and the red slash belongs at its leading edge.
-    // Without this the RTL flow puts the slash after the name.
+    // The lockup is laid out left-to-right even on this right-to-left page: it
+    // is a Latin brand lockup and the mark belongs at its leading edge.
+    // Without this the RTL flow puts the mark after the name.
     <span
       dir="ltr"
-      className={cn('group/mark inline-flex items-baseline gap-2 xs:gap-3', className)}
+      className={cn('group/mark inline-flex items-center gap-2 xs:gap-2.5', className)}
     >
-      {/*
-        Angular red slash — the brand's geometric signature.
-        A gradient gives it depth and a specular highlight sweeps across on a
-        slow loop. The global reduced-motion rule stops the sweep for readers
-        who ask for it, leaving the static gloss.
-      */}
-      <span
-        aria-hidden="true"
-        className="relative isolate h-[1.72em] w-[0.92em] shrink-0 translate-y-[0.22em] overflow-hidden bg-gradient-to-br from-[#ff3b2f] via-brand-red to-brand-deep drop-shadow-[0_3px_10px_rgba(225,6,0,0.45)] transition-transform duration-500 ease-editorial group-hover/mark:scale-110"
-        // A bold forward slash: vertical left/right edges, sheared to the right.
-        style={{ clipPath: 'polygon(46% 0, 100% 0, 54% 100%, 0 100%)' }}
-      >
-        {/* Sweeping specular highlight. */}
-        <span className="absolute inset-y-0 -left-1/2 w-1/2 animate-sheen bg-gradient-to-r from-transparent via-white/75 to-transparent" />
-        {/* Static top-edge gloss, so the mark still reads as polished at rest. */}
-        <span className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/30 to-transparent" />
-      </span>
+      <Image
+        src="/logo.png"
+        alt=""
+        width={160}
+        height={160}
+        priority
+        className={cn(
+          'h-9 w-9 shrink-0 transition-transform duration-500 ease-editorial group-hover/mark:scale-105 sm:h-10 sm:w-10',
+          /**
+           * The purple mark rendered as pure white for dark or brand-coloured
+           * surfaces. There is no separate white file and none is needed:
+           * brightness(0) flattens every colour — including the gradient on the
+           * "U" and any residual shadow — to black, and invert(1) then makes it
+           * white.
+           */
+          inverted && '[filter:brightness(0)_invert(1)]',
+        )}
+      />
+
       {markOnly ? null : (
         <span
           className={cn(
@@ -74,7 +86,7 @@ export function Wordmark({
   return (
     <Link
       href="/"
-      aria-label={`${site.name} — home`}
+      aria-label={`${site.name} — صفحهٔ اصلی`}
       className="inline-flex min-h-[44px] items-center"
     >
       {content}
