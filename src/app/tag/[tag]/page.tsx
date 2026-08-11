@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
 import { ChevronRight } from 'lucide-react';
 import type { Metadata } from 'next';
 import { CategoryStream } from '@/components/category/CategoryStream';
+import NotFound from '@/app/not-found';
 import { getAllTags, getArticlesByTag } from '@/lib/articles';
 import { formatCount } from '@/lib/format';
 import { breadcrumbJsonLd, buildMetadata, jsonLdProps } from '@/lib/seo';
@@ -10,6 +10,20 @@ import { breadcrumbJsonLd, buildMetadata, jsonLdProps } from '@/lib/seo';
 interface PageProps {
   params: Promise<{ tag: string }>;
 }
+
+/**
+ * A tag the corpus cannot produce, used only to keep the route buildable.
+ *
+ * `output: 'export'` refuses a dynamic route whose `generateStaticParams()`
+ * returns an empty list — it reports the function as missing and fails the
+ * build. The corpus legitimately has no tags at the moment (the single
+ * published post carries none), so without this the whole deploy breaks.
+ *
+ * The placeholder renders the 404 page, is `noindex`, is absent from the
+ * sitemap and is linked from nowhere. It disappears on the first build after
+ * any article publishes with a tag.
+ */
+const NO_TAGS_PLACEHOLDER = 'no-tags-yet';
 
 /**
  * Tags are WordPress `post_tag` terms, read by the existing adapter. Nothing is
@@ -21,7 +35,10 @@ interface PageProps {
  * will have no articles for a while.
  */
 export function generateStaticParams() {
-  return getAllTags().map((tag) => ({ tag }));
+  const tags = getAllTags();
+  return tags.length > 0
+    ? tags.map((tag) => ({ tag }))
+    : [{ tag: NO_TAGS_PLACEHOLDER }];
 }
 
 export const dynamicParams = false;
@@ -32,8 +49,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const articles = getArticlesByTag(label);
 
   return buildMetadata({
-    title: `برچسب: ${label}`,
-    description: `همهٔ گزارش‌های یو‌کی مگزین با برچسب «${label}».`,
+    title: articles.length > 0 ? `برچسب: ${label}` : 'صفحه پیدا نشد',
+    description:
+      articles.length > 0
+        ? `همهٔ گزارش‌های یو‌کی مگزین با برچسب «${label}».`
+        : 'صفحه‌ای که دنبالش هستید در دسترس نیست.',
     path: `/tag/${encodeURIComponent(label)}/`,
     noIndex: articles.length === 0,
   });
@@ -44,7 +64,13 @@ export default async function TagPage({ params }: PageProps) {
   const label = decodeURIComponent(tag);
   const articles = getArticlesByTag(label);
 
-  if (articles.length === 0) notFound();
+  /**
+   * Renders the 404 page rather than calling `notFound()`: under
+   * `output: 'export'` that helper emits a blank shell for the route instead
+   * of the not-found UI. This reaches a reader only via the placeholder above,
+   * or by typing a tag that has no articles.
+   */
+  if (articles.length === 0) return <NotFound />;
 
   const trail = [
     { name: 'خانه', path: '/' },
