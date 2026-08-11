@@ -10,6 +10,7 @@ import { formatLongDate, formatReadingTime } from '@/lib/format';
 import { useLocale } from '@/components/providers/LocaleProvider';
 import { categoryShortName } from '@/i18n/category';
 import type { ResolvedArticle } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 interface HeroStoryProps {
   lead: ResolvedArticle;
@@ -29,11 +30,25 @@ export function HeroStory({ lead, support }: HeroStoryProps) {
   const { t, isRtl } = useLocale();
   const href = `/article/${lead.slug}/`;
 
+  /**
+   * With a small corpus there is often no second featured story, and the rail
+   * was rendering its «مهم‌ترین‌ها» heading and its "more" link over an empty
+   * column — a stranded heading beside three columns of dead space. When there
+   * is nothing to put in it the rail goes away and the lead takes the full
+   * width instead.
+   */
+  const hasSupport = support.length > 0;
+
   return (
     <section aria-labelledby="lead-story-heading" className="pt-6 sm:pt-8">
       <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-12">
         {/* Lead ------------------------------------------------------ */}
-        <article className="group relative overflow-hidden rounded-md border border-line bg-surface shadow-card lg:col-span-9">
+        <article
+          className={cn(
+            'group relative overflow-hidden rounded-md border border-line bg-surface shadow-card',
+            hasSupport ? 'lg:col-span-9' : 'lg:col-span-12',
+          )}
+        >
           {/*
             Two clean columns rather than text laid over the photograph. An
             overlay only works when the image has a genuinely empty area to sit
@@ -41,7 +56,14 @@ export function HeroStory({ lead, support }: HeroStoryProps) {
             keep the headline legible also veils the subject. Splitting them
             leaves the image completely unobstructed and the text fully sharp.
           */}
-          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+          <div
+            className={cn(
+              'grid grid-cols-1',
+              hasSupport
+                ? 'lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]'
+                : 'lg:grid-cols-[minmax(0,4fr)_minmax(0,6fr)]',
+            )}
+          >
             {/* Image — second on desktop, first in the stack on mobile. */}
             <div className="relative order-first aspect-[16/10] w-full sm:aspect-[2/1] lg:order-last lg:aspect-auto lg:min-h-[460px]">
               <Image
@@ -130,7 +152,8 @@ export function HeroStory({ lead, support }: HeroStoryProps) {
           </div>
         </article>
 
-        {/* Top stories rail ----------------------------------------- */}
+        {/* Top stories rail — omitted entirely when there is nothing in it. */}
+        {hasSupport ? (
         <aside className="lg:col-span-3" aria-labelledby="top-stories-heading">
           <div className="border-t border-line pt-5 lg:border-t-0 lg:pt-0">
             <h2 id="top-stories-heading" className="label mb-5 text-ink">
@@ -155,7 +178,7 @@ export function HeroStory({ lead, support }: HeroStoryProps) {
             </div>
 
             <Link
-              href="/category/world"
+              href="/#latest"
               className="group mt-6 inline-flex min-h-[44px] items-center gap-1.5 text-sm font-medium text-ink transition-colors hover:text-brand-red"
             >
               <span className="link-underline">{t.home.moreTopStories}</span>
@@ -166,6 +189,7 @@ export function HeroStory({ lead, support }: HeroStoryProps) {
             </Link>
           </div>
         </aside>
+        ) : null}
       </div>
     </section>
   );

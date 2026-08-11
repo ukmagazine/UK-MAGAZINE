@@ -68,15 +68,22 @@ const config: Config = {
       },
       fontSize: {
         '2xs': ['0.6875rem', { lineHeight: '1rem' }],
-        /** Page-level titles (category, About, Newsletter, 404). */
-        display: ['clamp(2rem, 1.3rem + 2.2vw, 3rem)', { lineHeight: '1.02', letterSpacing: '-0.035em' }],
-        /** Homepage lead, sized for the ~520px hero text column. */
-        hero: ['clamp(1.875rem, 1.4rem + 1.5vw, 2.5rem)', { lineHeight: '1.06', letterSpacing: '-0.03em' }],
+        /* The upper bounds were tuned for a 1480px canvas and left headlines
+           looking undersized once it grew to 1720px. The lower bounds are
+           untouched, so nothing changes on a phone. */
+        /** Page-level titles (category, About, 404). */
+        display: ['clamp(2rem, 1.3rem + 2.2vw, 3.5rem)', { lineHeight: '1.02', letterSpacing: '-0.035em' }],
+        /** Homepage lead. */
+        hero: ['clamp(1.875rem, 1.4rem + 1.5vw, 3rem)', { lineHeight: '1.06', letterSpacing: '-0.03em' }],
         /** Article headline, over a ~768px measure. */
-        headline: ['clamp(1.875rem, 1.3rem + 1.9vw, 2.875rem)', { lineHeight: '1.05', letterSpacing: '-0.033em' }],
+        headline: ['clamp(1.875rem, 1.3rem + 1.9vw, 3.25rem)', { lineHeight: '1.05', letterSpacing: '-0.033em' }],
       },
       maxWidth: {
-        frame: '1480px',
+        /* Must track the canvas width in layout.tsx, or the grid stays narrow
+           inside a wider sheet. */
+        frame: '1720px',
+        /* Reading measure for body copy — deliberately unchanged by the
+           canvas widening. */
         read: '45rem',
       },
       spacing: {

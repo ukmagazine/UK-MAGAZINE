@@ -114,8 +114,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SearchProvider>
             <BookmarksProvider>
             {/* Elevated white editorial canvas. Full-bleed on mobile; a floating
-                sheet with the page shadow on large screens. */}
-            <div className="mx-auto flex min-h-dvh w-full flex-col bg-surface lg:my-6 lg:min-h-[calc(100dvh-3rem)] lg:w-[min(1480px,calc(100%-48px))] lg:rounded-lg lg:shadow-page">
+                sheet with the page shadow on large screens.
+
+                Capped at 1720px rather than 1480px: on a 1920 display the old
+                cap left ~220px of dead grey either side and the whole
+                publication read as a small panel floating in the middle of the
+                screen. The article measure is unaffected — body copy is still
+                held to `max-w-read`. */}
+            <div className="mx-auto flex min-h-dvh w-full flex-col bg-surface lg:my-6 lg:min-h-[calc(100dvh-3rem)] lg:w-[min(1720px,calc(100%-48px))] lg:rounded-lg lg:shadow-page">
               <Header />
               <BreakingNewsBar items={breakingItems} />
 

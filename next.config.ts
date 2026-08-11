@@ -25,10 +25,11 @@ const nextConfig: NextConfig = {
     loader: 'custom',
     loaderFile: './src/lib/image-loader.ts',
     /**
-     * Capped at 1440 — the site canvas never exceeds 1480px, so wider
-     * variants would only ever be discarded.
+     * The canvas caps at 1720px (see layout.tsx), so the largest useful
+     * variant is a little above that for 2x-density displays at common
+     * breakpoints. Anything wider would only ever be discarded.
      */
-    deviceSizes: [320, 375, 640, 768, 1024, 1280, 1440],
+    deviceSizes: [320, 375, 640, 768, 1024, 1280, 1440, 1600, 1728],
     imageSizes: [64, 68, 96, 132, 200, 256, 384],
   },
 };
