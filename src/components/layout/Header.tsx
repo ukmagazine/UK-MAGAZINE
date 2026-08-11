@@ -61,21 +61,30 @@ export function Header() {
     const more = moreRef.current;
     if (!list || !more) return;
 
-    // `clientWidth` of the row, less the space the «بیشتر» control always needs.
-    const available = list.clientWidth - more.offsetWidth;
-    if (available <= 0) return;
+    // The flex `gap` sits between every pair of items, so each item costs its
+    // own width plus one gap. Leaving it out under-counted by 4px an item and
+    // left the row a few pixels over.
+    const gap = Number.parseFloat(getComputedStyle(list).columnGap) || 0;
+
+    // `clientWidth` of the row, less the space the «بیشتر» control always needs
+    // (itself plus the gap in front of it).
+    const available = list.clientWidth - more.offsetWidth - gap;
+    if (available <= 0) {
+      setVisibleCount(0);
+      return;
+    }
 
     let used = 0;
     let fits = 0;
     for (const item of itemRefs.current) {
       if (!item) continue;
-      // Width is read from the element even while it is hidden, so the
-      // measurement does not depend on the current visible count.
-      const width = item.getAttribute('data-width');
-      const own = width ? Number(width) : item.offsetWidth;
-      if (!width) item.setAttribute('data-width', String(own));
-      if (used + own > available) break;
-      used += own;
+      // Width is cached on the element on first measurement, so a later pass
+      // can measure an item that is currently hidden.
+      const cached = item.getAttribute('data-width');
+      const own = cached ? Number(cached) : item.offsetWidth;
+      if (!cached && own > 0) item.setAttribute('data-width', String(own));
+      if (used + own + gap > available) break;
+      used += own + gap;
       fits += 1;
     }
 
@@ -84,9 +93,25 @@ export function Header() {
 
   useIsomorphicLayoutEffect(() => {
     measure();
+
+    // Two triggers on purpose. ResizeObserver catches the cases a window
+    // resize does not — a font finishing loading and widening every label,
+    // or the scrollbar appearing — but its callbacks are tied to the
+    // rendering lifecycle and do not arrive in a document that is not
+    // compositing. The window listener is the one that always fires for the
+    // case that actually matters, a reader resizing their browser.
     const observer = new ResizeObserver(measure);
     if (listRef.current) observer.observe(listRef.current);
-    return () => observer.disconnect();
+    window.addEventListener('resize', measure, { passive: true });
+
+    // Persian labels are set in Vazirmatn; until it loads they are measured in
+    // the fallback face and come out narrower.
+    document.fonts?.ready.then(measure).catch(() => {});
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+    };
   }, [measure]);
 
   useEffect(() => {

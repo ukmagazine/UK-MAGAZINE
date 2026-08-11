@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Check, Lock } from 'lucide-react';
 import { useId, useState, type FormEvent } from 'react';
+import { NEWSLETTER_ENABLED } from '@/lib/features';
 import { cn } from '@/lib/utils';
 
 interface NewsletterFormProps {
@@ -20,20 +21,6 @@ interface NewsletterFormProps {
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-/**
- * The newsletter is switched off, not removed. It is expected back in one to
- * two months, so the component, its states and its styling stay here.
- *
- * It has no backend: the site is a static export and cannot receive a
- * submission, and until this week the form appeared up to four times on a
- * single article page, each one silently discarding whatever was typed into
- * it. `NewsletterCard` reads the same flag, so the surrounding heading and
- * copy disappear with the field rather than standing over nothing.
- *
- * // Re-enabling this form will connect a third-party provider that sets cookies.
- * // PECR consent will need re-evaluating at that point — see /privacy/.
- */
-export const NEWSLETTER_ENABLED = false;
 
 /**
  * Client-side validated signup with a simulated submission.

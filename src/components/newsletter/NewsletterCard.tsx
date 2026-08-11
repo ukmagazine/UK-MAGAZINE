@@ -1,5 +1,6 @@
 import { Mail } from 'lucide-react';
-import { NEWSLETTER_ENABLED, NewsletterForm } from '@/components/newsletter/NewsletterForm';
+import { NewsletterForm } from '@/components/newsletter/NewsletterForm';
+import { NEWSLETTER_ENABLED } from '@/lib/features';
 import { cn } from '@/lib/utils';
 
 interface NewsletterCardProps {

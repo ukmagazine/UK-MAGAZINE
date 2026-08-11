@@ -1,5 +1,20 @@
-import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+
+/**
+ * OUT OF SERVICE — the folder is `_newsletter`, not `newsletter`.
+ *
+ * A leading underscore makes this a Next private folder: the file is still
+ * compiled and type-checked, but no route is emitted, so /newsletter/ falls
+ * through to the 404 page rather than serving a page of signup copy whose five
+ * forms all render nothing (see NEWSLETTER_ENABLED in lib/features.ts).
+ *
+ * Hidden, not deleted. The newsletter is expected back in one to two months:
+ * rename this folder to `newsletter`, flip NEWSLETTER_ENABLED, and restore the
+ * /newsletter/ entry in sitemap.ts.
+ *
+ * `notFound()` was tried first and is wrong here — under `output: 'export'` it
+ * emits a blank shell for the route rather than the 404 page.
+ */
 import {
   BookOpen,
   Check,
@@ -10,7 +25,7 @@ import {
   ShieldCheck,
   Users,
 } from 'lucide-react';
-import { NEWSLETTER_ENABLED, NewsletterForm } from '@/components/newsletter/NewsletterForm';
+import { NewsletterForm } from '@/components/newsletter/NewsletterForm';
 import { Reveal } from '@/components/ui/Reveal';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { newsletters } from '@/data/newsletters';
@@ -41,18 +56,6 @@ const TRUST = [
 ];
 
 export default function NewsletterPage() {
-  /**
-   * The whole page is signup: five forms and the copy around them. With the
-   * newsletter switched off it would be a page of headings over nothing, so
-   * the route is taken out of service rather than rendered hollow. Nothing
-   * links here any more and it is out of the sitemap.
-   *
-   * Kept in the repository, not deleted — the newsletter is expected back in
-   * one to two months and this page comes back with it. Flip
-   * NEWSLETTER_ENABLED and every part of it returns at once.
-   */
-  if (!NEWSLETTER_ENABLED) notFound();
-
   return (
     <>
       {/* Value proposition ----------------------------------- */}
