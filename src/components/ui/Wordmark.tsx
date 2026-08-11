@@ -15,6 +15,12 @@ interface WordmarkProps {
    * aria-label.
    */
   markOnly?: boolean;
+  /**
+   * Whether the mark performs its periodic turn. On by default; switched off
+   * inside the slide-in menu, where a moving logo competes with the panel the
+   * reader just opened.
+   */
+  animated?: boolean;
 }
 
 /**
@@ -35,6 +41,7 @@ export function Wordmark({
   inverted = false,
   asText = false,
   markOnly = false,
+  animated = true,
 }: WordmarkProps) {
   const content = (
     // The lockup is laid out left-to-right even on this right-to-left page: it
@@ -51,7 +58,26 @@ export function Wordmark({
         height={160}
         priority
         className={cn(
-          'h-9 w-9 shrink-0 transition-transform duration-500 ease-editorial group-hover/mark:scale-105 sm:h-10 sm:w-10',
+          'h-9 w-9 shrink-0 sm:h-10 sm:w-10',
+          /**
+           * One turn, then two minutes at rest — see the `logo-turn` keyframes
+           * in tailwind.config.ts. It is a transform-only CSS animation, so
+           * there is no timer to run and nothing here becomes a client
+           * component. The global reduced-motion rule in globals.css stops it
+           * for readers who ask for that.
+           *
+           * `backface-visibility` is deliberately left visible: the mark is a
+           * flat image, so the half-turn shows its mirror for ~0.3s, which
+           * reads as a spin rather than as a card flipping away.
+           */
+          animated && 'animate-logo-turn',
+          /**
+           * Hover uses opacity, not transform and not filter. `transform`
+           * belongs to the animation above, and `filter` belongs to the
+           * inverted treatment below — a hover `brightness()` would replace
+           * that whole filter and flash the footer mark purple.
+           */
+          'origin-center opacity-100 transition-opacity duration-300 ease-editorial group-hover/mark:opacity-80',
           /**
            * The purple mark rendered as pure white for dark or brand-coloured
            * surfaces. There is no separate white file and none is needed:

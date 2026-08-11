@@ -121,7 +121,9 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
         )}
       >
         <div className="flex h-header items-center justify-between border-b border-line px-5">
-          <Wordmark />
+          {/* Still, in here: a turning logo competes with the panel the reader
+              has just opened. */}
+          <Wordmark animated={false} />
           <button
             ref={closeRef}
             type="button"

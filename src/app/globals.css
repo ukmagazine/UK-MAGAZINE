@@ -278,6 +278,13 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  /* The rule above would already collapse the masthead turn to nothing, but
+     say it outright: a logo that spins on its own is exactly the kind of
+     unprompted motion this preference is asking us to stop. */
+  .animate-logo-turn {
+    animation: none !important;
+  }
 }
 
 /* Printing an article should yield a clean, ink-efficient page. */

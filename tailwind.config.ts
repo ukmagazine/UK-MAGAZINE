@@ -118,16 +118,44 @@ const config: Config = {
           from: { opacity: '0', transform: 'translateY(12px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
-        /** Specular highlight sweeping across the brand slash. */
-        sheen: {
-          '0%': { transform: 'translateX(-160%) skewX(-18deg)' },
-          '55%, 100%': { transform: 'translateX(260%) skewX(-18deg)' },
+        /**
+         * The masthead logo turns once, then rests for two minutes.
+         *
+         * The whole cycle is 120s and the movement occupies only the first 1%
+         * of it — 1.2s of turn, then 118.8s holding still. Doing it this way
+         * means no JavaScript at all: no interval, no client component, and
+         * nothing for the browser to schedule. The compositor handles a
+         * transform-only animation, and browsers throttle it while the tab is
+         * in the background.
+         *
+         * The hold has to end on 360deg, not 0deg. If the last keyframe were
+         * 0deg the browser would interpolate back from 360 to 0 across the
+         * remaining 99% — a barely-visible reverse creep for two minutes.
+         * Ending on 360 and restarting at 0 lands on the same picture, so the
+         * loop point is invisible.
+         *
+         * Timing is set per keyframe because the animation itself is `linear`;
+         * a single easing spread over 120s would flatten the turn.
+         */
+        'logo-turn': {
+          '0%': {
+            transform: 'perspective(420px) rotateY(0deg) scale(1)',
+            animationTimingFunction: 'cubic-bezier(0.45, 0, 0.55, 1)',
+          },
+          '0.5%': {
+            transform: 'perspective(420px) rotateY(180deg) scale(1.06)',
+            animationTimingFunction: 'cubic-bezier(0.45, 0, 0.55, 1)',
+          },
+          '1%, 100%': {
+            transform: 'perspective(420px) rotateY(360deg) scale(1)',
+          },
         },
       },
       animation: {
         marquee: 'marquee 48s linear infinite',
         'fade-up': 'fade-up 420ms cubic-bezier(0.22, 1, 0.36, 1) both',
-        sheen: 'sheen 3.6s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+        /* Change 120s to change how often the mark turns. */
+        'logo-turn': 'logo-turn 120s linear infinite',
       },
       zIndex: {
         header: '40',
