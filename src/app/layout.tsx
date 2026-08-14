@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Newsreader, Vazirmatn } from 'next/font/google';
+import { Inter, Newsreader } from 'next/font/google';
+import localFont from 'next/font/local';
 import { BreakingNewsBar } from '@/components/layout/BreakingNewsBar';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
+import { SitePreloader } from '@/components/layout/SitePreloader';
 import { BookmarksProvider } from '@/components/providers/BookmarksProvider';
 import { LocaleProvider } from '@/components/providers/LocaleProvider';
 import { SearchProvider } from '@/components/providers/SearchProvider';
@@ -38,9 +40,13 @@ const inter = Inter({
  * Persian face. Loaded alongside the Latin fonts and applied by the
  * `[dir='rtl']` rule in globals.css, so switching language needs no reload.
  */
-const vazirmatn = Vazirmatn({
-  subsets: ['arabic', 'latin'],
-  weight: ['400', '500', '600', '700'],
+const vazirmatn = localFont({
+  src: [
+    { path: './fonts/Vazirmatn-Regular.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/Vazirmatn-Medium.woff2', weight: '500', style: 'normal' },
+    { path: './fonts/Vazirmatn-SemiBold.woff2', weight: '600', style: 'normal' },
+    { path: './fonts/Vazirmatn-Bold.woff2', weight: '700', style: 'normal' },
+  ],
   display: 'swap',
   variable: '--font-fa',
 });
@@ -100,6 +106,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fa" dir="rtl" className={`${newsreader.variable} ${inter.variable} ${vazirmatn.variable}`}>
       <body className="min-h-dvh bg-surface-page">
+        <SitePreloader />
         <script {...jsonLdProps(organizationJsonLd())} />
         <script {...jsonLdProps(websiteJsonLd())} />
 

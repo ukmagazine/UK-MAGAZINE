@@ -59,7 +59,7 @@ jobs:
           WORDPRESS_URL: ${{ secrets.WORDPRESS_URL }}
 
       - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Build website
         run: npm run build

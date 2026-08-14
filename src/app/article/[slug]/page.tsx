@@ -3,9 +3,14 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ChevronRight, ListChecks } from 'lucide-react';
 import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { ArticleBadge } from '@/components/article/ArticleBadge';
-import { ArticleBody, extractHeadings } from '@/components/article/ArticleBody';
+import {
+  ArticleBody,
+  extractHeadings,
+  safeExternalHref,
+} from '@/components/article/ArticleBody';
 import { FollowRow } from '@/components/article/FollowRow';
 import { BookmarkButton } from '@/components/article/BookmarkButton';
 import { NextArticleNav } from '@/components/article/NextArticleNav';
@@ -34,6 +39,42 @@ import {
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+}
+
+function renderImageCredit(credit: string): ReactNode {
+  const parts = credit.split(' · ');
+  const href = parts.map((part) => safeExternalHref(part.trim())).find(Boolean);
+
+  if (!href) return credit;
+
+  const visibleParts = parts
+    .filter((part) => !safeExternalHref(part.trim()))
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (visibleParts.length === 0) return null;
+
+  const namedPhotographer = visibleParts.findIndex(
+    (part) => part.toLocaleLowerCase('en') !== 'unsplash',
+  );
+  const photographerIndex = namedPhotographer >= 0 ? namedPhotographer : 0;
+
+  return visibleParts.flatMap((part, index) => [
+    index > 0 ? ' · ' : null,
+    index === photographerIndex ? (
+      <a
+        key={`${index}-${href}`}
+        href={href}
+        target="_blank"
+        rel="noopener"
+        className="underline decoration-brand-red/40 underline-offset-[3px] transition-colors hover:text-brand-red hover:decoration-brand-red"
+      >
+        {part}
+      </a>
+    ) : (
+      part
+    ),
+  ]);
 }
 
 /** Pre-render every article at build time, hidden desks included. */
@@ -244,7 +285,12 @@ export default async function ArticlePage({ params }: PageProps) {
           </div>
           <figcaption className="mt-2.5 border-s-2 border-brand-red ps-3 text-sm text-ink-soft">
             {article.imageAlt}
-            {article.imageCredit ? ` · ${article.imageCredit}` : ''}
+            {article.imageCredit ? (
+              <>
+                {' · '}
+                {renderImageCredit(article.imageCredit)}
+              </>
+            ) : null}
           </figcaption>
         </figure>
 

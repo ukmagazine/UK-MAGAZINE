@@ -30,14 +30,31 @@ export function externalRel(sponsored: SponsoredKind | undefined): string {
 
 
 const INLINE_LINK_RE = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+const LATIN_RUN_RE =
+  /(?:[\p{Script=Latin}\d](?:[\p{Script=Latin}\p{M}\d]|[.'’&+\/-](?=[\p{Script=Latin}\p{M}\d]))*)(?:[ \t]+[\p{Script=Latin}\d](?:[\p{Script=Latin}\p{M}\d]|[.'’&+\/-](?=[\p{Script=Latin}\p{M}\d]))*)*/gu;
 
-function safeExternalHref(value: string): string | null {
+export function safeExternalHref(value: string): string | null {
   try {
     const url = new URL(value);
     return url.protocol === 'http:' || url.protocol === 'https:' ? url.toString() : null;
   } catch {
     return null;
   }
+}
+
+function isolateLatinRuns(text: string, keyPrefix: string): ReactNode[] {
+  const nodes: ReactNode[] = [];
+  let cursor = 0;
+
+  for (const match of text.matchAll(LATIN_RUN_RE)) {
+    const index = match.index;
+    if (index > cursor) nodes.push(text.slice(cursor, index));
+    nodes.push(<bdi key={`${keyPrefix}-${index}`}>{match[0]}</bdi>);
+    cursor = index + match[0].length;
+  }
+
+  if (cursor < text.length) nodes.push(text.slice(cursor));
+  return nodes;
 }
 
 /** Render the tiny inline Markdown subset produced by the WordPress adapter. */
@@ -48,7 +65,9 @@ function renderInlineMarkdown(text: string, rel: string): ReactNode[] {
 
   INLINE_LINK_RE.lastIndex = 0;
   while ((match = INLINE_LINK_RE.exec(text)) !== null) {
-    if (match.index > cursor) nodes.push(text.slice(cursor, match.index));
+    if (match.index > cursor) {
+      nodes.push(...isolateLatinRuns(text.slice(cursor, match.index), `text-${cursor}`));
+    }
 
     const href = safeExternalHref(match[2]);
     if (href) {
@@ -60,17 +79,19 @@ function renderInlineMarkdown(text: string, rel: string): ReactNode[] {
           rel={rel}
           className="font-medium text-brand-deep underline decoration-brand-red/40 underline-offset-[3px] transition-colors hover:decoration-brand-red"
         >
-          {match[1]}
+          {isolateLatinRuns(match[1], `link-${match.index}`)}
         </a>,
       );
     } else {
-      nodes.push(match[1]);
+      nodes.push(...isolateLatinRuns(match[1], `invalid-link-${match.index}`));
     }
 
     cursor = match.index + match[0].length;
   }
 
-  if (cursor < text.length) nodes.push(text.slice(cursor));
+  if (cursor < text.length) {
+    nodes.push(...isolateLatinRuns(text.slice(cursor), `text-${cursor}`));
+  }
   return nodes;
 }
 
@@ -98,7 +119,7 @@ export function ArticleBody({ blocks, sponsored = '' }: ArticleBodyProps) {
                 className="mt-11 scroll-mt-32 font-serif text-2xl leading-tight tracking-[-0.015em] text-ink sm:text-[1.75rem]"
               >
                 <span aria-hidden="true" className="mb-3 block h-[3px] w-9 bg-brand-red" />
-                {block.text}
+                {isolateLatinRuns(block.text, `heading-${index}`)}
               </h2>
             );
 
@@ -117,12 +138,12 @@ export function ArticleBody({ blocks, sponsored = '' }: ArticleBodyProps) {
                 </span>
                 <blockquote className="mt-4">
                   <p className="font-serif text-xl leading-snug tracking-[-0.02em] text-ink sm:text-2xl">
-                    {block.text}
+                    {isolateLatinRuns(block.text, `quote-${index}`)}
                   </p>
                 </blockquote>
                 <figcaption className="mt-4 flex items-center gap-2.5 text-sm text-ink-soft">
                   <span aria-hidden="true" className="h-[2px] w-6 bg-brand-red" />
-                  {block.attribution}
+                  {isolateLatinRuns(block.attribution, `attribution-${index}`)}
                 </figcaption>
               </figure>
             );
@@ -164,7 +185,7 @@ export function ArticleBody({ blocks, sponsored = '' }: ArticleBodyProps) {
                   />
                 </div>
                 <figcaption className="mt-2.5 border-s-2 border-line ps-3 text-sm leading-relaxed text-ink-soft">
-                  {block.caption}
+                  {isolateLatinRuns(block.caption, `caption-${index}`)}
                 </figcaption>
               </figure>
             );
@@ -178,7 +199,7 @@ export function ArticleBody({ blocks, sponsored = '' }: ArticleBodyProps) {
               >
                 <p className="label mb-3 flex items-center text-brand-red">
                   <span aria-hidden="true" className="me-2 h-[3px] w-5 bg-brand-red" />
-                  {block.title}
+                  {isolateLatinRuns(block.title, `links-title-${index}`)}
                 </p>
                 <ul className="space-y-2.5">
                   {block.items.map((item) => (
@@ -190,7 +211,9 @@ export function ArticleBody({ blocks, sponsored = '' }: ArticleBodyProps) {
                           : {})}
                         className="group inline-flex items-start gap-1.5 text-base font-medium leading-snug text-ink no-underline transition-colors hover:text-brand-red"
                       >
-                        <span className="link-underline">{item.label}</span>
+                        <span className="link-underline">
+                          {isolateLatinRuns(item.label, `link-label-${item.href}`)}
+                        </span>
                         <ArrowUpRight
                           aria-hidden="true"
                           className="mt-1 h-3.5 w-3.5 shrink-0 transition-transform duration-300 ease-editorial group-hover:translate-x-0.5 group-hover:-translate-y-0.5 rtl:-scale-x-100"

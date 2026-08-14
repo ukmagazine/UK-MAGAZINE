@@ -8,14 +8,14 @@ while the content layer is supplied by the Make.com → WordPress → GitHub Pag
 
 | Token group | Values |
 | ----------- | ------ |
-| Brand accent | `#420B5E` · deep `#2A0740` · wash `#F5F0F8` |
+| Brand accent | `#8E1B9C` · deep `#6B1475` · wash `#F7EFF9` |
 | Ink         | `#111111` · strong `#303030` · muted `#6C6C6C` |
 | Surfaces    | page `#F5F5F2` · surface `#FFFFFF` · soft `#FAFAF8` |
 | Borders     | `#E6E6E1` · strong `#D5D5CF` |
 | Radii       | `sm 5px` · `md 9px` · `lg 14px` |
 | Shadows     | `shadow-page` (site canvas) · `shadow-card` (editorial cards) · `shadow-lift` (floating panels) |
 
-The site renders inside an elevated white canvas (`max-width: 1480px`) floating on the warm-gray
+The site renders inside an elevated white canvas (`max-width: 1720px`) floating on the warm-gray
 page background from `lg` upward, and goes full-bleed on mobile.
 
 Built with **Next.js 15 (App Router) · TypeScript (strict) · Tailwind CSS · Framer Motion · Lucide React**.
