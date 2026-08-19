@@ -151,7 +151,7 @@ export const categories: Category[] = [
     // Work order proposed #B8860B, which is byte-identical to `event`.
     tint: '#B5273F',
     topics: ['کسب‌وکار', 'هنر', 'آموزش', 'خدمات', 'لندن', 'منچستر'],
-    inPrimaryNav: false,
+    inPrimaryNav: true,
   },
 
   // ---------------------------------------------------------------- //
