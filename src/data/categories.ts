@@ -249,13 +249,14 @@ const NAV_ORDER: CategorySlug[] = [
   'society',
   'business',
   'politics',
-  'technology',
-  'world',
   'event',
-  'culture',
-  'health',
   'guide',
   'travel',
+  'technology',
+  'culture',
+  'health',
+  'spotlight',
+  'world',
 ];
 
 /**
