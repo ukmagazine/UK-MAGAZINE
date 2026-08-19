@@ -4,10 +4,9 @@ import type { Category, CategorySlug } from '@/lib/types';
 /**
  * The fifteen desks the publication defines.
  *
- * Ten appear in the primary navigation. `spotlight` is visible — indexed, in
- * the footer, linked from /services/ and /contact/ — but stays out of the top
- * navigation until it holds five or more articles, because a desk with two
- * entries standing beside desks that publish daily reads as broken.
+ * Eleven appear in the primary navigation. The row is width-measured, not
+ * count-limited: whatever does not fit moves into the «بیشتر» overflow menu,
+ * so the last entries in NAV_ORDER are the first to be pushed there.
  *
  * Four are hidden: `sports` by editorial decision, `ai`, `education` and
  * `science` because nothing produces content for them. Hidden desks stay
@@ -134,13 +133,15 @@ export const categories: Category[] = [
     inPrimaryNav: true,
   },
   {
-    /**
-     * Visible but deliberately out of the top navigation.
+     /**
+     * Promoted into the primary navigation on 19 August 2026, ahead of the
+     * five-article threshold this comment previously set. Owner decision,
+     * taken knowingly: the desk is commercially important to the publication
+     * and is wanted in the navigation before it has the volume to justify a
+     * slot on editorial grounds alone.
      *
-     * PROMOTION THRESHOLD: add `spotlight` to NAV_ORDER once this desk holds
-     * five or more published articles. Until then it is reachable from the
-     * footer, /services/ and /contact/, and it is indexed — it is simply not
-     * given a slot beside desks that publish daily.
+     * It sits tenth in NAV_ORDER, so on a narrow viewport it is the second
+     * item to move into the «بیشتر» overflow, after `world`.
      */
     slug: 'spotlight',
     name: 'معرفی کسب‌وکار',
