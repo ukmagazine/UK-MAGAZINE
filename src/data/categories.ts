@@ -270,8 +270,10 @@ export const primaryNavCategories: Category[] = NAV_ORDER.map((slug) =>
 ).filter((category): category is Category => Boolean(category?.inPrimaryNav && !category.hidden));
 
 /**
- * Every desk a reader may be sent to: the ten in the navigation plus
- * `spotlight`. Used by the footer and the sitemap.
+ * Every desk a reader may be sent to: the eleven in NAV_ORDER. The second
+ * spread is now empty in practice — it stays because it is what keeps this
+ * list correct if a visible desk is ever added to `categories` without being
+ * added to NAV_ORDER. Used by the footer and the sitemap.
  */
 export const footerCategories: Category[] = [
   ...primaryNavCategories,
