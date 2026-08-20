@@ -8,15 +8,19 @@
 export const site = {
   name: 'UK MAGAZINE',
   wordmark: { lead: 'UK', trail: 'Magazine' },
-  tagline: 'جهان، در کانون توجه.',
+  tagline: 'زندگی در بریتانیا، به زبان فارسی.',
   description:
-    'یو‌کی مگزین یک نشریهٔ فارسی‌زبان برای ایرانیان بریتانیاست که جهان، سیاست، اقتصاد، فناوری، فرهنگ، سلامت، جامعه و رویدادها را پوشش می‌دهد.',
+    'یو‌کی مگزین نشریهٔ فارسی‌زبان ایرانیان بریتانیاست؛ از زندگی ایرانیان لندن تا خبرها و راهنماهای موردنیاز ایرانیان انگلستان را پوشش می‌دهد.',
   shortDescription:
-    'خبرها و گزارش‌های فارسی برای ایرانیان بریتانیا، با تمرکز بر موضوعاتی که بر زندگی روزمره اثر می‌گذارند.',
+    'خبرها و راهنماهای فارسی برای ایرانیان بریتانیا؛ از نیازهای روزمرهٔ جامعه در لندن تا زندگی در سراسر انگلستان.',
   url: 'https://theukmag.com',
   locale: 'fa_IR',
   founded: null as number | null,
   established: '',
+
+  features: {
+    bookmarks: false,
+  },
 
   /**
    * Contact details. Every place these are shown as text wraps them in `Ltr`

@@ -12,6 +12,7 @@ import type { CardArticle } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useLocale } from '@/components/providers/LocaleProvider';
 import { FEED_AD_INTERVAL } from '@/data/ads';
+import { site } from '@/data/site';
 
 interface LatestNewsFeedProps {
   articles: CardArticle[];
@@ -82,7 +83,7 @@ export function LatestNewsFeed({
               </p>
             </div>
 
-            {compact ? null : (
+            {compact || !site.features.bookmarks ? null : (
               <BookmarkButton
                 articleId={article.id}
                 title={article.title}

@@ -13,6 +13,7 @@ import { categoryShortName } from '@/i18n/category';
 import { fill } from '@/i18n/dictionaries';
 import { Wordmark } from '@/components/ui/Wordmark';
 import { primaryNavCategories } from '@/data/categories';
+import { site } from '@/data/site';
 import { cn, isActivePath } from '@/lib/utils';
 
 /**
@@ -232,25 +233,27 @@ export function Header() {
                 <Search aria-hidden="true" className="h-5 w-5" />
               </button>
 
-              <Link
-                href="/bookmarks/"
-                aria-label={
-                  hydrated && ids.length > 0
-                    ? fill(t.nav.savedCount, { count: ids.length })
-                    : t.nav.saved
-                }
-                className={cn(iconButton, 'relative')}
-              >
-                <Bookmark aria-hidden="true" className="h-5 w-5" />
-                {hydrated && ids.length > 0 ? (
-                  <span
-                    aria-hidden="true"
-                    className="tabular absolute right-1 top-1.5 flex h-4 min-w-[16px] items-center justify-center bg-brand-red px-[3px] text-[0.6rem] font-semibold leading-none text-white"
-                  >
-                    {ids.length > 9 ? '9+' : ids.length}
-                  </span>
-                ) : null}
-              </Link>
+              {site.features.bookmarks ? (
+                <Link
+                  href="/bookmarks/"
+                  aria-label={
+                    hydrated && ids.length > 0
+                      ? fill(t.nav.savedCount, { count: ids.length })
+                      : t.nav.saved
+                  }
+                  className={cn(iconButton, 'relative')}
+                >
+                  <Bookmark aria-hidden="true" className="h-5 w-5" />
+                  {hydrated && ids.length > 0 ? (
+                    <span
+                      aria-hidden="true"
+                      className="tabular absolute right-1 top-1.5 flex h-4 min-w-[16px] items-center justify-center bg-brand-red px-[3px] text-[0.6rem] font-semibold leading-none text-white"
+                    >
+                      {ids.length > 9 ? '9+' : ids.length}
+                    </span>
+                  ) : null}
+                </Link>
+              ) : null}
 
               {/* Last in the row, so the masthead lands on the LEFT edge in
                   RTL — at every width, which is what the brand asks for. */}

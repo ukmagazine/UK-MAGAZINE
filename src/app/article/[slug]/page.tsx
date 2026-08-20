@@ -262,7 +262,9 @@ export default async function ArticlePage({ params }: PageProps) {
           {/* Share + save ------------------------------------- */}
           <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
             <ShareButtons title={article.title} path={path} />
-            <BookmarkButton articleId={article.id} title={article.title} variant="labelled" />
+            {site.features.bookmarks ? (
+              <BookmarkButton articleId={article.id} title={article.title} variant="labelled" />
+            ) : null}
           </div>
         </header>
 
@@ -349,7 +351,9 @@ export default async function ArticlePage({ params }: PageProps) {
 
               <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
                 <ShareButtons title={article.title} path={path} />
-                <BookmarkButton articleId={article.id} title={article.title} variant="labelled" />
+                {site.features.bookmarks ? (
+                  <BookmarkButton articleId={article.id} title={article.title} variant="labelled" />
+                ) : null}
               </div>
             </div>
           </div>

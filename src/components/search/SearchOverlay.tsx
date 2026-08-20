@@ -9,7 +9,7 @@ import { useSearch } from '@/components/providers/SearchProvider';
 import { useLocale } from '@/components/providers/LocaleProvider';
 import { categoryShortName } from '@/i18n/category';
 import { usePresence } from '@/hooks/usePresence';
-import { categories } from '@/data/categories';
+import { visibleCategories } from '@/data/categories';
 import { formatShortDate } from '@/lib/format';
 import type { SearchPreviewItem } from '@/lib/search-index';
 import { cn } from '@/lib/utils';
@@ -212,7 +212,7 @@ export function SearchOverlay({ articles, suggestions }: SearchOverlayProps) {
 
                       <p className="label mb-3 mt-7 text-ink-soft">{t.search.browseDesks}</p>
                       <ul className="flex flex-wrap gap-2">
-                        {categories.map((category) => (
+                        {visibleCategories.map((category) => (
                           <li key={category.slug}>
                             <Link
                               href={`/category/${category.slug}/`}

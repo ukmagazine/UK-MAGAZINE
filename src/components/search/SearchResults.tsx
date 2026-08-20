@@ -5,7 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Search, SlidersHorizontal } from 'lucide-react';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { ArticleCard } from '@/components/article/ArticleCard';
-import { categories } from '@/data/categories';
+import { visibleCategories } from '@/data/categories';
 import { useLocale } from '@/components/providers/LocaleProvider';
 import { categoryShortName } from '@/i18n/category';
 import { formatCount } from '@/lib/format';
@@ -176,7 +176,7 @@ export function SearchResults({ articles }: SearchResultsProps) {
           aria-label={t.search.refine}
           className="no-scrollbar mt-5 flex gap-2 overflow-x-auto pb-1 sm:flex-wrap"
         >
-          {categories.map((category) => {
+          {visibleCategories.map((category) => {
             const active = selected.includes(category.slug);
             return (
               <button

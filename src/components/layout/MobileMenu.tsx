@@ -11,6 +11,7 @@ import { categoryName } from '@/i18n/category';
 import { usePresence } from '@/hooks/usePresence';
 import { Wordmark } from '@/components/ui/Wordmark';
 import { footerCategories } from '@/data/categories';
+import { site } from '@/data/site';
 import { cn, isActivePath } from '@/lib/utils';
 
 interface MobileMenuProps {
@@ -181,15 +182,17 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
             </ul>
           </nav>
 
-          <div className="mt-7">
-            <Link
-              href="/bookmarks/"
-              className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 border border-line text-sm font-medium text-ink transition-colors hover:border-ink hover:text-brand-red"
-            >
-              <Bookmark aria-hidden="true" className="h-4 w-4" />
-              {t.nav.saved}
-            </Link>
-          </div>
+          {site.features.bookmarks ? (
+            <div className="mt-7">
+              <Link
+                href="/bookmarks/"
+                className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 border border-line text-sm font-medium text-ink transition-colors hover:border-ink hover:text-brand-red"
+              >
+                <Bookmark aria-hidden="true" className="h-4 w-4" />
+                {t.nav.saved}
+              </Link>
+            </div>
+          ) : null}
 
           <div className="mt-7 border-t border-line pt-5">
             <ul className="space-y-2.5">

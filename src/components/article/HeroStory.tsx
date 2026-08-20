@@ -9,6 +9,7 @@ import { BookmarkButton } from '@/components/article/BookmarkButton';
 import { formatLongDate, formatReadingTime } from '@/lib/format';
 import { useLocale } from '@/components/providers/LocaleProvider';
 import { categoryShortName } from '@/i18n/category';
+import { site } from '@/data/site';
 import type { ResolvedArticle } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -146,7 +147,9 @@ export function HeroStory({ lead, support }: HeroStoryProps) {
                   </span>
                   {formatReadingTime(lead.readingTime)}
                 </p>
-                <BookmarkButton articleId={lead.id} title={lead.title} className="relative z-10" />
+                {site.features.bookmarks ? (
+                  <BookmarkButton articleId={lead.id} title={lead.title} className="relative z-10" />
+                ) : null}
               </div>
             </div>
           </div>

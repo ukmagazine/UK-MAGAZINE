@@ -6,6 +6,7 @@ import { SponsorPill } from '@/components/article/SponsorDisclosure';
 import { ArticleMeta } from '@/components/article/ArticleMeta';
 import { BookmarkButton } from '@/components/article/BookmarkButton';
 import { CategoryLabel } from '@/components/ui/CategoryLabel';
+import { site } from '@/data/site';
 import { formatRank } from '@/lib/format';
 import { RelativeTime } from '@/components/ui/RelativeTime';
 import { formatReadingTime } from '@/lib/format';
@@ -78,7 +79,7 @@ export function ArticleCard({
     </Heading>
   );
 
-  const bookmark = showBookmark ? (
+  const bookmark = showBookmark && site.features.bookmarks ? (
     <BookmarkButton
       articleId={article.id}
       title={article.title}
