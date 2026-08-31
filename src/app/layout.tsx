@@ -9,6 +9,9 @@ import { BookmarksProvider } from '@/components/providers/BookmarksProvider';
 import { LocaleProvider } from '@/components/providers/LocaleProvider';
 import { SearchProvider } from '@/components/providers/SearchProvider';
 import { SearchOverlay } from '@/components/search/SearchOverlay';
+import { PwaPrompts } from '@/components/pwa/PwaPrompts';
+import { PwaLayer } from '@/components/pwa/PwaLayer';
+import { ServiceWorkerRegistration } from '@/components/pwa/ServiceWorkerRegistration';
 import { breakingItems } from '@/data/articles';
 import { footerCategories } from '@/data/categories';
 import { site } from '@/data/site';
@@ -71,6 +74,32 @@ export const metadata: Metadata = {
    */
   keywords: ['اخبار', 'بریتانیا', 'فارسی', ...footerCategories.map((c) => c.name)],
   alternates: { canonical: '/' },
+  /**
+   * Emitted by src/app/manifest.ts as a static file. Root-relative because
+   * production is served from the custom-domain root.
+   */
+  manifest: '/manifest.webmanifest',
+  /**
+   * iOS home-screen behaviour. `statusBarStyle: 'default'` keeps the status
+   * bar opaque and legible above the white masthead; 'black-translucent'
+   * would slide the header under the clock and battery.
+   *
+   * The icon itself is not declared here — Next serves src/app/apple-icon.png
+   * at /apple-icon.png and emits the <link> itself, and declaring it twice
+   * would put two competing tags in the head.
+   */
+  appleWebApp: {
+    capable: true,
+    title: site.name,
+    statusBarStyle: 'default',
+  },
+  /**
+   * Next emits only the modern `mobile-web-app-capable` for `capable: true`.
+   * iOS 15.4 and later launch standalone from the manifest's `display`, so
+   * this legacy tag is not needed there — it is included for iOS older than
+   * that, where it was the only signal, and it is inert everywhere else.
+   */
+  other: { 'apple-mobile-web-app-capable': 'yes' },
   robots: {
     index: true,
     follow: true,
@@ -96,6 +125,13 @@ export const viewport: Viewport = {
   initialScale: 1,
   // Matches the brand purple sampled from the logo.
   themeColor: '#8E1B9C',
+  /**
+   * Lets the installed app paint into the notch and home-indicator areas
+   * instead of being letterboxed. Everything that would otherwise sit under
+   * them is inset in globals.css, and only while running standalone — a
+   * normal browser tab gets no extra spacing.
+   */
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -107,6 +143,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fa" dir="rtl" className={`${newsreader.variable} ${inter.variable} ${vazirmatn.variable}`}>
       <body className="min-h-dvh bg-surface-page">
         <SitePreloader />
+        {/*
+          Catches `beforeinstallprompt` before React exists.
+
+          Chromium fires it as soon as it decides the app is installable, which
+          is routinely earlier than hydration. A listener attached inside a
+          component therefore misses it on most visits and the install
+          suggestion can never be offered. This runs inline, holds the event on
+          `window`, and re-announces it so PwaPrompts can pick it up whenever it
+          mounts. preventDefault() suppresses Chromium's own mini-infobar.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){window.__ukmagInstallEvent=null;" +
+              "window.addEventListener('beforeinstallprompt',function(e){" +
+              "e.preventDefault();window.__ukmagInstallEvent=e;" +
+              "window.dispatchEvent(new Event('ukmag:installable'));});" +
+              "window.addEventListener('appinstalled',function(){" +
+              "window.__ukmagInstallEvent=null;});})();",
+          }}
+        />
+
         <script {...jsonLdProps(organizationJsonLd())} />
         <script {...jsonLdProps(websiteJsonLd())} />
 
@@ -140,6 +198,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
 
             <SearchOverlay articles={searchIndex} suggestions={suggestions} />
+
+            {/* Installable-app layer. Both are client islands that render
+                nothing until they have something to say, so the server-rendered
+                page is unchanged, and PwaLayer stacks them so an update notice
+                and a suggestion can never overlap. */}
+            <PwaLayer>
+              <ServiceWorkerRegistration />
+              <PwaPrompts />
+            </PwaLayer>
             </BookmarksProvider>
           </SearchProvider>
         </LocaleProvider>
