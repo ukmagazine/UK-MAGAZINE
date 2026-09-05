@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Check, Link2, Mail, Share2 } from 'lucide-react';
+import { Check, Link2, Linkedin, Mail, Share2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { absoluteUrl } from '@/lib/seo';
 import { cn } from '@/lib/utils';
@@ -11,6 +11,11 @@ interface ShareButtonsProps {
   /** Site-relative path, e.g. `/article/slug/`. */
   path: string;
   orientation?: 'horizontal' | 'vertical';
+  /**
+   * Adds LinkedIn, first in the row. Set only on interviews — see the note
+   * above `ShareButtons` for why it is not on by default.
+   */
+  linkedin?: boolean;
   className?: string;
 }
 
@@ -31,13 +36,17 @@ function WhatsAppIcon({ className }: { className?: string }) {
  * bare relative path — `?url=%2Farticle%2F…%2F` — which made all of them
  * silently useless, and it looked correct in the source.
  *
- * LinkedIn is gone: it is the wrong platform for this readership. WhatsApp,
- * which is where this audience actually forwards things, replaces it.
+ * LinkedIn is off by default: it is the wrong platform for this readership,
+ * and WhatsApp — where this audience actually forwards things — replaced it.
+ * The one exception is the interviews desk, where the subject is a named UK
+ * executive and LinkedIn is exactly where that piece travels. It is opt-in per
+ * article rather than restored globally, so both decisions stay true.
  */
 export function ShareButtons({
   title,
   path,
   orientation = 'horizontal',
+  linkedin = false,
   className,
 }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
@@ -71,6 +80,15 @@ export function ShareButtons({
   const encodedUrl = encodeURIComponent(url);
 
   const shareTargets = [
+    ...(linkedin
+      ? [
+          {
+            label: 'هم‌رسانی در لینکدین',
+            href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+            Icon: Linkedin,
+          },
+        ]
+      : []),
     {
       label: 'هم‌رسانی در واتس‌اپ',
       // Title, a newline, then the absolute URL — the shape WhatsApp previews.

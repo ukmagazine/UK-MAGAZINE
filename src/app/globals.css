@@ -525,6 +525,41 @@ html.preloader-active body {
 }
 
 /* ------------------------------------------------------------------ *
+ * Interviews desk
+ *
+ * An interview may be written entirely in English inside this RTL site.
+ * `.interview-body-en` is the wrapper the article template puts around the
+ * body — and only the body — when `uk_lang = en`. The header, the editorial
+ * note, the rails and the footer stay Persian and RTL around it.
+ * ------------------------------------------------------------------ */
+
+/* `[dir='rtl'] .article-body` sets line-height 2, which is right for Persian
+   and far too airy for Latin text. This wrapper is `dir="ltr"`, so that rule
+   stops matching and the value has to be restated. */
+.interview-body-en .article-body {
+  font-family: var(--font-ui), system-ui, sans-serif;
+  line-height: 1.75;
+  text-align: left;
+}
+
+/* Serif stays on display type; only running text switches to the UI face. */
+.interview-body-en .article-body :is(h2, h3, blockquote p) {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+/* An opening drop cap belongs to a narrative feature, not to a Q&A that
+   begins on a question. It is suppressed rather than inherited by accident:
+   the rule that neutralises it for Persian is `[dir='rtl']`-scoped and stops
+   applying the moment the wrapper flips this body to LTR. */
+.article-body--interview > p:first-of-type::first-letter {
+  float: none;
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+/* ------------------------------------------------------------------ *
  * Standing pages (about, contact, services, terms, privacy)
  * One rhythm for all five, so they cannot drift apart as copy is
  * edited. Same type scale and measure as the article body.

@@ -49,6 +49,40 @@ const slug = z
       'باید با حروف کوچک لاتین، عدد و خط تیره نوشته شود (اسلاگ فارسی در URL به درصد-کدگذاری تبدیل می‌شود)',
   });
 
+/** Absolute https(s) URL. Used for company sites, logos and LinkedIn pages. */
+const externalUrl = z.string().refine(
+  (value) => {
+    try {
+      const url = new URL(value);
+      return url.protocol === 'https:' || url.protocol === 'http:';
+    } catch {
+      return false;
+    }
+  },
+  { message: 'باید یک نشانی کامل http(s) باشد' },
+);
+
+/**
+ * Interview-desk fields.
+ *
+ * 🔴 Every field here is `.optional()`, and that is not a style choice. All
+ * articles published before this desk existed carry none of them; a single
+ * required field would fail every one of them at once, leaving zero valid
+ * articles — which is the one condition that fails the build outright.
+ */
+export const interviewDetailsSchema = z.object({
+  lang: z.enum(['fa', 'en']).optional(),
+  guestName: z.string().min(1).optional(),
+  guestRole: z.string().min(1).optional(),
+  companyName: z.string().min(1).optional(),
+  companyUrl: externalUrl.optional(),
+  companyLogoUrl: externalUrl.optional(),
+  companyLocation: z.string().min(1).optional(),
+  guestLinkedin: externalUrl.optional(),
+  companyLinkedin: externalUrl.optional(),
+  editorNote: z.string().min(1).optional(),
+});
+
 export const briefingSchema = z.object({
   whatHappened: z.string().min(1),
   whyItMatters: z.string().min(1),
@@ -71,7 +105,9 @@ export const articleSourceSchema = z.object({
   image: imageRef,
   imageAlt: z.string().min(1, 'متن جایگزین تصویر برای دسترس‌پذیری الزامی است'),
   imageCredit: z.string().default(''),
-  kind: z.enum(['report', 'analysis', 'opinion', 'video', 'breaking']).default('report'),
+  kind: z
+    .enum(['report', 'analysis', 'opinion', 'video', 'breaking', 'interview'])
+    .default('report'),
   /**
    * Commercial disclosure. Defaults to editorial, so an automated record that
    * never mentions the field — every one of them — is unaffected.
@@ -90,6 +126,12 @@ export const articleSourceSchema = z.object({
 
   briefing: briefingSchema.optional(),
   keyFacts: z.array(z.string().min(1)).optional(),
+
+  /**
+   * Interviewee and company. Optional as a whole and optional field by field,
+   * so this is inert for every non-interview article.
+   */
+  interview: interviewDetailsSchema.optional(),
 
   /** Body as Markdown; converted to typed blocks at load time. */
   bodyMarkdown: z.string().min(1),

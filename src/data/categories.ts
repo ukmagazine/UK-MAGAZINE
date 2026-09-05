@@ -2,9 +2,9 @@ import { HIDDEN_CATEGORY_SLUG_SET } from '@/lib/category-slugs';
 import type { Category, CategorySlug } from '@/lib/types';
 
 /**
- * The fifteen desks the publication defines.
+ * The sixteen desks the publication defines.
  *
- * Eleven appear in the primary navigation. The row is width-measured, not
+ * Twelve appear in the primary navigation. The row is width-measured, not
  * count-limited: whatever does not fit moves into the «بیشتر» overflow menu,
  * so the last entries in NAV_ORDER are the first to be pushed there.
  *
@@ -154,6 +154,32 @@ export const categories: Category[] = [
     topics: ['کسب‌وکار', 'هنر', 'آموزش', 'خدمات', 'لندن', 'منچستر'],
     inPrimaryNav: true,
   },
+  {
+    /**
+     * Long-form Q&A with UK businesses. A separate desk from `spotlight`
+     * (معرفی کسب‌وکار), which is promotion; this one is journalism.
+     *
+     * Some interviews are published entirely in English inside this RTL site.
+     * That is handled per article by `lang`, not by the desk — see the
+     * `uk_lang` meta key and the interview branch of the article template.
+     *
+     * Placed sixth in NAV_ORDER by owner decision. The row is width-measured,
+     * so anything past roughly position eight lives in the «بیشتر» overflow on
+     * a laptop; a commercially important desk should not start there.
+     */
+    slug: 'interviews',
+    name: 'مصاحبه',
+    shortName: 'مصاحبه',
+    description: 'گفت‌وگوی بلند با مدیران و بنیان‌گذاران کسب‌وکارهای بریتانیا، به فارسی و انگلیسی.',
+    standfirst:
+      'در این صفحه با کسانی گفت‌وگو می‌کنیم که کسب‌وکاری را در بریتانیا ساخته‌اند یا اداره می‌کنند. پرسش‌ها را کوتاه می‌پرسیم و پاسخ‌ها را بدون خلاصه‌سازی منتشر می‌کنیم. برخی از این گفت‌وگوها به زبان انگلیسی است.',
+    // Every other visible desk sits in the blue–green–purple–crimson range.
+    // A dark bronze is the one family none of them occupies, and it reads as
+    // considered rather than decorative next to the brand purple.
+    tint: '#7A4A22',
+    topics: ['مدیرعامل', 'بنیان‌گذار', 'کارآفرینی', 'لندن', 'خدمات', 'سرمایه‌گذاری'],
+    inPrimaryNav: true,
+  },
 
   // ---------------------------------------------------------------- //
   // Hidden desks — defined and routable, never surfaced.
@@ -252,6 +278,7 @@ const NAV_ORDER: CategorySlug[] = [
   'politics',
   'event',
   'guide',
+  'interviews',
   'travel',
   'technology',
   'culture',
@@ -270,7 +297,7 @@ export const primaryNavCategories: Category[] = NAV_ORDER.map((slug) =>
 ).filter((category): category is Category => Boolean(category?.inPrimaryNav && !category.hidden));
 
 /**
- * Every desk a reader may be sent to: the eleven in NAV_ORDER. The second
+ * Every desk a reader may be sent to: the twelve in NAV_ORDER. The second
  * spread is now empty in practice — it stays because it is what keeps this
  * list correct if a visible desk is ever added to `categories` without being
  * added to NAV_ORDER. Used by the footer and the sitemap.

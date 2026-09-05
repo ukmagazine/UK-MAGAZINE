@@ -1,12 +1,19 @@
-import { Clapperboard, MessageSquareQuote, Radio, Telescope } from 'lucide-react';
+import { Clapperboard, MessageSquareQuote, Mic, Radio, Telescope } from 'lucide-react';
 import type { ArticleKind } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
+/**
+ * 🔴 One entry per `ArticleKind` except `report`, which is the unbadged
+ * default. A kind added to the union without an entry here reaches
+ * `BADGES[kind]` as `undefined` and the destructure below throws during the
+ * static export — a build failure, not a missing badge.
+ */
 const BADGES = {
   breaking: { label: 'فوری', Icon: Radio },
   opinion: { label: 'دیدگاه', Icon: MessageSquareQuote },
   video: { label: 'ویدیو', Icon: Clapperboard },
   analysis: { label: 'تحلیل', Icon: Telescope },
+  interview: { label: 'مصاحبه', Icon: Mic },
 } as const;
 
 interface ArticleBadgeProps {

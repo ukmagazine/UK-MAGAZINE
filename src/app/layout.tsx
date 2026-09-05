@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Newsreader } from 'next/font/google';
 import localFont from 'next/font/local';
 import { BreakingNewsBar } from '@/components/layout/BreakingNewsBar';
 import { Footer } from '@/components/layout/Footer';
@@ -23,18 +22,41 @@ import './globals.css';
 /**
  * Editorial serif for headlines, neutral sans for interface text.
  * `display: 'swap'` avoids invisible text while the fonts load.
+ *
+ * 🔴 All three faces are local files, and none of them may go back to
+ * `next/font/google`. That helper is not a CDN link at runtime — it downloads
+ * and self-hosts — but it downloads *during the build*, which makes every
+ * build depend on fonts.gstatic.com being reachable from the builder. On a
+ * restricted network that is a hard build failure with no fallback:
+ *
+ *     `next/font` error: Failed to fetch `Inter` from Google Fonts.
+ *
+ * The files are the official Google Fonts releases (SIL OFL 1.1, licences
+ * alongside them in this directory), latin subset, the same weights and styles
+ * the Google helper was configured for — so the rendering is unchanged.
  */
-const newsreader = Newsreader({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  style: ['normal', 'italic'],
+const newsreader = localFont({
+  src: [
+    { path: './fonts/Newsreader-400.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/Newsreader-400-italic.woff2', weight: '400', style: 'italic' },
+    { path: './fonts/Newsreader-500.woff2', weight: '500', style: 'normal' },
+    { path: './fonts/Newsreader-500-italic.woff2', weight: '500', style: 'italic' },
+    { path: './fonts/Newsreader-600.woff2', weight: '600', style: 'normal' },
+    { path: './fonts/Newsreader-600-italic.woff2', weight: '600', style: 'italic' },
+    { path: './fonts/Newsreader-700.woff2', weight: '700', style: 'normal' },
+    { path: './fonts/Newsreader-700-italic.woff2', weight: '700', style: 'italic' },
+  ],
   display: 'swap',
   variable: '--font-display',
 });
 
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+const inter = localFont({
+  src: [
+    { path: './fonts/Inter-400.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/Inter-500.woff2', weight: '500', style: 'normal' },
+    { path: './fonts/Inter-600.woff2', weight: '600', style: 'normal' },
+    { path: './fonts/Inter-700.woff2', weight: '700', style: 'normal' },
+  ],
   display: 'swap',
   variable: '--font-ui',
 });
