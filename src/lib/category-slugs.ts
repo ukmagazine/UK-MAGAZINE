@@ -6,9 +6,9 @@
  * it is hidden from readers by an editorial decision, not removed, and the
  * automation upstream can still categorise a story as Sports.
  *
- * `guide`, `travel` and `spotlight` are written by hand in wp-admin, so they
- * are not part of the Make.com lookup, but they still have to be valid values
- * for the schema and the router.
+ * `guide`, `travel`, `spotlight` and `interviews` are written by hand in
+ * wp-admin, so they are not part of the Make.com lookup, but they still have
+ * to be valid values for the schema and the router.
  */
 export const AUTOMATED_CATEGORY_SLUGS = [
   'world',
@@ -22,8 +22,15 @@ export const AUTOMATED_CATEGORY_SLUGS = [
   'event',
 ] as const;
 
-/** Desks a human writes directly in WordPress. */
-export const MANUAL_CATEGORY_SLUGS = ['guide', 'travel', 'spotlight'] as const;
+/**
+ * Desks a human writes directly in WordPress.
+ *
+ * `interviews` is here rather than in AUTOMATED_CATEGORY_SLUGS on purpose:
+ * interviews are commissioned, conducted and published by hand, and the
+ * Make.com scenario has no `Interviews` branch. Listing it above would imply a
+ * category-id mapping upstream that does not exist.
+ */
+export const MANUAL_CATEGORY_SLUGS = ['guide', 'travel', 'spotlight', 'interviews'] as const;
 
 /**
  * Desks that stay defined and routable but are kept out of the navigation and

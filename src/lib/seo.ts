@@ -31,6 +31,15 @@ interface PageMetaOptions {
    * `nofollow` would strand them.
    */
   noIndex?: boolean;
+  /**
+   * Overrides the Open Graph and Twitter title only; the `<title>` element and
+   * the description are untouched.
+   *
+   * Used by the interviews desk, where the shared card should read
+   * "Interview with … at …" in English even though the page title and
+   * description stay Persian for the reader who arrives from search.
+   */
+  ogTitle?: string;
 }
 
 /** Build a complete Metadata object, including Open Graph and Twitter cards. */
@@ -46,9 +55,11 @@ export function buildMetadata({
   section,
   tags,
   noIndex = false,
+  ogTitle,
 }: PageMetaOptions): Metadata {
   const url = absoluteUrl(path);
   const images = image ? [{ url: image, width: 1800, height: 1200, alt: title }] : undefined;
+  const socialTitle = ogTitle ?? title;
 
   return {
     title,
@@ -56,7 +67,7 @@ export function buildMetadata({
     alternates: { canonical: url },
     robots: noIndex ? { index: false, follow: true } : undefined,
     openGraph: {
-      title,
+      title: socialTitle,
       description,
       url,
       siteName: site.name,
@@ -69,7 +80,7 @@ export function buildMetadata({
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: socialTitle,
       description,
       images: image ? [image] : undefined,
     },

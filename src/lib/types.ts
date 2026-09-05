@@ -50,7 +50,13 @@ export interface Author {
 /** Article body is a typed block list rather than a raw HTML string. */
 export type ArticleBlock =
   | { type: 'paragraph'; text: string }
-  | { type: 'heading'; id: string; text: string }
+  /**
+   * `level` is the source heading level (2–4). It is carried so the interview
+   * template can tell an interviewer's question (`<h3>`) from a section
+   * heading (`<h2>`); everywhere else the renderer still emits an `<h2>`, so
+   * adding it changed nothing for the existing corpus.
+   */
+  | { type: 'heading'; id: string; text: string; level: 2 | 3 | 4 }
   | { type: 'quote'; text: string; attribution: string }
   | { type: 'list'; ordered: boolean; items: string[] }
   | { type: 'image'; src: string; alt: string; caption: string }
@@ -69,7 +75,37 @@ export interface Briefing {
 }
 
 /** Editorial treatment, which drives the card variant and badge. */
-export type ArticleKind = 'report' | 'analysis' | 'opinion' | 'video' | 'breaking';
+export type ArticleKind =
+  | 'report'
+  | 'analysis'
+  | 'opinion'
+  | 'video'
+  | 'breaking'
+  | 'interview';
+
+/**
+ * The interviewee, their company, and the desk's note about the piece.
+ *
+ * Every field is optional because every one of the articles already published
+ * lacks all of them. An interview missing `guestName` or `companyName` still
+ * renders — the blocks that need them are omitted and the sync warns — because
+ * refusing to publish is a worse failure than an incomplete byline.
+ */
+export interface InterviewDetails {
+  /** Body language. Drives `dir`/`lang` on the article body only. */
+  lang?: 'fa' | 'en';
+  guestName?: string;
+  guestRole?: string;
+  companyName?: string;
+  companyUrl?: string;
+  /** Hotlinked, never re-hosted — same contract as the lead image. */
+  companyLogoUrl?: string;
+  companyLocation?: string;
+  guestLinkedin?: string;
+  companyLinkedin?: string;
+  /** Persian editorial note, shown above an English body. */
+  editorNote?: string;
+}
 
 /**
  * Commercial-content disclosure.
@@ -113,6 +149,11 @@ export interface Article {
   body: ArticleBlock[];
   tags: string[];
   relatedIds: string[];
+  /**
+   * Present only on `kind: 'interview'`. Optional on the type rather than on a
+   * separate one so nothing downstream has to narrow before reading it.
+   */
+  interview?: InterviewDetails;
 }
 
 /** An article joined with its resolved author and category records. */

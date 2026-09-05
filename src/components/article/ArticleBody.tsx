@@ -8,6 +8,12 @@ interface ArticleBodyProps {
   blocks: ArticleBlock[];
   /** Drives the `rel` on outbound links. See `externalRel`. */
   sponsored?: SponsoredKind;
+  /**
+   * `interview` restyles two blocks — headings become questions and quotes
+   * become pull quotes. Everything else, including link handling and bidi
+   * isolation, is shared, so the two variants cannot drift apart.
+   */
+  variant?: 'default' | 'interview';
 }
 
 /**
@@ -101,17 +107,42 @@ function renderInlineMarkdown(text: string, rel: string): ReactNode[] {
  * Blocks are structured data rather than HTML strings, so there is no
  * `dangerouslySetInnerHTML` anywhere in the reading experience.
  */
-export function ArticleBody({ blocks, sponsored = '' }: ArticleBodyProps) {
+export function ArticleBody({
+  blocks,
+  sponsored = '',
+  variant = 'default',
+}: ArticleBodyProps) {
   const rel = externalRel(sponsored);
+  const isInterview = variant === 'interview';
 
   return (
-    <div className="article-body">
+    <div className={isInterview ? 'article-body article-body--interview' : 'article-body'}>
       {blocks.map((block, index) => {
         switch (block.type) {
           case 'paragraph':
             return <p key={index}>{renderInlineMarkdown(block.text, rel)}</p>;
 
           case 'heading':
+            /**
+             * In an interview the interviewer's questions arrive as `<h3>` from
+             * WordPress. They are styled as questions but still emitted as
+             * `<h2>`: the page's only `<h1>` is the headline, so an `<h3>` here
+             * would skip a level and break the document outline for a screen
+             * reader. HTML has no "question" role — the level is structural,
+             * the treatment is editorial.
+             */
+            if (isInterview && block.level >= 3) {
+              return (
+                <h2
+                  key={index}
+                  id={block.id}
+                  className="mt-10 scroll-mt-32 border-s-[3px] border-brand-red ps-4 font-serif text-xl font-semibold leading-snug tracking-[-0.01em] text-brand-deep sm:text-[1.375rem]"
+                >
+                  {isolateLatinRuns(block.text, `question-${index}`)}
+                </h2>
+              );
+            }
+
             return (
               <h2
                 key={index}
@@ -124,6 +155,31 @@ export function ArticleBody({ blocks, sponsored = '' }: ArticleBodyProps) {
             );
 
           case 'quote':
+            /**
+             * A pull quote, not a source quote: no card and no border, so it
+             * reads as the interviewee's own words lifted out of the answer
+             * rather than as something being cited from elsewhere.
+             */
+            if (isInterview) {
+              return (
+                <figure
+                  key={index}
+                  className="my-11 border-s-4 border-brand-red ps-5 sm:ps-7"
+                >
+                  <blockquote>
+                    <p className="font-serif text-[1.5rem] font-medium leading-[1.35] tracking-[-0.02em] text-brand-deep sm:text-[1.875rem]">
+                      {isolateLatinRuns(block.text, `pullquote-${index}`)}
+                    </p>
+                  </blockquote>
+                  {block.attribution ? (
+                    <figcaption className="mt-3.5 text-sm font-medium text-ink-soft">
+                      {isolateLatinRuns(block.attribution, `pullquote-attribution-${index}`)}
+                    </figcaption>
+                  ) : null}
+                </figure>
+              );
+            }
+
             return (
               <figure
                 key={index}

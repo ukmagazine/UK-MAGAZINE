@@ -20,6 +20,9 @@ import { ShareButtons } from '@/components/article/ShareButtons';
 import { SponsorDisclosure } from '@/components/article/SponsorDisclosure';
 import { SmartBriefing } from '@/components/article/SmartBriefing';
 import { TableOfContents } from '@/components/article/TableOfContents';
+import { CompanyCard } from '@/components/article/interview/CompanyCard';
+import { EditorNote } from '@/components/article/interview/EditorNote';
+import { InterviewByline } from '@/components/article/interview/InterviewByline';
 import { RelativeTime } from '@/components/ui/RelativeTime';
 import { articles } from '@/data/articles';
 import { site } from '@/data/site';
@@ -95,12 +98,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     });
   }
 
+  /**
+   * An interview card names the person and the company, in English, because
+   * that is what makes it worth clicking where it is shared — LinkedIn. The
+   * page title and description stay Persian for search. Falls back to the
+   * headline whenever the guest or company is missing.
+   */
+  const guest = article.kind === 'interview' ? article.interview : undefined;
+  const ogTitle =
+    guest?.guestName && guest?.companyName
+      ? `Interview with ${guest.guestName}${
+          guest.guestRole ? `, ${guest.guestRole}` : ''
+        } at ${guest.companyName} | The UK Magazine`
+      : undefined;
+
   return buildMetadata({
     title: article.title,
     description: article.summary,
     path: `/article/${article.slug}/`,
     image: article.image,
     type: 'article',
+    ogTitle,
     publishedTime: article.publishedAt,
     modifiedTime: article.updatedAt ?? article.publishedAt,
     authors: [site.name],
@@ -126,6 +144,21 @@ export default async function ArticlePage({ params }: PageProps) {
     .filter((item) => item.id !== article.id)
     .slice(0, 4);
   const path = `/article/${article.slug}/`;
+
+  /**
+   * Interview desk.
+   *
+   * `isInterview` gates presentation only. Everything structural — routing,
+   * breadcrumbs, sponsorship disclosure, related stories — is shared with
+   * every other article, because an interview is an article on this site and
+   * a second article route would be a second thing to keep correct.
+   *
+   * `englishBody` isolates the body, and only the body: the header, the
+   * editorial note, the rails and the footer stay Persian and RTL around it.
+   */
+  const isInterview = article.kind === 'interview';
+  const interview = isInterview ? article.interview : undefined;
+  const englishBody = interview?.lang === 'en';
 
   const trail = [
     { name: 'خانه', path: '/' },
@@ -207,6 +240,14 @@ export default async function ArticlePage({ params }: PageProps) {
               reader has taken the piece for a news report. */}
           <SponsorDisclosure sponsored={article.sponsored} className="mb-5" />
 
+          {/* Static English kicker, only on the interviews desk. It names the
+              format; the Persian desk link below names the section. */}
+          {isInterview ? (
+            <p dir="ltr" lang="en" className="label mb-3 text-left text-ink-soft">
+              INTERVIEW
+            </p>
+          ) : null}
+
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <Link
               href={`/category/${article.category}/`}
@@ -218,12 +259,34 @@ export default async function ArticlePage({ params }: PageProps) {
             <ArticleBadge kind={article.kind} />
           </div>
 
-          <h1 className="font-serif text-headline tracking-[-0.02em] text-ink">{article.title}</h1>
+          {/* The headline of an English interview is English; letting it
+              inherit `lang="fa"` would hand a screen reader the wrong voice. */}
+          <h1
+            {...(englishBody ? { dir: 'ltr' as const, lang: 'en' } : {})}
+            className={`font-serif text-headline tracking-[-0.02em] text-ink${
+              englishBody ? ' text-left' : ''
+            }`}
+          >
+            {article.title}
+          </h1>
 
           {article.subtitle ? (
-            <p className="mt-5 text-lg leading-relaxed text-ink-soft sm:text-xl">
+            <p
+              {...(englishBody ? { dir: 'ltr' as const, lang: 'en' } : {})}
+              className={`mt-5 text-lg leading-relaxed text-ink-soft sm:text-xl${
+                englishBody ? ' text-left' : ''
+              }`}
+            >
               {article.subtitle}
             </p>
+          ) : null}
+
+          {interview ? (
+            <InterviewByline
+              interview={interview}
+              sponsored={article.sponsored}
+              className="mt-6"
+            />
           ) : null}
 
           {/* Byline ------------------------------------------- */}
@@ -261,7 +324,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
           {/* Share + save ------------------------------------- */}
           <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
-            <ShareButtons title={article.title} path={path} />
+            <ShareButtons title={article.title} path={path} linkedin={isInterview} />
             {site.features.bookmarks ? (
               <BookmarkButton articleId={article.id} title={article.title} variant="labelled" />
             ) : null}
@@ -323,7 +386,39 @@ export default async function ArticlePage({ params }: PageProps) {
                 </div>
               ) : null}
 
-              <ArticleBody blocks={article.body} sponsored={article.sponsored} />
+              {/* The desk's Persian framing, directly above the body — and on
+                  an English interview, the last Persian prose before the
+                  language changes. */}
+              {interview?.editorNote ? (
+                <EditorNote note={interview.editorNote} className="mb-10" />
+              ) : null}
+
+              {/**
+                * 🔴 The `dir`/`lang` pair is the whole language-isolation
+                * mechanism. It cannot come from WordPress: the pipeline runs
+                * htmlToMarkdown → markdownToBlocks, which drops every `<div>`,
+                * class and inline style, so an English body can only be
+                * isolated here, in the template, from `uk_lang`.
+                */}
+              <div
+                {...(englishBody
+                  ? { dir: 'ltr' as const, lang: 'en', className: 'interview-body-en' }
+                  : {})}
+              >
+                <ArticleBody
+                  blocks={article.body}
+                  sponsored={article.sponsored}
+                  variant={isInterview ? 'interview' : 'default'}
+                />
+              </div>
+
+              {interview ? (
+                <CompanyCard
+                  interview={interview}
+                  sponsored={article.sponsored}
+                  className="mt-12"
+                />
+              ) : null}
 
               {/* Below the source line the body ends with. */}
               <FollowRow className="mt-10" />
@@ -350,7 +445,7 @@ export default async function ArticlePage({ params }: PageProps) {
               ) : null}
 
               <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
-                <ShareButtons title={article.title} path={path} />
+                <ShareButtons title={article.title} path={path} linkedin={isInterview} />
                 {site.features.bookmarks ? (
                   <BookmarkButton articleId={article.id} title={article.title} variant="labelled" />
                 ) : null}
@@ -371,7 +466,7 @@ export default async function ArticlePage({ params }: PageProps) {
                   <span aria-hidden="true" className="me-2 h-[3px] w-5 bg-brand-red" />
                   هم‌رسانی
                 </h2>
-                <ShareButtons title={article.title} path={path} />
+                <ShareButtons title={article.title} path={path} linkedin={isInterview} />
               </div>
 
               {/* «پربازدیدترین» renders only when the corpus can actually fill

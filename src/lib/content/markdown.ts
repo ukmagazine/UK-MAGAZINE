@@ -65,13 +65,17 @@ export function markdownToBlocks(markdown: string): ArticleBlock[] {
     const lines = chunk.split('\n').map((line) => line.trim());
 
     // ── Heading ────────────────────────────────────────────────
-    const heading = /^#{2,4}\s+(.*)$/.exec(lines[0]);
+    const heading = /^(#{2,4})\s+(.*)$/.exec(lines[0]);
     if (heading && lines.length === 1) {
       headingCount += 1;
       blocks.push({
         type: 'heading',
         id: `h-${headingCount}`,
-        text: clean(heading[1]),
+        text: clean(heading[2]),
+        // Carried, not rendered: the shared renderer still emits an `<h2>` at
+        // every level, so the existing corpus is untouched. Only the interview
+        // template reads this, to tell a question from a section heading.
+        level: heading[1].length as 2 | 3 | 4,
       });
       continue;
     }

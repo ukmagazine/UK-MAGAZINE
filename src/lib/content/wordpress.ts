@@ -11,7 +11,7 @@ import type { CategorySlug } from '@/lib/types';
  * Production contracts:
  * - article routes are built from a Latin WordPress slug
  * - category slugs must match the shared category contract exactly
- * - the five `uk_*` meta keys must be registered by the MU plugin
+ * - the fifteen `uk_*` meta keys must be registered by the MU plugin (2.2.0)
  * - lead images are hotlinked from `uk_image_url`; featured media is not used
  * - malformed posts are warned about and skipped; HTTP failures remain fatal
  */
@@ -22,6 +22,21 @@ const META = {
   kind: 'uk_kind',
   imageUrl: 'uk_image_url',
   sponsored: 'uk_sponsored',
+
+  // Interview desk, added by bridge plugin 2.2.0. A key that reaches here
+  // but was never registered with `show_in_rest` is simply absent from the
+  // REST payload — WordPress reports no error — so a missing block on the
+  // page means the plugin, not this file.
+  lang: 'uk_lang',
+  guestName: 'uk_guest_name',
+  guestRole: 'uk_guest_role',
+  companyName: 'uk_company_name',
+  companyUrl: 'uk_company_url',
+  companyLogoUrl: 'uk_company_logo_url',
+  companyLocation: 'uk_company_location',
+  guestLinkedin: 'uk_guest_linkedin',
+  companyLinkedin: 'uk_company_linkedin',
+  editorNote: 'uk_editor_note',
 } as const;
 
 const PER_PAGE = 100;
@@ -145,7 +160,7 @@ function readTags(post: WpPost): string[] {
   return tags;
 }
 
-const KINDS = new Set(['report', 'analysis', 'opinion', 'video', 'breaking']);
+const KINDS = new Set(['report', 'analysis', 'opinion', 'video', 'breaking', 'interview']);
 
 function readKind(post: WpPost): string {
   const raw = (post.meta?.[META.kind] ?? '').trim();
@@ -167,6 +182,63 @@ function readSponsored(post: WpPost): string {
       'نادیده گرفته شد و محتوا تحریریه در نظر گرفته می‌شود.',
   );
   return '';
+}
+
+/** Trimmed meta value, or `undefined` when the key is absent or blank. */
+function meta(post: WpPost, key: string): string | undefined {
+  const value = (post.meta?.[key] ?? '').trim();
+  return value === '' ? undefined : value;
+}
+
+/**
+ * Interviewee and company details, for `uk_kind = interview` only.
+ *
+ * A post filed as an interview with no guest or company name is NOT rejected:
+ * the template omits the blocks it cannot fill, and the warning below is how
+ * the desk finds out. Rejecting would take a published piece off the site over
+ * a missing byline, which is the worse outcome.
+ */
+function readInterview(post: WpPost, slug: string): Record<string, string> | undefined {
+  if (readKind(post) !== 'interview') return undefined;
+
+  const rawLang = meta(post, META.lang)?.toLowerCase();
+  const details: Record<string, string> = {};
+
+  if (rawLang === 'fa' || rawLang === 'en') {
+    details.lang = rawLang;
+  } else if (rawLang) {
+    console.warn(
+      `[sync:wp] پست ${post.id} (${slug}): مقدار ناشناختهٔ uk_lang «${rawLang}» ` +
+        'نادیده گرفته شد؛ متن فارسی در نظر گرفته می‌شود.',
+    );
+  }
+
+  const optional = {
+    guestName: META.guestName,
+    guestRole: META.guestRole,
+    companyName: META.companyName,
+    companyUrl: META.companyUrl,
+    companyLogoUrl: META.companyLogoUrl,
+    companyLocation: META.companyLocation,
+    guestLinkedin: META.guestLinkedin,
+    companyLinkedin: META.companyLinkedin,
+    editorNote: META.editorNote,
+  } as const;
+
+  for (const [field, key] of Object.entries(optional)) {
+    const value = meta(post, key);
+    if (value) details[field] = value;
+  }
+
+  const missing = (['guestName', 'companyName'] as const).filter((field) => !details[field]);
+  if (missing.length > 0) {
+    console.warn(
+      `[sync:wp] پست ${post.id} (${slug}): مصاحبه بدون ${missing.join(' و ')} ` +
+        'منتشر می‌شود؛ بلوک‌های مربوط حذف می‌شوند.',
+    );
+  }
+
+  return details;
 }
 
 function readSummary(post: WpPost, body: string): string {
@@ -199,10 +271,11 @@ function readSlug(post: WpPost): string {
 function toSource(post: WpPost): unknown {
   const bodyMarkdown = htmlToMarkdown(post.content.rendered);
   const title = plain(post.title.rendered);
+  const slug = readSlug(post);
 
   return {
     id: `wp-${post.id}`,
-    slug: readSlug(post),
+    slug,
     title,
     subtitle: (post.meta?.[META.subtitle] ?? '').trim(),
     summary: readSummary(post, bodyMarkdown),
@@ -218,6 +291,7 @@ function toSource(post: WpPost): unknown {
     kind: readKind(post),
     sponsored: readSponsored(post),
     tags: readTags(post),
+    interview: readInterview(post, slug),
     bodyMarkdown,
   };
 }

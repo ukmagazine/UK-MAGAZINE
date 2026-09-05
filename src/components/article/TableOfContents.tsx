@@ -71,7 +71,20 @@ export function TableOfContents({ headings, className }: TableOfContentsProps) {
                 >
                   {String(index + 1).padStart(2, '0')}
                 </span>
-                <span className="min-w-0">{heading.text}</span>
+                {/**
+                  * `<bdi>` and not a bare string.
+                  *
+                  * This list sits in an RTL container, and the interviews desk
+                  * publishes articles whose headings are entirely English
+                  * questions. Without isolation the bidi algorithm moves the
+                  * trailing "?" to the front of the line — «?general one» —
+                  * which is the same class of defect `isolateLatinRuns` fixes
+                  * inside the body. A heading is one complete run, so isolating
+                  * the whole string is the right treatment here; Persian
+                  * headings are unaffected, `dir="auto"` resolves them to RTL
+                  * exactly as before.
+                  */}
+                <bdi className="min-w-0">{heading.text}</bdi>
               </a>
             </li>
           );
