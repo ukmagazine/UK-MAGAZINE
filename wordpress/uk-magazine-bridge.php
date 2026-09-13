@@ -2,7 +2,7 @@
 /**
  * Plugin Name: UK Magazine Bridge
  * Description: Registers the UK Magazine post meta fields for Make.com and the static front end, and adds an editor meta box.
- * Version:     2.2.0
+ * Version:     2.3.0
  *
  * Install as a must-use plugin:
  *   wp-content/mu-plugins/uk-magazine-bridge.php
@@ -43,7 +43,66 @@ function ukmag_bridge_fields() {
         'uk_guest_linkedin'   => ['label' => 'لینکدین مهمان', 'type' => 'url', 'group' => 'interview'],
         'uk_company_linkedin' => ['label' => 'لینکدین شرکت', 'type' => 'url', 'group' => 'interview'],
         'uk_editor_note'      => ['label' => 'یادداشت تحریریه (فارسی، ۳ تا ۴ جمله)', 'type' => 'textarea', 'group' => 'interview'],
+
+        // ---- Pins (2.3.0) ---------------------------------------------- //
+        // Set by a human in wp-admin only. Make.com never sends these keys.
+        'uk_pin' => [
+            'label'   => 'سنجاق در بالای صفحه',
+            'type'    => 'select',
+            'group'   => 'pin',
+            'options' => [
+                ''         => '(بدون سنجاق)',
+                'category' => 'category — بالای صفحهٔ دسته',
+                'home'     => 'home — بالای صفحهٔ اصلی',
+                'both'     => 'both — هر دو',
+            ],
+        ],
+        'uk_pin_rank' => [
+            'label'   => 'اولویت سنجاق',
+            'type'    => 'select',
+            'group'   => 'pin',
+            'options' => [
+                ''  => '(خالی — پایین‌ترین اولویت)',
+                '1' => '1',
+                '2' => '2',
+                '3' => '3',
+            ],
+        ],
+        'uk_pin_until' => ['label' => 'پایان سنجاق (به وقت لندن)', 'type' => 'date', 'group' => 'pin'],
     ];
+}
+
+/**
+ * Accepted values for the three pin keys; anything else is stored empty.
+ *
+ * Never guess a pin onto a post that did not ask for one. And never keep a
+ * mistyped date: an emptied field is visible to the editor in the meta box,
+ * which a silently kept bad date would not be.
+ *
+ * Registered as the `sanitize_callback` of all three keys, so it also covers a
+ * write that arrives over REST and never touches the form.
+ */
+function ukmag_bridge_sanitize_pin($value, $meta_key) {
+    $value = is_string($value) ? trim($value) : '';
+
+    if ($meta_key === 'uk_pin') {
+        $value = strtolower($value);
+        return in_array($value, ['category', 'home', 'both'], true) ? $value : '';
+    }
+
+    if ($meta_key === 'uk_pin_rank') {
+        return in_array($value, ['1', '2', '3'], true) ? $value : '';
+    }
+
+    if ($meta_key === 'uk_pin_until') {
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value, $m) &&
+            checkdate((int) $m[2], (int) $m[3], (int) $m[1])) {
+            return $value;
+        }
+        return '';
+    }
+
+    return '';
 }
 
 /**
@@ -53,7 +112,7 @@ function ukmag_bridge_fields() {
  */
 add_action('init', function () {
     foreach (ukmag_bridge_fields() as $key => $config) {
-        register_post_meta('post', $key, [
+        $args = [
             'type'          => 'string',
             'description'   => $config['label'],
             'single'        => true,
@@ -62,7 +121,13 @@ add_action('init', function () {
             'auth_callback' => function () {
                 return current_user_can('edit_posts');
             },
-        ]);
+        ];
+
+        if (isset($config['group']) && $config['group'] === 'pin') {
+            $args['sanitize_callback'] = 'ukmag_bridge_sanitize_pin';
+        }
+
+        register_post_meta('post', $key, $args);
     }
 });
 
@@ -76,18 +141,57 @@ add_action('add_meta_boxes', function () {
 
             echo '<div style="display:grid;gap:14px">';
 
-            $interview_heading_done = false;
+            // One heading per group, printed where the group starts, with the
+            // accepted values underneath so the editor reads them first.
+            $groups = [
+                'interview' => [
+                    'title' => 'فیلدهای مصاحبه',
+                    'notes' => ['فقط وقتی خوانده می‌شوند که uk_kind = interview باشد. روی بقیهٔ مطالب بی‌اثرند.'],
+                ],
+                'pin' => [
+                    'title' => 'سنجاق',
+                    'notes' => [
+                        'uk_pin: category | home | both | (خالی — بدون سنجاق)',
+                        'uk_pin_rank: 1 | 2 | 3 | (خالی — پایین‌ترین اولویت)',
+                        'uk_pin_until: YYYY-MM-DD | (خالی — بدون انقضا). تاریخ نامعتبر خالی ذخیره می‌شود.',
+                        'در هر صفحه حداکثر ۲ مقاله سنجاق می‌شود؛ بقیه در جای عادی خود می‌مانند.',
+                        'سنجاق در بیلد بعدی سایت اعمال می‌شود: حداکثر یک ساعت، یا فوراً با Run workflow.',
+                    ],
+                ],
+            ];
+            $current_group = 'core';
+
             foreach (ukmag_bridge_fields() as $key => $config) {
                 $group = isset($config['group']) ? $config['group'] : 'core';
 
-                if ($group === 'interview' && !$interview_heading_done) {
+                if ($group !== $current_group && isset($groups[$group])) {
                     echo '<hr style="margin:6px 0;border:0;border-top:1px solid #dcdcde">';
-                    echo '<p style="margin:0;font-weight:600">فیلدهای مصاحبه</p>';
-                    echo '<p style="margin:0;color:#646970">فقط وقتی خوانده می‌شوند که uk_kind = interview باشد. روی بقیهٔ مطالب بی‌اثرند.</p>';
-                    $interview_heading_done = true;
+                    printf('<p style="margin:0;font-weight:600">%s</p>', esc_html($groups[$group]['title']));
+                    foreach ($groups[$group]['notes'] as $note) {
+                        printf('<p style="margin:0;color:#646970">%s</p>', esc_html($note));
+                    }
                 }
+                $current_group = $group;
 
                 $value = get_post_meta($post->ID, $key, true);
+
+                if ($config['type'] === 'select') {
+                    printf(
+                        '<label for="%1$s"><strong>%2$s</strong><br><select id="%1$s" name="%1$s" style="width:100%%;margin-top:5px">',
+                        esc_attr($key),
+                        esc_html($config['label'])
+                    );
+                    foreach ($config['options'] as $option => $text) {
+                        printf(
+                            '<option value="%1$s"%2$s>%3$s</option>',
+                            esc_attr($option),
+                            selected((string) $value, (string) $option, false),
+                            esc_html($text)
+                        );
+                    }
+                    echo '</select></label>';
+                    continue;
+                }
 
                 if ($config['type'] === 'textarea') {
                     printf(
@@ -142,7 +246,12 @@ add_action('save_post_post', function ($post_id) {
         }
 
         $raw = wp_unslash($_POST[$key]);
-        if ($config['type'] === 'url') {
+        if (isset($config['group']) && $config['group'] === 'pin') {
+            // The same function WordPress runs as the registered
+            // sanitize_callback; called here as well so this key's rule is
+            // visible where every other key's rule is.
+            $value = ukmag_bridge_sanitize_pin($raw, $key);
+        } elseif ($config['type'] === 'url') {
             $value = esc_url_raw($raw, ['http', 'https']);
         } elseif ($config['type'] === 'textarea') {
             $value = sanitize_textarea_field($raw);

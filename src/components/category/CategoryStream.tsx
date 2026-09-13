@@ -14,6 +14,8 @@ interface CategoryStreamProps {
   articles: CardArticle[];
   /** Stories revealed per page. */
   pageSize?: number;
+  /** Ids the editor pinned to this desk, labelled «برگزیده» in the list. */
+  pinnedIds?: readonly string[];
 }
 
 /**
@@ -23,7 +25,7 @@ interface CategoryStreamProps {
  * a second row of chips split a small corpus into slices that were mostly
  * empty. Readers who want a narrower cut have search.
  */
-export function CategoryStream({ articles, pageSize = 6 }: CategoryStreamProps) {
+export function CategoryStream({ articles, pageSize = 6, pinnedIds = [] }: CategoryStreamProps) {
   const [visible, setVisible] = useState(pageSize);
   const reduced = useReducedMotion();
   const { t } = useLocale();
@@ -50,7 +52,12 @@ export function CategoryStream({ articles, pageSize = 6 }: CategoryStreamProps) 
                 ease: [0.22, 1, 0.36, 1],
               }}
             >
-              <ArticleCard article={article} variant="standard" headingLevel="h3" />
+              <ArticleCard
+                article={article}
+                variant="standard"
+                headingLevel="h3"
+                pinned={pinnedIds.includes(article.id)}
+              />
             </motion.div>
             {(index + 1) % FEED_AD_INTERVAL === 0 ? (
               <AdSlot placement="feed" as="div" className="sm:col-span-2 lg:col-span-3" />

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { ArticleBadge } from '@/components/article/ArticleBadge';
 import { ArticleCard } from '@/components/article/ArticleCard';
+import { PinnedLabel } from '@/components/article/PinnedLabel';
+import { SponsorPill } from '@/components/article/SponsorDisclosure';
 import { BookmarkButton } from '@/components/article/BookmarkButton';
 import { formatLongDate, formatReadingTime } from '@/lib/format';
 import { useLocale } from '@/components/providers/LocaleProvider';
@@ -16,6 +18,11 @@ import { cn } from '@/lib/utils';
 interface HeroStoryProps {
   lead: ResolvedArticle;
   support: ResolvedArticle[];
+  /**
+   * Ids of the stories in this hero that the editor pinned to the homepage.
+   * An array, not a Set: it crosses the server → client boundary.
+   */
+  pinnedIds?: readonly string[];
 }
 
 /**
@@ -27,8 +34,9 @@ interface HeroStoryProps {
  * below `lg` the composition unstacks into image-then-text so nothing is ever
  * laid over a busy crop on a small screen.
  */
-export function HeroStory({ lead, support }: HeroStoryProps) {
+export function HeroStory({ lead, support, pinnedIds = [] }: HeroStoryProps) {
   const { t, isRtl } = useLocale();
+  const leadPinned = pinnedIds.includes(lead.id);
   const href = `/article/${lead.slug}/`;
 
   /**
@@ -88,7 +96,9 @@ export function HeroStory({ lead, support }: HeroStoryProps) {
 
             {/* Copy */}
             <div className="flex flex-col justify-center p-6 sm:p-8 lg:p-10">
-              <div className="relative z-10 flex items-center gap-3">
+              {/* Wraps: a desk name, a treatment badge, «تبلیغ» and «برگزیده»
+                  together are 245px against 238px on a 320px phone. */}
+              <div className="relative z-10 flex flex-wrap items-center gap-x-3 gap-y-2">
                 {/* Padding with matching negative margin grows the tap target
                     without shifting the row. The shortest desk name is only
                     24px wide, which sat exactly on the WCAG 2.2 minimum. */}
@@ -100,6 +110,11 @@ export function HeroStory({ lead, support }: HeroStoryProps) {
                 </Link>
                 <span aria-hidden="true" className="h-[2px] w-8 bg-brand-red" />
                 <ArticleBadge kind={lead.kind} />
+                {/* 🔴 The lead never showed a commercial label. Pins make a
+                    paid story in this slot a deliberate, likely choice, and
+                    the disclosure has to travel with it (UK CAP Code). */}
+                <SponsorPill sponsored={lead.sponsored} />
+                {leadPinned ? <PinnedLabel /> : null}
               </div>
 
               <h1
@@ -175,6 +190,7 @@ export function HeroStory({ lead, support }: HeroStoryProps) {
                     showSummary={false}
                     showBookmark={false}
                     headingLevel="h3"
+                    pinned={pinnedIds.includes(article.id)}
                   />
                 </div>
               ))}

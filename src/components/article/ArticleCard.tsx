@@ -4,6 +4,7 @@ import { ArrowRight, Play } from 'lucide-react';
 import { ArticleBadge } from '@/components/article/ArticleBadge';
 import { SponsorPill } from '@/components/article/SponsorDisclosure';
 import { ArticleMeta } from '@/components/article/ArticleMeta';
+import { PinnedLabel } from '@/components/article/PinnedLabel';
 import { BookmarkButton } from '@/components/article/BookmarkButton';
 import { CategoryLabel } from '@/components/ui/CategoryLabel';
 import { site } from '@/data/site';
@@ -42,6 +43,12 @@ interface ArticleCardProps {
   sizes?: string;
   /** Overrides the image aspect ratio, for magazine-style layouts. */
   imageAspect?: string;
+  /**
+   * Shows «برگزیده». Set by the page for the surface it is rendering: an
+   * article pinned to the homepage is not pinned on its desk page. Every
+   * variant with a label row honours it; `numbered` has no label row.
+   */
+  pinned?: boolean;
 }
 
 const DEFAULT_SIZES = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw';
@@ -65,6 +72,7 @@ export function ArticleCard({
   headingLevel: Heading = 'h3',
   sizes = DEFAULT_SIZES,
   imageAspect,
+  pinned = false,
 }: ArticleCardProps) {
   const href = `/article/${article.slug}/`;
 
@@ -88,6 +96,11 @@ export function ArticleCard({
     />
   ) : null;
 
+  // Photograph-backed variants set their labels in white, like the bookmark.
+  const pinMark = pinned ? (
+    <PinnedLabel inverted={variant === 'image' || variant === 'featured'} />
+  ) : null;
+
   // ---------------------------------------------------------------- //
   // Compact — text only, for sidebars and dense feeds
   // ---------------------------------------------------------------- //
@@ -98,6 +111,7 @@ export function ArticleCard({
           <div className="relative z-10 mb-1.5 flex flex-wrap items-center gap-2">
             <CategoryLabel category={article.categoryRef} />
             <SponsorPill sponsored={article.sponsored} />
+            {pinMark}
           </div>
           {headline}
           <ArticleMeta article={article} className="mt-2" />
@@ -154,7 +168,10 @@ export function ArticleCard({
         </Link>
 
         <div className="min-w-0 flex-1">
-          <CategoryLabel category={article.categoryRef} className="relative z-10 mb-1" />
+          <div className="relative z-10 mb-1 flex flex-wrap items-center gap-2">
+            <CategoryLabel category={article.categoryRef} />
+            {pinMark}
+          </div>
           {headline}
           <ArticleMeta article={article} className="mt-1.5" />
         </div>
@@ -190,6 +207,7 @@ export function ArticleCard({
             <CategoryLabel category={article.categoryRef} />
             <ArticleBadge kind={article.kind} />
             <SponsorPill sponsored={article.sponsored} />
+            {pinMark}
           </div>
           {headline}
           {showSummary ? (
@@ -236,6 +254,7 @@ export function ArticleCard({
             <CategoryLabel category={article.categoryRef} inverted />
             <ArticleBadge kind={article.kind} inverted />
             <SponsorPill sponsored={article.sponsored} />
+            {pinMark}
           </div>
           {headline}
           <ArticleMeta article={article} inverted className="mt-3" />
@@ -280,6 +299,7 @@ export function ArticleCard({
             <CategoryLabel category={article.categoryRef} inverted />
             <ArticleBadge kind={article.kind} inverted />
             <SponsorPill sponsored={article.sponsored} />
+            {pinMark}
           </div>
           {headline}
           {showSummary ? (
@@ -309,6 +329,7 @@ export function ArticleCard({
         <div className="relative z-10 mb-3 flex flex-wrap items-center gap-2">
           <ArticleBadge kind="opinion" />
           <SponsorPill sponsored={article.sponsored} />
+          {pinMark}
           <CategoryLabel category={article.categoryRef} />
         </div>
 
@@ -344,6 +365,7 @@ export function ArticleCard({
         <div className="relative z-10 mb-3 flex flex-wrap items-center gap-2">
           <ArticleBadge kind="breaking" />
           <SponsorPill sponsored={article.sponsored} />
+          {pinMark}
           <CategoryLabel category={article.categoryRef} />
         </div>
 
@@ -390,6 +412,7 @@ export function ArticleCard({
             <CategoryLabel category={article.categoryRef} />
             <ArticleBadge kind={article.kind} />
             <SponsorPill sponsored={article.sponsored} />
+            {pinMark}
           </div>
 
           {headline}
@@ -441,6 +464,7 @@ export function ArticleCard({
           <CategoryLabel category={article.categoryRef} />
           <ArticleBadge kind={article.kind} />
             <SponsorPill sponsored={article.sponsored} />
+            {pinMark}
         </div>
 
         {headline}

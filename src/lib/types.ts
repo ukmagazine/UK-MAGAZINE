@@ -6,6 +6,7 @@
  */
 
 import type { CategorySlug } from '@/lib/category-slugs';
+import type { PinRank, PinTarget } from '@/lib/pins';
 export type { CategorySlug } from '@/lib/category-slugs';
 
 export interface Category {
@@ -154,6 +155,22 @@ export interface Article {
    * separate one so nothing downstream has to narrow before reading it.
    */
   interview?: InterviewDetails;
+
+  /**
+   * Editor-set pin, as validated from wp-admin. Kept for the record; nothing
+   * renders from these three directly.
+   */
+  pin?: PinTarget;
+  pinRank?: PinRank;
+  /** Last day the pin is live, `YYYY-MM-DD`, London time. */
+  pinUntil?: string;
+  /**
+   * Whether the pin is live on each surface, decided once per build in
+   * `content/load.ts`, expiry included. These two — never `pin` — are what the
+   * homepage and desk-page queries read.
+   */
+  pinnedHome: boolean;
+  pinnedCategory: boolean;
 }
 
 /** An article joined with its resolved author and category records. */
