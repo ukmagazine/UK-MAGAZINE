@@ -14,6 +14,7 @@ import {
   getByCategories,
   getEditorsPicks,
   getHeroSupport,
+  getHomePinned,
   getInDepth,
   getLatest,
   getLeadStory,
@@ -22,39 +23,57 @@ import {
 } from '@/lib/articles';
 
 export default function HomePage() {
-  const lead = getLeadStory();
-  const support = getHeroSupport(3, lead?.id);
+  /**
+   * Hero. Editor pins come first — the first pin is the lead, the second
+   * opens the top-stories rail — and the automatic choice fills whatever they
+   * leave. With no live pins this is exactly the previous behaviour.
+   */
+  const pinned = getHomePinned();
+  const pinnedIds = pinned.map((article) => article.id);
+
+  const lead = pinned[0] ?? getLeadStory();
+  const support = [
+    ...pinned.slice(1),
+    ...getHeroSupport(3, lead?.id).filter((article) => !pinnedIds.includes(article.id)),
+  ].slice(0, 3);
   const heroIds = [lead?.id, ...support.map((article) => article.id)].filter(
     (id): id is string => Boolean(id),
   );
 
+  /**
+   * 🔴 Every story in the hero appears once on this page. Each section below
+   * skips `heroIds` before it counts, so it still fills to its full length.
+   * Without this the lead turned up again in «پربازدیدترین» and in its own
+   * desk's section — and a pinned story, the one the editor most wants seen,
+   * would have been the most repeated thing on the page.
+   */
   const latestAll = getLatest(7, heroIds);
   const latest = latestAll;
   // One image-led story anchors the middle of the latest row.
   const latestFeature = latestAll.find((article) => article.id !== latestAll[0]?.id);
-  const mostRead = getMostRead(5);
+  const mostRead = getMostRead(5, undefined, heroIds);
 
-  const technology = getArticlesByCategory('technology', 5);
+  const technology = getArticlesByCategory('technology', 5, heroIds);
   const [technologyFeature, ...technologySupport] = technology;
 
-  const health = getArticlesByCategory('health', 3);
-  const politicsWorld = getByCategories(['politics', 'world'], 4);
-  const society = getArticlesByCategory('society', 3);
+  const health = getArticlesByCategory('health', 3, heroIds);
+  const politicsWorld = getByCategories(['politics', 'world'], 4, heroIds);
+  const society = getArticlesByCategory('society', 3, heroIds);
   // No `sports` section: the desk is hidden, and a homepage rail is exactly the
   // route to it that Task 6 closes. Its category page still exists.
-  const events = getArticlesByCategory('event', 3);
-  const business = getArticlesByCategory('business', 4);
+  const events = getArticlesByCategory('event', 3, heroIds);
+  const business = getArticlesByCategory('business', 4, heroIds);
   const [businessLead, ...businessRest] = business;
-  const culture = getArticlesByCategory('culture', 3);
+  const culture = getArticlesByCategory('culture', 3, heroIds);
   const [cultureLead, ...cultureRest] = culture;
-  const editorsPicks = getEditorsPicks(4);
-  const inDepth = getInDepth(2);
+  const editorsPicks = getEditorsPicks(4, heroIds);
+  const inDepth = getInDepth(2, heroIds);
 
   return (
     <>
       <div className="frame">
         {/* Hero ------------------------------------------------- */}
-        {lead ? <HeroStory lead={lead} support={support} /> : null}
+        {lead ? <HeroStory lead={lead} support={support} pinnedIds={pinnedIds} /> : null}
 
         {/* Latest · feature · most read · newsletter ------------- */}
         <section

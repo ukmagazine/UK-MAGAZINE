@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { CATEGORY_SLUGS } from '@/lib/category-slugs';
+import { PIN_TARGETS, isCalendarDate } from '@/lib/pins';
 
 /**
  * The contract between the content pipeline and the site.
@@ -132,6 +133,22 @@ export const articleSourceSchema = z.object({
    * so this is inert for every non-interview article.
    */
   interview: interviewDetailsSchema.optional(),
+
+  /**
+   * Editor-set pin.
+   *
+   * 🔴 `.catch()` on all three, not merely `.optional()`: a bad pin value must
+   * cost the article its pin, never its place on the site. The WordPress
+   * adapter has already turned anything invalid into "absent" and warned by
+   * slug; this is the backstop for a hand-edited JSON file.
+   *
+   * An unreadable expiry is caught as a date long past, not as "no expiry".
+   * The date was typed to END the pin, and pinned-forever is the dangerous
+   * reading of a mistake.
+   */
+  pin: z.enum(PIN_TARGETS).optional().catch(undefined),
+  pinRank: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional().catch(undefined),
+  pinUntil: z.string().refine(isCalendarDate).optional().catch('0000-00-00'),
 
   /** Body as Markdown; converted to typed blocks at load time. */
   bodyMarkdown: z.string().min(1),

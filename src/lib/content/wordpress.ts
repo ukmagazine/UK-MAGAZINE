@@ -1,6 +1,13 @@
 import { articleSourceSchema, type ArticleSource } from '@/lib/content/schema';
 import { CATEGORY_SLUG_SET } from '@/lib/category-slugs';
 import { decodeSlug, isLatinSlug, toLatinSlug } from '@/lib/content/slug';
+import {
+  isCalendarDate,
+  isPinTarget,
+  parsePinRank,
+  type PinRank,
+  type PinTarget,
+} from '@/lib/pins';
 import type { CategorySlug } from '@/lib/types';
 
 /**
@@ -11,7 +18,7 @@ import type { CategorySlug } from '@/lib/types';
  * Production contracts:
  * - article routes are built from a Latin WordPress slug
  * - category slugs must match the shared category contract exactly
- * - the fifteen `uk_*` meta keys must be registered by the MU plugin (2.2.0)
+ * - the eighteen `uk_*` meta keys must be registered by the MU plugin (2.3.0)
  * - lead images are hotlinked from `uk_image_url`; featured media is not used
  * - malformed posts are warned about and skipped; HTTP failures remain fatal
  */
@@ -37,6 +44,12 @@ const META = {
   guestLinkedin: 'uk_guest_linkedin',
   companyLinkedin: 'uk_company_linkedin',
   editorNote: 'uk_editor_note',
+
+  // Pins, added by bridge plugin 2.3.0. Set by a human in wp-admin only; the
+  // Make.com pipeline never sends these keys.
+  pin: 'uk_pin',
+  pinRank: 'uk_pin_rank',
+  pinUntil: 'uk_pin_until',
 } as const;
 
 const PER_PAGE = 100;
@@ -241,6 +254,49 @@ function readInterview(post: WpPost, slug: string): Record<string, string> | und
   return details;
 }
 
+/**
+ * The three pin keys, carried as validated values. Whether a pin is live is
+ * decided per build in `content/load.ts`, not here: expiry has to be judged
+ * against the day the site is built, not the day it was last synced.
+ *
+ * Nothing here can reject a post. An unknown target means "not pinned"; an
+ * unknown rank means "lowest priority"; an impossible expiry drops the pin,
+ * because the date was typed to END it and pinned-forever is the dangerous
+ * reading of a mistake. Each is warned about by slug.
+ */
+function readPin(
+  post: WpPost,
+  slug: string,
+): { pin?: PinTarget; pinRank?: PinRank; pinUntil?: string } {
+  const rawPin = meta(post, META.pin)?.toLowerCase();
+  if (!rawPin) return {};
+
+  const where = `[sync:wp] پست ${post.id} (${slug})`;
+
+  if (!isPinTarget(rawPin)) {
+    console.warn(`${where}: مقدار ناشناختهٔ uk_pin «${rawPin}» نادیده گرفته شد؛ مقاله سنجاق نمی‌شود.`);
+    return {};
+  }
+
+  const rawRank = meta(post, META.pinRank);
+  const pinRank = rawRank ? parsePinRank(rawRank) : undefined;
+  if (rawRank && !pinRank) {
+    console.warn(`${where}: uk_pin_rank «${rawRank}» باید 1، 2 یا 3 باشد؛ پایین‌ترین اولویت در نظر گرفته شد.`);
+  }
+
+  const rawUntil = meta(post, META.pinUntil);
+  if (rawUntil && !isCalendarDate(rawUntil)) {
+    console.warn(`${where}: uk_pin_until «${rawUntil}» تاریخ معتبر YYYY-MM-DD نیست؛ سنجاق اعمال نمی‌شود.`);
+    return {};
+  }
+
+  return {
+    pin: rawPin,
+    ...(pinRank ? { pinRank } : {}),
+    ...(rawUntil ? { pinUntil: rawUntil } : {}),
+  };
+}
+
 function readSummary(post: WpPost, body: string): string {
   const excerpt = plain(post.excerpt.rendered);
   if (excerpt) return excerpt;
@@ -292,6 +348,7 @@ function toSource(post: WpPost): unknown {
     sponsored: readSponsored(post),
     tags: readTags(post),
     interview: readInterview(post, slug),
+    ...readPin(post, slug),
     bodyMarkdown,
   };
 }

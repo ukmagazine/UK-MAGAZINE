@@ -6,7 +6,11 @@ import { CategoryStream } from '@/components/category/CategoryStream';
 import { CategoryHeader } from '@/components/ui/CategoryHeader';
 import { Reveal } from '@/components/ui/Reveal';
 import { categories, getCategory } from '@/data/categories';
-import { getArticlesByCategory, getMostRead } from '@/lib/articles';
+import {
+  getArticlesByCategory,
+  getCategoryPinned,
+  getMostRead,
+} from '@/lib/articles';
 import type { CategorySlug } from '@/lib/types';
 import {
   breadcrumbJsonLd,
@@ -64,8 +68,20 @@ export default async function CategoryPage({ params }: PageProps) {
   if (!category) notFound();
 
   const all = getArticlesByCategory(category.slug as CategorySlug);
-  const [featured, ...rest] = all;
-  const mostRead = getMostRead(5, category.slug as CategorySlug);
+
+  /**
+   * Editor pins take the top of the desk — the first pin becomes the lead
+   * card, the second opens the list — and are lifted out of the chronological
+   * run so each appears once. `all` itself is untouched: the article count,
+   * the load-more arithmetic and the structured data stay chronological.
+   */
+  const pinned = getCategoryPinned(category.slug as CategorySlug);
+  const pinnedIds = pinned.map((article) => article.id);
+  const ordered = [...pinned, ...all.filter((article) => !pinnedIds.includes(article.id))];
+  const [featured, ...rest] = ordered;
+
+  // The rail skips the pins, which are already at the top of this page.
+  const mostRead = getMostRead(5, category.slug as CategorySlug, pinnedIds);
 
   const trail = [
     { name: 'خانه', path: '/' },
@@ -110,6 +126,7 @@ export default async function CategoryPage({ params }: PageProps) {
                   headingLevel="h3"
                   priority
                   sizes="(max-width: 1024px) 100vw, 66vw"
+                  pinned={pinnedIds.includes(featured.id)}
                 />
               </Reveal>
 
@@ -133,7 +150,7 @@ export default async function CategoryPage({ params }: PageProps) {
         )}
 
         {rest.length > 0 ? (
-          <CategoryStream articles={rest} />
+          <CategoryStream articles={rest} pinnedIds={pinnedIds} />
         ) : null}
       </div>
     </>

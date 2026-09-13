@@ -2,6 +2,7 @@ import { articles } from '@/data/articles';
 import { getAuthor } from '@/data/authors';
 import { categories, getCategory, isHiddenCategory } from '@/data/categories';
 import { normalizePersian, normalizeTerms } from '@/lib/persian';
+import { PIN_CAP } from '@/lib/pins';
 import type {
   Article,
   CardArticle,
@@ -117,9 +118,20 @@ export function getArticleById(id: string): ResolvedArticle | undefined {
   return match ? resolve(match) : undefined;
 }
 
-/** A desk's own listing — the one place a hidden desk still lists its work. */
-export function getArticlesByCategory(slug: CategorySlug, limit?: number): ResolvedArticle[] {
-  const list = articles.filter((article) => article.category === slug);
+/**
+ * A desk's own listing — the one place a hidden desk still lists its work.
+ *
+ * `excludeIds` is applied before `limit`, so a homepage section that skips the
+ * stories already in the hero still fills to its full length.
+ */
+export function getArticlesByCategory(
+  slug: CategorySlug,
+  limit?: number,
+  excludeIds: readonly string[] = [],
+): ResolvedArticle[] {
+  const list = articles.filter(
+    (article) => article.category === slug && !excludeIds.includes(article.id),
+  );
   return resolveAll(typeof limit === 'number' ? list.slice(0, limit) : list);
 }
 
@@ -141,6 +153,67 @@ export function getHeroSupport(count = 3, excludeId?: string): ResolvedArticle[]
 export function getLatest(limit = 8, excludeIds: string[] = []): ResolvedArticle[] {
   return resolveAll(
     visibleArticles.filter((article) => !excludeIds.includes(article.id)).slice(0, limit),
+  );
+}
+
+// ------------------------------------------------------------------ //
+// Pins
+//
+// Read only by the homepage and desk pages. Nothing here re-sorts `articles`,
+// which is what keeps the breaking bar, related stories, previous/next and the
+// sitemap chronological. See lib/pins.ts for the rules.
+// ------------------------------------------------------------------ //
+
+/** Sorts after every real rank, so an unranked pin comes last. */
+const UNRANKED = 4;
+
+/** Rank ascending, an unranked pin last; then newest first. */
+function byPinOrder(a: Article, b: Article): number {
+  return (
+    (a.pinRank ?? UNRANKED) - (b.pinRank ?? UNRANKED) ||
+    Date.parse(b.publishedAt) - Date.parse(a.publishedAt)
+  );
+}
+
+/**
+ * The first `PIN_CAP` of `pool` in pin order.
+ *
+ * Anything past the cap stays in its normal chronological place — callers only
+ * lift out what this returns — and is named in the build log, so an
+ * over-pinned surface is visible without failing the build.
+ */
+function takePinned(pool: Article[], surface: string): ResolvedArticle[] {
+  const pinned = [...pool].sort(byPinOrder);
+
+  if (pinned.length > PIN_CAP) {
+    const excess = pinned.slice(PIN_CAP).map((article) => article.slug);
+    console.warn(
+      `[pins] ${surface}: ${pinned.length} مقاله سنجاق شده و سقف ${PIN_CAP} است. ` +
+        `این‌ها در جای عادی خود نمایش داده می‌شوند: ${excess.join(', ')}`,
+    );
+  }
+
+  return resolveAll(pinned.slice(0, PIN_CAP));
+}
+
+/**
+ * Stories the editor has pinned to the top of the homepage, at most two.
+ *
+ * Drawn from the visible corpus only: a pin cannot put a hidden desk on the
+ * homepage, for the same reason nothing else can.
+ */
+export function getHomePinned(): ResolvedArticle[] {
+  return takePinned(
+    visibleArticles.filter((article) => article.pinnedHome),
+    'صفحهٔ اصلی (/)',
+  );
+}
+
+/** Stories the editor has pinned to the top of one desk page, at most two. */
+export function getCategoryPinned(slug: CategorySlug): ResolvedArticle[] {
+  return takePinned(
+    articles.filter((article) => article.category === slug && article.pinnedCategory),
+    `/category/${slug}/`,
   );
 }
 
@@ -170,10 +243,16 @@ export function getTrending(limit = 5): ResolvedArticle[] {
  * Passing a `categorySlug` scopes it to that desk, including a hidden one: the
  * caller is a category page that has already decided the reader asked for it.
  */
-export function getMostRead(limit = 5, categorySlug?: CategorySlug): ResolvedArticle[] {
-  const pool = categorySlug
-    ? articles.filter((article) => article.category === categorySlug)
-    : visibleArticles;
+export function getMostRead(
+  limit = 5,
+  categorySlug?: CategorySlug,
+  excludeIds: readonly string[] = [],
+): ResolvedArticle[] {
+  const pool = (
+    categorySlug
+      ? articles.filter((article) => article.category === categorySlug)
+      : visibleArticles
+  ).filter((article) => !excludeIds.includes(article.id));
   return resolveAll(
     [...pool]
       .sort((a, b) => b.reads - a.reads || Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
@@ -185,12 +264,16 @@ export function getMostRead(limit = 5, categorySlug?: CategorySlug): ResolvedArt
  * Flagged picks, else the newest story from each desk — which gives the row the
  * spread across subjects that makes a picks rail worth reading.
  */
-export function getEditorsPicks(limit = 4): ResolvedArticle[] {
-  const flagged = visibleArticles.filter((article) => article.editorsPick);
+export function getEditorsPicks(
+  limit = 4,
+  excludeIds: readonly string[] = [],
+): ResolvedArticle[] {
+  const pool = visibleArticles.filter((article) => !excludeIds.includes(article.id));
+  const flagged = pool.filter((article) => article.editorsPick);
   if (flagged.length > 0) return resolveAll(flagged.slice(0, limit));
 
   const seenDesks = new Set<CategorySlug>();
-  const spread = visibleArticles.filter((article) => {
+  const spread = pool.filter((article) => {
     if (seenDesks.has(article.category)) return false;
     seenDesks.add(article.category);
     return true;
@@ -202,12 +285,13 @@ export function getEditorsPicks(limit = 4): ResolvedArticle[] {
  * Flagged long reads, else the longest — reading time is derived from the body,
  * so "in depth" is one of the few editorial judgements we can actually measure.
  */
-export function getInDepth(limit = 3): ResolvedArticle[] {
-  const flagged = visibleArticles.filter((article) => article.inDepth);
+export function getInDepth(limit = 3, excludeIds: readonly string[] = []): ResolvedArticle[] {
+  const pool = visibleArticles.filter((article) => !excludeIds.includes(article.id));
+  const flagged = pool.filter((article) => article.inDepth);
   if (flagged.length > 0) return resolveAll(flagged.slice(0, limit));
 
   return resolveAll(
-    [...visibleArticles]
+    [...pool]
       .sort((a, b) => b.readingTime - a.readingTime)
       .slice(0, limit),
   );
@@ -218,9 +302,15 @@ export function getByKind(kind: Article['kind'], limit = 4): ResolvedArticle[] {
 }
 
 /** Stories from several desks at once, for combined homepage sections. */
-export function getByCategories(slugs: CategorySlug[], limit = 6): ResolvedArticle[] {
+export function getByCategories(
+  slugs: CategorySlug[],
+  limit = 6,
+  excludeIds: readonly string[] = [],
+): ResolvedArticle[] {
   return resolveAll(
-    visibleArticles.filter((article) => slugs.includes(article.category)).slice(0, limit),
+    visibleArticles
+      .filter((article) => slugs.includes(article.category) && !excludeIds.includes(article.id))
+      .slice(0, limit),
   );
 }
 

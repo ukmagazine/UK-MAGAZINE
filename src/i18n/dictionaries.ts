@@ -57,6 +57,8 @@ export interface Dictionary {
     prevPicks: string;
     nextPicks: string;
     by: string;
+    /** Label on an article the editor has pinned to the top of a list. */
+    pinned: string;
   };
   sections: {
     aiTech: string;
@@ -206,6 +208,7 @@ const en: Dictionary = {
     prevPicks: 'Previous picks',
     nextPicks: 'Next picks',
     by: 'By',
+    pinned: 'Featured',
   },
   sections: {
     aiTech: 'AI and Technology',
@@ -359,6 +362,7 @@ const fa: Dictionary = {
     prevPicks: 'قبلی',
     nextPicks: 'بعدی',
     by: 'نوشتهٔ',
+    pinned: 'برگزیده',
   },
   sections: {
     aiTech: 'هوش مصنوعی و فناوری',

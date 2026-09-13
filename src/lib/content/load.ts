@@ -3,6 +3,7 @@ import path from 'node:path';
 import { HIDDEN_CATEGORY_SLUG_SET } from '@/lib/category-slugs';
 import { articleSourceSchema, type ArticleSource } from '@/lib/content/schema';
 import { estimateReadingTime, markdownToBlocks } from '@/lib/content/markdown';
+import { isPinLive, londonToday } from '@/lib/pins';
 import type { Article, BreakingItem } from '@/lib/types';
 
 /**
@@ -116,20 +117,42 @@ function deriveRelated(sources: ArticleSource[]): Map<string, string[]> {
 function build(): { articles: Article[]; breakingItems: BreakingItem[] } {
   const sources = readSources();
   const related = deriveRelated(sources);
+  // Read once, so every article in this build is judged against the same day.
+  const today = londonToday();
 
   const articles: Article[] = sources
     .map((source) => {
       const { bodyMarkdown, ...rest } = source;
       const body = markdownToBlocks(bodyMarkdown);
 
+      // The one place a pin becomes live or not. Expiry is inclusive of the
+      // `pinUntil` day, London time; see lib/pins.ts.
+      const live = Boolean(source.pin) && isPinLive(source.pinUntil, today);
+
       return {
         ...rest,
         body,
         readingTime: estimateReadingTime(body),
         relatedIds: related.get(source.id) ?? [],
+        pinnedHome: live && (source.pin === 'home' || source.pin === 'both'),
+        pinnedCategory: live && (source.pin === 'category' || source.pin === 'both'),
       } satisfies Article;
     })
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
+
+  // One line per build naming every live pin, so an editor checking why a
+  // story is (or is not) at the top can read the answer in the build log.
+  const livePins = articles.filter((article) => article.pinnedHome || article.pinnedCategory);
+  if (livePins.length > 0) {
+    const describe = (article: Article) =>
+      `${article.slug} → ${[
+        article.pinnedHome ? 'home' : '',
+        article.pinnedCategory ? `category:${article.category}` : '',
+      ]
+        .filter(Boolean)
+        .join('+')}${article.pinRank ? ` #${article.pinRank}` : ''}`;
+    console.info(`[pins] ${livePins.length} سنجاق زنده در ${today}: ${livePins.map(describe).join(' | ')}`);
+  }
 
   // The breaking bar sits on every page, so it is a discovery surface like any
   // other and a hidden desk must not reach it.
