@@ -7,7 +7,7 @@ import { buildMetadata } from '@/lib/seo';
 export const metadata: Metadata = buildMetadata({
   title: 'جست‌وجو',
   description:
-    'جست‌وجو در همهٔ گزارش‌های یو‌کی مگزین بر پایهٔ تیتر، موضوع یا سرویس — در هوش مصنوعی، آموزش، فناوری، سیاست، جهان، اقتصاد، علم، فرهنگ، سلامت و محیط زیست.',
+    'جست‌وجو در همهٔ گزارش‌های یو‌کی مگزین بر پایهٔ تیتر، موضوع یا سرویس — در هوش مصنوعی، آموزش، فناوری، سیاست، جهان، اقتصاد، علم، سرگرمی، سلامت و محیط زیست.',
   path: '/search',
   // Search result pages should not be indexed.
   noIndex: true,
