@@ -216,7 +216,7 @@ const en: Dictionary = {
     politicsWorld: 'Politics and World',
     scienceEnvironment: 'Science and Environment',
     business: 'Business',
-    culture: 'Culture',
+    culture: 'Entertainment',
   },
   article: {
     breadcrumbHome: 'Home',
@@ -370,7 +370,7 @@ const fa: Dictionary = {
     politicsWorld: 'سیاست و جهان',
     scienceEnvironment: 'علم و محیط زیست',
     business: 'اقتصاد',
-    culture: 'فرهنگ',
+    culture: 'سرگرمی',
   },
   article: {
     breadcrumbHome: 'خانه',
