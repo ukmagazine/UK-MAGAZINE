@@ -227,7 +227,7 @@ export default function HomePage() {
         {/* Culture — magazine layout ---------------------------- */}
         {cultureLead ? (
           <section className="mt-12 sm:mt-16" aria-labelledby="culture-heading">
-            <SectionHeader title="فرهنگ" titleKey="culture" href="/category/culture/" />
+            <SectionHeader title="سرگرمی" titleKey="culture" href="/category/culture/" />
 
             <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-12">
               <Reveal className="lg:col-span-7">
