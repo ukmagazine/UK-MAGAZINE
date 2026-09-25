@@ -420,6 +420,10 @@ export default async function ArticlePage({ params }: PageProps) {
                 />
               ) : null}
 
+              {/* Related stories come first after the body: the next thing a
+                  reader who finished the piece is most likely to want. */}
+              <RelatedStories articles={related} className="mt-12" />
+
               {/* Below the source line the body ends with. */}
               <FollowRow className="mt-10" />
 
@@ -515,7 +519,6 @@ export default async function ArticlePage({ params }: PageProps) {
 
       <div className="frame">
         <NextArticleNav previous={previous} next={next} className="mt-12" />
-        <RelatedStories articles={related} className="mt-16" />
       </div>
     </>
   );
