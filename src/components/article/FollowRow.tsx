@@ -3,7 +3,7 @@ import { activeSocial } from '@/data/site';
 import { cn } from '@/lib/utils';
 
 /**
- * A single line and the social icons, at the end of the article body below the
+ * A single line and the social icons (Instagram large, with its handle), at the end of the article body below the
  * source line.
  *
  * Renders only for channels that have a URL in `site.social`, and nothing at
@@ -25,10 +25,10 @@ export function FollowRow({ className }: { className?: string }) {
         className,
       )}
     >
-      <p className="text-sm text-ink-soft">
-        برای دریافت گزارش‌های تازه، ما را دنبال کنید.
+      <p className="text-base text-ink">
+        خبرهای کاربردی بریتانیا را هر روز در Instagram دنبال کنید.
       </p>
-      <SocialLinks className="-ms-3" />
+      <SocialLinks prominent className="-ms-3" />
     </div>
   );
 }
