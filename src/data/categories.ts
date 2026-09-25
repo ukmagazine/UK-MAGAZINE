@@ -107,8 +107,8 @@ export const categories: Category[] = [
   },
   {
     slug: 'guide',
-    name: 'راهنما',
-    shortName: 'راهنما',
+    name: 'راهنمای زندگی',
+    shortName: 'راهنمای زندگی',
     description: 'راهنمای زندگی در بریتانیا به فارسی: ویزا، مالیات، اجاره‌نامه، مدرسه و خدمات دولتی، قدم‌به‌قدم.',
     standfirst:
       'راهنمای کارهای اداری و روزمره در بریتانیا را قدم‌به‌قدم توضیح می‌دهیم: ویزا، مالیات، اجاره‌نامه، ثبت‌نام مدرسه و خدمات دولتی. هر راهنما به منابع رسمی پیوند دارد.',
@@ -140,8 +140,8 @@ export const categories: Category[] = [
      * and is wanted in the navigation before it has the volume to justify a
      * slot on editorial grounds alone.
      *
-     * It sits tenth in NAV_ORDER, so on a narrow viewport it is the second
-     * item to move into the «بیشتر» overflow, after `world`.
+     * It sits tenth in NAV_ORDER, so on a narrow viewport it is the third
+     * item to move into the «بیشتر» overflow, after `world` and `interviews`.
      */
     slug: 'spotlight',
     name: 'معرفی کسب‌وکار',
@@ -163,9 +163,9 @@ export const categories: Category[] = [
      * That is handled per article by `lang`, not by the desk — see the
      * `uk_lang` meta key and the interview branch of the article template.
      *
-     * Placed sixth in NAV_ORDER by owner decision. The row is width-measured,
-     * so anything past roughly position eight lives in the «بیشتر» overflow on
-     * a laptop; a commercially important desk should not start there.
+     * Eleventh in NAV_ORDER since the launch re-order (owner decision). The
+     * row is width-measured, so on a laptop this desk usually lives in the
+     * «بیشتر» overflow; it stays in the mobile menu and the footer.
      */
     slug: 'interviews',
     name: 'مصاحبه',
@@ -273,17 +273,17 @@ export const visibleCategories: Category[] = categories.filter((category) => !ca
  * are an API contract with the publishing automation.
  */
 const NAV_ORDER: CategorySlug[] = [
+  'guide',
+  'travel',
+  'event',
   'society',
   'business',
   'politics',
-  'event',
-  'guide',
-  'interviews',
-  'travel',
   'technology',
   'culture',
   'health',
   'spotlight',
+  'interviews',
   'world',
 ];
 

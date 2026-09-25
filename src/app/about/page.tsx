@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { TeamSection } from '@/components/about/TeamSection';
 import { StaticPage } from '@/components/layout/StaticPage';
 import { breadcrumbJsonLd, buildMetadata, jsonLdProps } from '@/lib/seo';
 
@@ -64,6 +65,8 @@ export default function AboutPage() {
           کلیک، صحت اطلاعات را شخصاً راستی‌آزمایی کنید. ما هیچ محتوایی را بدون پشتوانه‌ی
           معتبر منتشر نمی‌کنیم.
         </p>
+
+        <TeamSection />
 
         <h2>دعوت به همکاری</h2>
 

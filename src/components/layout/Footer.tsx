@@ -100,7 +100,7 @@ export function Footer() {
                     ما را دنبال کنید
                   </h2>
                   <nav aria-labelledby="footer-social">
-                    <SocialLinks inverted className="-ms-3" />
+                    <SocialLinks inverted prominent className="-ms-3" />
                   </nav>
                 </div>
               ) : null}

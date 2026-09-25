@@ -81,3 +81,10 @@ export const activeSocial = (
     { key: 'whatsapp', label: 'واتس‌اپ', href: site.social.whatsapp },
   ] as const
 ).filter((entry) => entry.href.length > 0);
+
+/**
+ * Instagram, if it has a URL. The header, mobile menu, footer and follow row
+ * give it more room than the other channels; they all read it from here, so
+ * emptying `site.social.instagram` removes every one of them.
+ */
+export const instagramChannel = activeSocial.find((entry) => entry.key === 'instagram');

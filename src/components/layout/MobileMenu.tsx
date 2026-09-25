@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useReducedMotion } from 'framer-motion';
-import { ArrowRight, Bookmark, Search, X } from 'lucide-react';
+import { ArrowRight, Bookmark, Instagram, Search, X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { useSearch } from '@/components/providers/SearchProvider';
 import { useLocale } from '@/components/providers/LocaleProvider';
@@ -11,7 +11,8 @@ import { categoryName } from '@/i18n/category';
 import { usePresence } from '@/hooks/usePresence';
 import { Wordmark } from '@/components/ui/Wordmark';
 import { footerCategories } from '@/data/categories';
-import { site } from '@/data/site';
+import { Ltr } from '@/components/ui/Ltr';
+import { instagramChannel, site } from '@/data/site';
 import { cn, isActivePath } from '@/lib/utils';
 
 interface MobileMenuProps {
@@ -28,7 +29,7 @@ const EXIT_MS = 340;
  * Implemented as a modal dialog: focus moves into the panel on open, Escape
  * closes it, Tab is trapped inside, and the page behind it cannot scroll.
  *
- * Lists `footerCategories` — the ten navigation desks plus `spotlight`. Hidden
+ * Lists `footerCategories` — the twelve navigation desks, in NAV_ORDER. Hidden
  * desks are navigation, footer and index invisible; this is navigation.
  */
 export function MobileMenu({ open, onClose }: MobileMenuProps) {
@@ -148,6 +149,23 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
             <Search aria-hidden="true" className="h-4 w-4" />
             {t.search.overlayPlaceholder}
           </button>
+
+          {instagramChannel ? (
+            <a
+              href={instagramChannel.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group mt-3 flex min-h-[56px] w-full items-center gap-3 bg-brand-wash px-4 py-2.5 text-ink transition-colors hover:text-brand-red"
+            >
+              <Instagram aria-hidden="true" className="h-6 w-6 shrink-0 text-brand-red" />
+              <span className="flex min-w-0 flex-col">
+                <span className="text-sm font-medium">ما را در Instagram دنبال کنید</span>
+                <Ltr className="self-start text-xs text-ink-soft group-hover:text-brand-red">
+                  {site.instagramHandle}
+                </Ltr>
+              </span>
+            </a>
+          ) : null}
 
           <nav aria-label={t.nav.sections} className="mt-7">
             <p className="label mb-3 flex items-center text-ink-soft">

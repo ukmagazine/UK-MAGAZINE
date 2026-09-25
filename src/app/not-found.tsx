@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, Compass, Search } from 'lucide-react';
 import { ArticleGrid } from '@/components/article/ArticleGrid';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { categories } from '@/data/categories';
+import { footerCategories } from '@/data/categories';
 import { getLatest } from '@/lib/articles';
 
 /** Custom 404 — offers a route back rather than a dead end. */
@@ -70,7 +70,7 @@ export default function NotFound() {
           </h2>
 
           <ul className="grid grid-cols-2 gap-x-6 border-t border-line sm:grid-cols-3 lg:grid-cols-5">
-            {categories.map((category) => (
+            {footerCategories.map((category) => (
               <li key={category.slug} className="border-b border-line">
                 <Link
                   href={`/category/${category.slug}/`}

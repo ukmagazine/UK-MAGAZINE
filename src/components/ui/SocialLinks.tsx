@@ -1,6 +1,7 @@
 import { Instagram } from 'lucide-react';
 import type { ComponentType } from 'react';
-import { activeSocial } from '@/data/site';
+import { Ltr } from '@/components/ui/Ltr';
+import { activeSocial, site } from '@/data/site';
 import { cn } from '@/lib/utils';
 
 /**
@@ -32,6 +33,12 @@ const ICONS: Record<string, ComponentType<{ className?: string }>> = {
 interface SocialLinksProps {
   /** Light-on-dark, for the footer. */
   inverted?: boolean;
+  /**
+   * Larger icons, with the Instagram handle written beside its icon as part
+   * of the same link. Used where following is the point: the footer and the
+   * end of every article.
+   */
+  prominent?: boolean;
   className?: string;
 }
 
@@ -44,13 +51,14 @@ interface SocialLinksProps {
  * the component renders nothing at all rather than an empty row under a
  * heading.
  */
-export function SocialLinks({ inverted = false, className }: SocialLinksProps) {
+export function SocialLinks({ inverted = false, prominent = false, className }: SocialLinksProps) {
   if (activeSocial.length === 0) return null;
 
   return (
     <ul className={cn('flex items-center gap-1', className)}>
       {activeSocial.map((entry) => {
         const Icon = ICONS[entry.key];
+        const withHandle = prominent && entry.key === 'instagram' && site.instagramHandle;
         return (
           <li key={entry.key}>
             <a
@@ -59,13 +67,25 @@ export function SocialLinks({ inverted = false, className }: SocialLinksProps) {
               rel="noopener noreferrer"
               aria-label={`${entry.label} — UK Magazine`}
               className={cn(
-                'inline-flex h-11 w-11 items-center justify-center transition-colors',
+                'inline-flex items-center justify-center transition-colors',
+                prominent ? 'h-12 min-w-12' : 'h-11 w-11',
+                withHandle && 'gap-2 px-3',
                 inverted
                   ? 'text-white/70 hover:text-white'
                   : 'text-ink-soft hover:text-brand-red',
               )}
             >
-              <Icon className="h-[18px] w-[18px]" />
+              <Icon className={prominent ? 'h-7 w-7' : 'h-[18px] w-[18px]'} />
+              {withHandle ? (
+                <Ltr
+                  className={cn(
+                    'text-base font-medium underline-offset-4 hover:underline',
+                    inverted ? 'text-white' : 'text-ink',
+                  )}
+                >
+                  {site.instagramHandle}
+                </Ltr>
+              ) : null}
             </a>
           </li>
         );
