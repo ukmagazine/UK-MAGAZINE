@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { CookieSettingsButton } from '@/components/consent/CookieSettingsButton';
 import { Wordmark } from '@/components/ui/Wordmark';
 import { SocialLinks } from '@/components/ui/SocialLinks';
 import { categoryShortName } from '@/i18n/category';
@@ -90,6 +91,13 @@ export function Footer() {
                       </Link>
                     </li>
                   ))}
+                  {/* Reopens the consent banner, on every page, so a choice
+                      can be changed at any time. Absent with analytics off. */}
+                  {site.analytics.gaMeasurementId ? (
+                    <li>
+                      <CookieSettingsButton className="inline-flex min-h-[44px] items-center text-sm text-white/75 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" />
+                    </li>
+                  ) : null}
                 </ul>
               </nav>
 

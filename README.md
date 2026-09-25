@@ -205,6 +205,7 @@ most Persian display fonts are not free).
 | **Newsletters**         | `src/data/newsletters.ts`                                                                       |
 | **Breaking headlines**  | Derived automatically — anything with `"kind": "breaking"` leads the strip, newest stories fill it |
 | **Content source**      | `WORDPRESS_URL` in `.env` — unset, the build uses whatever is already in `content/articles/`    |
+| **Analytics**           | `site.analytics.gaMeasurementId` in `src/data/site.ts` — GA4, loaded only after «قبول» in the consent banner. See [docs/ANALYTICS.md](docs/ANALYTICS.md) |
 
 ### Team (About page)
 

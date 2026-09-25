@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
+import { Analytics } from '@/components/analytics/Analytics';
 import { BreakingNewsBar } from '@/components/layout/BreakingNewsBar';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
@@ -220,6 +221,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
 
             <SearchOverlay articles={searchIndex} suggestions={suggestions} />
+
+            {/* Loads Google Analytics only after «قبول» in the consent banner.
+                Renders nothing; before consent it does nothing at all. */}
+            <Analytics />
 
             {/* Installable-app layer. Both are client islands that render
                 nothing until they have something to say, so the server-rendered
