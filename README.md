@@ -206,6 +206,23 @@ most Persian display fonts are not free).
 | **Breaking headlines**  | Derived automatically — anything with `"kind": "breaking"` leads the strip, newest stories fill it |
 | **Content source**      | `WORDPRESS_URL` in `.env` — unset, the build uses whatever is already in `content/articles/`    |
 
+### Team (About page)
+
+The «تیم ما» section on `/about/` is driven by `src/data/team.ts`. Article bylines are not
+affected; they stay the house byline in `src/data/authors.ts`.
+
+**Adding the founder's photo** — upload a square JPEG named exactly `founder.jpg` into the folder
+`public/team/` (on GitHub: open `public/team/` → *Add file* → *Upload files*), so the full path is
+`public/team/founder.jpg`. The filename is case-sensitive: `Founder.JPG` will not be found. Nothing
+else needs to change: the build checks whether the file exists and shows it; until then an
+initials avatar is drawn. At least 192×192 px is recommended (it is shown at 96 px, sharper on
+high-density screens).
+
+**Switching on a hidden entry** — in `src/data/team.ts`, fill in `name` and `role` for one of the
+entries with `visible: false`, set `visible: true`, and optionally set `photo` to a file you have
+uploaded under `public/team/` (for example `'/team/editor.jpg'`). Entries with `visible: false`
+render nothing at all.
+
 ### Images
 
 Article art is served from `images.unsplash.com` and resized by **Unsplash's own CDN** via a custom

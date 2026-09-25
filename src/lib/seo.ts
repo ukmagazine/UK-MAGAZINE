@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { activeSocial, site } from '@/data/site';
+import { visibleTeam } from '@/data/team';
 import type { Category, ResolvedArticle } from '@/lib/types';
 
 /**
@@ -92,6 +93,7 @@ export function buildMetadata({
 // ------------------------------------------------------------------ //
 
 export function organizationJsonLd(): Record<string, unknown> {
+  const founders = visibleTeam.filter((member) => member.founder);
   return {
     '@context': 'https://schema.org',
     '@type': 'NewsMediaOrganization',
@@ -101,6 +103,15 @@ export function organizationJsonLd(): Record<string, unknown> {
     logo: absoluteUrl('/logo.png'),
     ...(site.founded ? { foundingDate: String(site.founded) } : {}),
     ...(site.email ? { email: site.email } : {}),
+    ...(founders.length > 0
+      ? {
+          founder: founders.map((member) => ({
+            '@type': 'Person',
+            name: member.name,
+            jobTitle: member.role,
+          })),
+        }
+      : {}),
     ...(activeSocial.length > 0 ? { sameAs: activeSocial.map((entry) => entry.href) } : {}),
     // The old value pointed at /about#standards. That anchor no longer exists
     // — the About page was rebuilt from the publisher's copy — and a
