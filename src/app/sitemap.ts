@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { footerCategories } from '@/data/categories';
-import { getAllArticles, getAllTags } from '@/lib/articles';
+import { getAllArticles, getAllTags, getArticlesByCategory } from '@/lib/articles';
 import { absoluteUrl } from '@/lib/seo';
 
 export const dynamic = 'force-static';
@@ -8,8 +8,11 @@ export const dynamic = 'force-static';
 /**
  * Generated from the same data the routes are, so it can never drift.
  *
- * Only pages a reader is meant to find: `footerCategories` is the eleven
- * visible desks, `getAllArticles` and `getAllTags` exclude hidden desks, and
+ * Only pages a reader is meant to find: `footerCategories` is the twelve
+ * visible desks, less any with no articles yet — the same test that makes
+ * the desk page `noindex` (category/[slug]/page.tsx), so a desk leaves the
+ * sitemap while empty and returns with its first article, no edit needed.
+ * `getAllArticles` and `getAllTags` exclude hidden desks, and
  * /search/, /bookmarks/ and /newsletter/ are left out — the first two are
  * disallowed in robots.txt and the third has no working form at the moment.
  */
@@ -23,11 +26,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: absoluteUrl('/privacy/'), changeFrequency: 'yearly', priority: 0.3 },
   ];
 
-  const categoryRoutes: MetadataRoute.Sitemap = footerCategories.map((category) => ({
-    url: absoluteUrl(`/category/${category.slug}/`),
-    changeFrequency: 'daily',
-    priority: 0.8,
-  }));
+  const categoryRoutes: MetadataRoute.Sitemap = footerCategories
+    .filter((category) => getArticlesByCategory(category.slug).length > 0)
+    .map((category) => ({
+      url: absoluteUrl(`/category/${category.slug}/`),
+      changeFrequency: 'daily',
+      priority: 0.8,
+    }));
 
   const tagRoutes: MetadataRoute.Sitemap = getAllTags().map((tag) => ({
     url: absoluteUrl(`/tag/${encodeURIComponent(tag)}/`),
