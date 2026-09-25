@@ -15,8 +15,9 @@ export const metadata: Metadata = buildMetadata({
  * Header treatment: the publisher suggested a photograph of a British landmark.
  * None is used, because the only licensing route open to this repository is an
  * Unsplash hotlink, and a decorative hotlink on a standing page is a permanent
- * third-party request on a site whose whole privacy position is that it makes
- * none. The angular brand corner carries the page instead.
+ * third-party request made without asking — the only other one this site
+ * makes, to Google Analytics, waits for the reader's consent. The angular
+ * brand corner carries the page instead.
  */
 export default function AboutPage() {
   const trail = [

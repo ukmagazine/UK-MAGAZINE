@@ -38,14 +38,33 @@ export const site = {
    * An empty string renders nothing at all — no icon, no gap, no placeholder.
    *
    * ⚠️ Link to social platforms. Never embed them. An embedded Instagram feed
-   * or YouTube player sets third-party cookies, which would immediately
-   * require a consent banner under PECR. Plain links set no cookies, and that
-   * is why this site needs no cookie banner — see /privacy/.
+   * or YouTube player sets third-party cookies the moment the page loads,
+   * before any choice has been made. Plain links set no cookies. The only
+   * cookies this site sets are Google Analytics', and only after the reader
+   * has accepted them in the consent banner — see `analytics` below and
+   * /privacy/.
    */
   social: {
     instagram: 'https://instagram.com/uk.mag',
     telegram: '',
     whatsapp: '',
+  },
+
+  /**
+   * Google Analytics 4, consent-gated.
+   *
+   * The measurement ID is public by design — it ships in every page that
+   * loads gtag.js — so it lives here rather than in a secret, and changing
+   * it needs no workflow change.
+   *
+   * 🔴 Nothing from Google loads until the reader clicks «قبول» in the consent
+   * banner (UK PECR reg. 6 and UK GDPR). Before that, and after «نه، ممنون»,
+   * the site makes no request to any Google domain and sets no cookie. See
+   * src/lib/analytics.ts and src/lib/consent.ts. Emptying the ID removes the
+   * banner, the footer link and the loader altogether.
+   */
+  analytics: {
+    gaMeasurementId: 'G-3ZHS29EJ5Q',
   },
 
   /**

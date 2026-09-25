@@ -11,9 +11,10 @@ import { cn } from '@/lib/utils';
  * filling in one string on GitHub, with no developer involved and no empty
  * heading in the meantime.
  *
- * ⚠️ Links, never embeds. An embedded feed sets third-party cookies and would
- * immediately require a PECR consent banner; plain links set none. That is why
- * this site has no cookie banner — see /privacy/.
+ * ⚠️ Links, never embeds. An embedded feed sets third-party cookies as soon as
+ * the page loads, before the reader has chosen anything; plain links set none.
+ * The only cookies on this site are Google Analytics', set only after «قبول»
+ * in the consent banner — see site.analytics and /privacy/.
  */
 export function FollowRow({ className }: { className?: string }) {
   if (activeSocial.length === 0) return null;

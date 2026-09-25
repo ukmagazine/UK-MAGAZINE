@@ -12,15 +12,15 @@ export const metadata: Metadata = buildMetadata({
 });
 
 /**
- * ⚠️ This text is only true while the site sets no cookies and runs no
- * analytics. No PECR consent banner is required today precisely because there
- * is nothing to consent to, and a banner for cookies that do not exist trains
- * readers to dismiss consent UI.
+ * ⚠️ This text is only true while the only cookies and the only tracking on
+ * the site are Google Analytics 4, loaded solely after the reader accepts it
+ * in the consent banner (src/components/consent, src/lib/analytics.ts), with
+ * Google signals and ad personalisation off.
  *
- * If anything ever adds an analytics package, a third-party embed, a runtime
- * font/script/pixel from another domain, or client-side storage of reader
- * data, this page has to change in the SAME commit — and the consent question
- * has to be reopened.
+ * If anything ever adds another analytics package, a third-party embed, a
+ * runtime font/script/pixel from another domain, or client-side storage of
+ * reader data, this page has to change in the SAME commit — and it must go
+ * behind the same consent, or the consent question has to be reopened.
  */
 export default function PrivacyPage() {
   const trail = [

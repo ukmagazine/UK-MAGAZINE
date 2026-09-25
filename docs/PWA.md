@@ -46,6 +46,11 @@ News, so freshness wins over speed wherever content is involved.
 | Everything else same-origin | network first, cache fallback | `ukmag-static-v1` | — |
 | **Cross-origin** | **not intercepted at all** | — | — |
 
+Cross-origin includes Google Analytics (`www.googletagmanager.com`,
+`*.google-analytics.com`), which loads only after the reader accepts it in the
+consent banner. The worker never sees those requests, so it can never cache
+gtag.js or hold a hit after consent is withdrawn.
+
 Article photography is hotlinked from Unsplash. Those requests are left to the
 browser's own HTTP cache: opaque cross-origin responses cannot be inspected and
 are charged against the storage quota at a large padded size, so caching sixty
@@ -54,7 +59,8 @@ of them is a good way to be evicted entirely.
 `VERSION` in `sw.js` renames every cache; old ones are deleted on activate,
 matched by the `ukmag-` prefix so cleanup can never reach another origin's
 storage. **Reader data is never touched** — bookmarks (`ukmagazine:bookmarks`),
-recent searches and the prompt cooldowns live in `localStorage`, which this
+recent searches, the analytics consent choice (`ukmag:consent:analytics`) and
+the prompt cooldowns live in `localStorage`, which this
 worker does not and cannot clear.
 
 Bump `VERSION` only when the caching logic changes. It is not tied to the build
