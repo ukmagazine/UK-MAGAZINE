@@ -28,7 +28,7 @@ const EXIT_MS = 340;
  * Implemented as a modal dialog: focus moves into the panel on open, Escape
  * closes it, Tab is trapped inside, and the page behind it cannot scroll.
  *
- * Lists `footerCategories` — the ten navigation desks plus `spotlight`. Hidden
+ * Lists `footerCategories` — the twelve navigation desks, in NAV_ORDER. Hidden
  * desks are navigation, footer and index invisible; this is navigation.
  */
 export function MobileMenu({ open, onClose }: MobileMenuProps) {
