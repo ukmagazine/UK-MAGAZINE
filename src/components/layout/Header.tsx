@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Bookmark, Menu, Search } from 'lucide-react';
+import { Bookmark, Instagram, Menu, Search } from 'lucide-react';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { MobileMenu } from '@/components/layout/MobileMenu';
 import { useBookmarks } from '@/components/providers/BookmarksProvider';
@@ -13,7 +13,7 @@ import { categoryShortName } from '@/i18n/category';
 import { fill } from '@/i18n/dictionaries';
 import { Wordmark } from '@/components/ui/Wordmark';
 import { primaryNavCategories } from '@/data/categories';
-import { site } from '@/data/site';
+import { instagramChannel, site } from '@/data/site';
 import { cn, isActivePath } from '@/lib/utils';
 
 /**
@@ -232,6 +232,19 @@ export function Header() {
               >
                 <Search aria-hidden="true" className="h-5 w-5" />
               </button>
+
+              {/* A plain link, never an embed — see `site.social`. */}
+              {instagramChannel ? (
+                <a
+                  href={instagramChannel.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="UK Magazine در Instagram"
+                  className={iconButton}
+                >
+                  <Instagram aria-hidden="true" className="h-5 w-5" />
+                </a>
+              ) : null}
 
               {site.features.bookmarks ? (
                 <Link
