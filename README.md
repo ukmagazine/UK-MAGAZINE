@@ -212,6 +212,12 @@ most Persian display fonts are not free).
 The «تیم ما» section on `/about/` is driven by `src/data/team.ts`. Article bylines are not
 affected; they stay the house byline in `src/data/authors.ts`.
 
+**Currently hidden** — every entry, the founder's included, is set to `visible: false`, so the whole
+section (heading and cards) is left out of `/about/` and the founder is left out of the
+organisation's structured data. To switch it back on, open `src/data/team.ts` and change
+`visible: false` to `visible: true` on the founder's entry («محمدرضا علی یاری»). Nothing else needs
+to change.
+
 **Adding the founder's photo** — upload a square JPEG named exactly `founder.jpg` into the folder
 `public/team/` (on GitHub: open `public/team/` → *Add file* → *Upload files*), so the full path is
 `public/team/founder.jpg`. The filename is case-sensitive: `Founder.JPG` will not be found. Nothing

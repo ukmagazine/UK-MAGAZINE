@@ -27,7 +27,10 @@ export const team: TeamMember[] = [
     role: 'بنیان‌گذار و سردبیر',
     photo: '/team/founder.jpg',
     founder: true,
-    visible: true,
+    // Hidden for now, which removes the whole «تیم ما» section from /about/
+    // and the founder from the organisation's structured data. To show it
+    // again, change `false` back to `true`.
+    visible: false,
   },
   // Ready slots. Fill in and set `visible: true` to show them.
   { name: '', role: '', photo: '', visible: false },
