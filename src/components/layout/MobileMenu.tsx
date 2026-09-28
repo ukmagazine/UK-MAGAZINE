@@ -216,6 +216,14 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
             <ul className="space-y-2.5">
               <li>
                 <Link
+                  href="/services/"
+                  className="inline-flex min-h-[36px] items-center text-sm text-ink-soft transition-colors hover:text-brand-red"
+                >
+                  خدمات UK Magazine
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/about/"
                   className="inline-flex min-h-[36px] items-center text-sm text-ink-soft transition-colors hover:text-brand-red"
                 >

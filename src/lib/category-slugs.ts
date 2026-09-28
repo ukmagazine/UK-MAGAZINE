@@ -37,7 +37,7 @@ export const MANUAL_CATEGORY_SLUGS = ['guide', 'travel', 'spotlight', 'interview
  * the footer, and are always `noindex`. They are not deleted because switching
  * them on later costs less than re-adding them. See `hidden` in `Category`.
  */
-export const HIDDEN_CATEGORY_SLUGS = ['sports', 'ai', 'education', 'science'] as const;
+export const HIDDEN_CATEGORY_SLUGS = ['sports', 'ai', 'education', 'science', 'interviews'] as const;
 
 /** Desks with no content pipeline at all. Hidden, but still routable. */
 export const DORMANT_CATEGORY_SLUGS = ['ai', 'education', 'science'] as const;
