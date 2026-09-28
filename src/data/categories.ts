@@ -163,9 +163,21 @@ export const categories: Category[] = [
      * That is handled per article by `lang`, not by the desk — see the
      * `uk_lang` meta key and the interview branch of the article template.
      *
-     * Eleventh in NAV_ORDER since the launch re-order (owner decision). The
-     * row is width-measured, so on a laptop this desk usually lives in the
-     * «بیشتر» overflow; it stays in the mobile menu and the footer.
+     * HIDDEN until the first interview is ready (owner decision, launch week).
+     * The desk stays defined and routable: /category/interviews/ still
+     * resolves but is `noindex`, and the desk is out of the header, the menu
+     * panel, the footer, the homepage and the sitemap. It keeps its place
+     * (eleventh) in NAV_ORDER, so it comes back where it was.
+     *
+     * To switch it back on: set `hidden: false` (or delete the line) and
+     * `inPrimaryNav: true` here, AND remove 'interviews' from
+     * HIDDEN_CATEGORY_SLUGS in lib/category-slugs.ts. All three together.
+     *
+     * WARNING: switch the desk back on BEFORE publishing the first interview.
+     * While it is hidden, an interview published in WordPress will not appear
+     * anywhere on the site: no homepage, menu, footer, search listing or
+     * sitemap. Its own URL still builds, but it is `noindex` and nothing links
+     * to it.
      */
     slug: 'interviews',
     name: 'مصاحبه',
@@ -178,7 +190,8 @@ export const categories: Category[] = [
     // considered rather than decorative next to the brand purple.
     tint: '#7A4A22',
     topics: ['مدیرعامل', 'بنیان‌گذار', 'کارآفرینی', 'لندن', 'خدمات', 'سرمایه‌گذاری'],
-    inPrimaryNav: true,
+    inPrimaryNav: false,
+    hidden: true,
   },
 
   // ---------------------------------------------------------------- //
